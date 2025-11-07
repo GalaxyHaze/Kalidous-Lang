@@ -21,7 +21,7 @@ Nova is a general-purpose programming language designed for the next generation 
 ```nova
 import std.io;
 
-public main() -> void {
+void main() public {
     print("Hello, World!");
 }
 ```
