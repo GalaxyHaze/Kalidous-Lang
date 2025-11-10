@@ -64,26 +64,24 @@ namespace nova::file {
     }
 
     // ------------------------------------------------------------
-    [[nodiscard]] inline std::stringstream readFile(const fs::path& filePath) {
+    [[nodiscard]] inline std::string readFile(const fs::path& filePath) {
         validateExistence(filePath);
-        if (const auto size = fs::file_size(filePath); size == 0) {
-            throw std::runtime_error("File is empty: " + filePath.string());
-        }
+
+        const size_t fileSize = fs::file_size(filePath);
+        if (fileSize == 0) throw std::runtime_error("File is empty: " + filePath.string());
 
         std::ifstream file(filePath, std::ios::binary);
-        if (!file.is_open()) {
-            throw std::runtime_error("Could not open file: " + filePath.string());
-        }
+        if (!file.is_open()) throw std::runtime_error("Could not open file: " + filePath.string());
 
-        std::stringstream buffer;
-        buffer << file.rdbuf();
+        std::string content;
+        content.resize(fileSize);  // aloca memória de uma vez
 
-        if (file.fail() && !file.eof()) {
-            throw std::runtime_error("Failed to read file: " + filePath.string());
-        }
+        file.read(content.data(), static_cast<long>(fileSize));
+        if (!file) throw std::runtime_error("Failed to read file: " + filePath.string());
 
-        return buffer;
+        return content;  // retorna std::string por valor (move será otimizado pelo compilador)
     }
+
 
     // ------------------------------------------------------------
     inline std::string trim(std::string_view str) {
@@ -95,23 +93,22 @@ namespace nova::file {
     }
 
     // ------------------------------------------------------------
-    inline void debugInfo(const fs::path& filePath, const std::stringstream& buffer, const size_t lineShown = 10) {
+    inline void debugInfo(const fs::path& filePath, const std::string& buffer, const size_t lineShown = 10) {
         const std::string extension = filePath.extension().string();
-        const std::string content = buffer.str();
 
         std::cout << "=== File Information ===\n";
         std::cout << "Filename: " << filePath.filename() << "\n";
         std::cout << "Extension: " << extension << "\n";
-        std::cout << "Size: " << content.size() << " bytes\n";
-        size_t lines = std::ranges::count(content, '\n');
-        if (!content.empty() && content.back() != '\n') ++lines;
+        std::cout << "Size: " << buffer.size() << " bytes\n";
+        size_t lines = std::ranges::count(buffer, '\n');
+        if (!buffer.empty() && buffer.back() != '\n') ++lines;
         std::cout << "Lines: " << lines << "\n";
         std::cout << "Path: " << filePath << "\n";
         std::cout << "Content Preview:\n";
         std::cout << "----------------\n\n";
 
         // Show first few lines for large files
-        std::istringstream contentStream(content);
+        std::istringstream contentStream(buffer);
         std::string line;
         size_t lineCount = 0;
         while (std::getline(contentStream, line) && lineCount < lineShown) {
@@ -129,7 +126,7 @@ namespace nova::file {
 
     // ------------------------------------------------------------
     struct FileReadOptions {
-        bool debugEnabled = true;
+        bool debugEnabled = false;
         size_t maxPreviewLines = 10;
         bool validateExtension = true;
         std::vector<std::string> allowedExtensions = {".nova"};
@@ -141,11 +138,11 @@ namespace nova::file {
     };
 
     // ------------------------------------------------------------
-    inline std::stringstream readSource(const FileReadOptions& options = FileReadOptions{}) {
+    inline auto readSource(const FileReadOptions& options = FileReadOptions{}) {
         std::cout << "Insert your source file:\n";
         std::string src;
         std::getline(std::cin, src);
-        src = trim(src);
+        //src = trim(src);
 
         const fs::path filePath(src);
         validateExistence(filePath);
@@ -154,7 +151,7 @@ namespace nova::file {
             validateExtension(filePath, options.allowedExtensions);
         }
 
-        std::stringstream buffer = readFile(filePath);
+        auto buffer = readFile(filePath);
 
         if (options.debugEnabled) {
             debugInfo(filePath, buffer, options.maxPreviewLines);

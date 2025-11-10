@@ -14,6 +14,9 @@ struct Info {
 
     //size_t operator++(int) { return index++; }
     Info& operator++(int) { index++; return *this; }
+    [[nodiscard]] u_short get() const {
+        return index;
+    }
     Info& operator+=(const size_t offset) { index += offset; return *this; }
     explicit operator size_t() const { return index; }
 

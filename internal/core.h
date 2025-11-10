@@ -8,5 +8,6 @@
 #include "file.h"
 #include "tokens.h"
 #include "tokenizer.h"
+#include "debug.h"
 
 #endif //NOVA_CORE_H
