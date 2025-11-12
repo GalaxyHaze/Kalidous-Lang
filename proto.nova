@@ -3,12 +3,3 @@ int main() public {
     print("Hello world");
     return 0;
 }
-
-style
-
-
-site {
-    title: "Hello World in Nova language";
-    description: "A simple Nova program that prints 'Hello world' to the console.";
-
-}

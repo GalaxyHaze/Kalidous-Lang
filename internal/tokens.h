@@ -68,7 +68,8 @@ enum class Token : uint8_t {
     Colon,
     Semicolon,
 
-    Unknown // always nice to have a fallback
+    Unknown, // always nice to have a fallback
+    End
 };
 
 // --- Token Structure ---

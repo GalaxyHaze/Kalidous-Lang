@@ -8,6 +8,7 @@
 #include "file.h"
 #include "tokens.h"
 #include "tokenizer.h"
+#include "parser.h"
 //#include "TokenizerTurbo.h"  future feature for now is disabled
 #include "debug.h"
 

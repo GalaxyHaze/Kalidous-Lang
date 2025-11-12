@@ -131,7 +131,7 @@ namespace nova::file {
         bool validateExtension = true;
         std::vector<std::string> allowedExtensions = {".nova"};
 
-        explicit FileReadOptions(const bool debug = true, const size_t lines = 10, const bool validate = true,
+        explicit FileReadOptions(const bool debug = false, const size_t lines = 10, const bool validate = true,
                                  std::vector<std::string> extensions = {".nova"})
             : debugEnabled(debug), maxPreviewLines(lines),
               validateExtension(validate), allowedExtensions(std::move(extensions)) {}
