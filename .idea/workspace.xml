@@ -5,8 +5,6 @@
   </component>
   <component name="BackendCodeEditorMiscSettings">
     <option name="/Default/Housekeeping/FeatureSuggestion/FeatureSuggestionManager/DisabledSuggesters/=SwitchToGoToActionSuggester/@EntryIndexedValue" value="true" type="bool" />
-    <option name="/Default/Housekeeping/GlobalSettingsUpgraded/IsUpgraded/@EntryValue" value="true" type="bool" />
-    <option name="/Default/RiderDebugger/RiderRestoreDecompile/RestoreDecompileSetting/@EntryValue" value="false" type="bool" />
   </component>
   <component name="CMakePresetLoader">{
   &quot;useNewFormat&quot;: true
@@ -29,13 +27,10 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="4d1a8995-dd7d-4d08-8b1c-5652a506c8d1" name="Changes" comment="Add core.h header and update main.cpp to include core functionality">
-      <change beforePath="$PROJECT_DIR$/internal/core.h" beforeDir="false" afterPath="$PROJECT_DIR$/internal/core.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/file.h" beforeDir="false" afterPath="$PROJECT_DIR$/internal/file.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/helpers.h" beforeDir="false" afterPath="$PROJECT_DIR$/internal/helpers.h" afterDir="false" />
+    <list default="true" id="2b87c33e-4cb7-4044-b1b5-be9815a3fb95" name="Changes" comment="Improving tokenizer, implement otimizations into the maps">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/internal/parser.h" beforeDir="false" afterPath="$PROJECT_DIR$/internal/parser.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/tokens.h" beforeDir="false" afterPath="$PROJECT_DIR$/internal/tokens.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/proto.nova" beforeDir="false" afterPath="$PROJECT_DIR$/proto.nova" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/tokenizer.h" beforeDir="false" afterPath="$PROJECT_DIR$/internal/tokenizer.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -46,10 +41,9 @@
   <component name="ClangdSettings">
     <option name="formatViaClangd" value="false" />
   </component>
-  <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Release" />
+  <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Debug" />
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
-    <option name="UPDATE_TYPE" value="REBASE" />
   </component>
   <component name="GitHubPullRequestSearchHistory">{
   &quot;lastFilter&quot;: {
@@ -59,20 +53,24 @@
 }</component>
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/GalaxyHaze/Nova.git&quot;,
-    &quot;accountId&quot;: &quot;0b69d83c-10f1-4bab-bf69-a33abd873188&quot;
+    &quot;url&quot;: &quot;https://github.com/GalaxyHaze/Nova&quot;,
+    &quot;accountId&quot;: &quot;2f491464-9a61-46ca-8c1a-3e7def078770&quot;
   }
 }</component>
-  <component name="ProjectApplicationVersion">
-    <option name="ide" value="CLion" />
-    <option name="majorVersion" value="2025" />
-    <option name="minorVersion" value="2.4" />
-    <option name="productBranch" value="Classic" />
+  <component name="HighlightingSettingsPerFile">
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+  </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
   </component>
   <component name="ProjectColorInfo">{
-  &quot;associatedIndex&quot;: 7
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 3
 }</component>
-  <component name="ProjectId" id="353gQSjbTNEXo3q1YRiBNltDpyR" />
+  <component name="ProjectId" id="35CSrHmCnZWpSkYscGaYqRumV6s" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -87,36 +85,32 @@
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.readMode.enableVisualFormatting&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.west.config.association.type.startup.service&quot;: &quot;true&quot;,
-    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
     &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
     &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
-    &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultAutoModeForALLUsers.v1&quot;: &quot;true&quot;,
-    &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
     &quot;git-widget-placeholder&quot;: &quot;master&quot;,
-    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/dioguabo-rei-delas/Nova&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;onboarding.tips.debug.path&quot;: &quot;C:/Users/al24254/CLionProjects/Nova/main.cpp&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;CMakeSettings&quot;,
-    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
+    &quot;run.code.analysis.last.selected.profile&quot;: &quot;pProject Default&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;settings.codegpt.models&quot;,
+    &quot;settings.editor.splitter.proportion&quot;: &quot;0.2874618&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$" />
+    </key>
     <key name="MoveFile.RECENT_KEYS">
-      <recent name="C:\Users\al24254\CLionProjects\Nova\src" />
+      <recent name="$PROJECT_DIR$/internal" />
+      <recent name="$PROJECT_DIR$/internal/dense_map" />
     </key>
   </component>
   <component name="RunManager">
-    <configuration name="Nova" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" WORKING_DIR="file://$PROJECT_DIR$" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Nova" TARGET_NAME="Nova" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="Nova" RUN_TARGET_NAME="Nova">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
+    <configuration name="Nova" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Nova" TARGET_NAME="Nova" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="Nova" RUN_TARGET_NAME="Nova">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
@@ -124,98 +118,92 @@
   </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="4d1a8995-dd7d-4d08-8b1c-5652a506c8d1" name="Changes" comment="" />
-      <created>1762344153023</created>
+      <changelist id="2b87c33e-4cb7-4044-b1b5-be9815a3fb95" name="Changes" comment="" />
+      <created>1762555957548</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1762344153023</updated>
-      <workItem from="1762344154065" duration="2275000" />
-      <workItem from="1762510855707" duration="5593000" />
-      <workItem from="1762945430630" duration="4087000" />
+      <updated>1762555957548</updated>
+      <workItem from="1762555961508" duration="1377000" />
+      <workItem from="1762612763367" duration="3979000" />
+      <workItem from="1762622466328" duration="9093000" />
+      <workItem from="1762687429373" duration="2356000" />
+      <workItem from="1762690683057" duration="6317000" />
+      <workItem from="1762700401076" duration="14083000" />
+      <workItem from="1762725655450" duration="192000" />
+      <workItem from="1762726182313" duration="7320000" />
+      <workItem from="1762758442863" duration="5832000" />
+      <workItem from="1762768726729" duration="5528000" />
     </task>
-    <task id="LOCAL-00001" summary="Starting new project">
+    <task id="LOCAL-00001" summary="Enchancing file.h system">
       <option name="closed" value="true" />
-      <created>1762344321809</created>
+      <created>1762646231989</created>
       <option name="number" value="00001" />
       <option name="presentableId" value="LOCAL-00001" />
       <option name="project" value="LOCAL" />
-      <updated>1762344321809</updated>
+      <updated>1762646231990</updated>
     </task>
-    <task id="LOCAL-00002" summary="File source reading">
+    <task id="LOCAL-00002" summary="ALOT OF IMPROVEMENTS IN TOKENIZER">
       <option name="closed" value="true" />
-      <created>1762346364597</created>
+      <created>1762725118437</created>
       <option name="number" value="00002" />
       <option name="presentableId" value="LOCAL-00002" />
       <option name="project" value="LOCAL" />
-      <updated>1762346364597</updated>
+      <updated>1762725118437</updated>
     </task>
-    <task id="LOCAL-00003" summary="File source reading">
+    <task id="LOCAL-00003" summary="Improving tokenizer, implement otimizations into the maps">
       <option name="closed" value="true" />
-      <created>1762512140728</created>
+      <created>1762775156727</created>
       <option name="number" value="00003" />
       <option name="presentableId" value="LOCAL-00003" />
       <option name="project" value="LOCAL" />
-      <updated>1762512140728</updated>
+      <updated>1762775156727</updated>
     </task>
-    <task id="LOCAL-00004" summary="File source reading">
+    <task id="LOCAL-00004" summary="Improving tokenizer, implement otimizations into the maps">
       <option name="closed" value="true" />
-      <created>1762514525478</created>
+      <created>1762785389712</created>
       <option name="number" value="00004" />
       <option name="presentableId" value="LOCAL-00004" />
       <option name="project" value="LOCAL" />
-      <updated>1762514525478</updated>
+      <updated>1762785389712</updated>
     </task>
-    <task id="LOCAL-00005" summary="Add token and tokenizer headers; update CMakeLists.txt">
-      <option name="closed" value="true" />
-      <created>1762515106936</created>
-      <option name="number" value="00005" />
-      <option name="presentableId" value="LOCAL-00005" />
-      <option name="project" value="LOCAL" />
-      <updated>1762515106936</updated>
-    </task>
-    <task id="LOCAL-00006" summary="Add token and tokenizer headers; update CMakeLists.txt">
-      <option name="closed" value="true" />
-      <created>1762516418747</created>
-      <option name="number" value="00006" />
-      <option name="presentableId" value="LOCAL-00006" />
-      <option name="project" value="LOCAL" />
-      <updated>1762516418747</updated>
-    </task>
-    <task id="LOCAL-00007" summary="Add core.h header and update main.cpp to include core functionality">
-      <option name="closed" value="true" />
-      <created>1762516563723</created>
-      <option name="number" value="00007" />
-      <option name="presentableId" value="LOCAL-00007" />
-      <option name="project" value="LOCAL" />
-      <updated>1762516563723</updated>
-    </task>
-    <option name="localTasksCounter" value="8" />
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="UnknownFeatures">
+    <option featureType="com.intellij.fileTypeFactory" implementationName="*.nt" />
   </component>
   <component name="VCPKGProject">
     <isAutomaticCheckingOnLaunch value="false" />
     <isAutomaticFoundErrors value="true" />
     <isAutomaticReloadCMake value="true" />
   </component>
-  <component name="Vcs.Log.Tabs.Properties">
-    <option name="TAB_STATES">
-      <map>
-        <entry key="MAIN">
-          <value>
-            <State />
-          </value>
-        </entry>
-      </map>
-    </option>
-  </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Starting new project" />
-    <MESSAGE value="File source reading" />
-    <MESSAGE value="Add token and tokenizer headers; update CMakeLists.txt" />
-    <MESSAGE value="Add core.h header and update main.cpp to include core functionality" />
-    <option name="LAST_COMMIT_MESSAGE" value="Add core.h header and update main.cpp to include core functionality" />
+    <MESSAGE value="Enchancing file.h system" />
+    <MESSAGE value="ALOT OF IMPROVEMENTS IN TOKENIZER" />
+    <MESSAGE value="Improving tokenizer, implement otimizations into the maps" />
+    <option name="LAST_COMMIT_MESSAGE" value="Improving tokenizer, implement otimizations into the maps" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/internal/tokens.h</url>
+          <line>97</line>
+          <option name="timeStamp" value="3" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/src/main.cpp</url>
+          <line>8</line>
+          <option name="timeStamp" value="4" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
   </component>
 </project>

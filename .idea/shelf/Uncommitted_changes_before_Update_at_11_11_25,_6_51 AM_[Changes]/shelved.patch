@@ -1,0 +1,77 @@
+Index: src/main.cpp
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>#include \"../internal/core.h\"\n\nint main() {\n    const auto stream = nova::file::readSource();\n    //const auto tokens = Tokenizer::tokenize(stream);\n    auto poha =\"'ewwf\";\n    int i = static_cast<int>(*poha);\n    std::cout << i << std::endl;\n    //printTokens(tokens);\n\n}\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main.cpp b/src/main.cpp
+--- a/src/main.cpp	(revision 0114bf6be2e0506a320d80fcf50a5d7565a8887c)
++++ b/src/main.cpp	(date 1762843890600)
+@@ -3,9 +3,7 @@
+ int main() {
+     const auto stream = nova::file::readSource();
+     //const auto tokens = Tokenizer::tokenize(stream);
+-    auto poha ="'ewwf";
+-    int i = static_cast<int>(*poha);
+-    std::cout << i << std::endl;
++
+     //printTokens(tokens);
+ 
+ }
+Index: .idea/workspace.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<project version=\"4\">\n  <component name=\"AutoImportSettings\">\n    <option name=\"autoReloadType\" value=\"SELECTIVE\" />\n  </component>\n  <component name=\"BackendCodeEditorMiscSettings\">\n    <option name=\"/Default/Housekeeping/FeatureSuggestion/FeatureSuggestionManager/DisabledSuggesters/=SwitchToGoToActionSuggester/@EntryIndexedValue\" value=\"true\" type=\"bool\" />\n  </component>\n  <component name=\"CMakePresetLoader\">{\n  &quot;useNewFormat&quot;: true\n}</component>\n  <component name=\"CMakeProjectFlavorService\">\n    <option name=\"flavorId\" value=\"CMakePlainProjectFlavor\" />\n  </component>\n  <component name=\"CMakeReloadState\">\n    <option name=\"reloaded\" value=\"true\" />\n  </component>\n  <component name=\"CMakeRunConfigurationManager\">\n    <generated>\n      <config projectName=\"Nova\" targetName=\"Nova\" />\n    </generated>\n  </component>\n  <component name=\"CMakeSettings\">\n    <configurations>\n      <configuration PROFILE_NAME=\"Debug\" ENABLED=\"true\" CONFIG_NAME=\"Debug\" />\n      <configuration PROFILE_NAME=\"Release\" ENABLED=\"true\" CONFIG_NAME=\"Release\" />\n    </configurations>\n  </component>\n  <component name=\"ChangeListManager\">\n    <list default=\"true\" id=\"2b87c33e-4cb7-4044-b1b5-be9815a3fb95\" name=\"Changes\" comment=\"Improving tokenizer, implement otimizations into the maps\" />\n    <option name=\"SHOW_DIALOG\" value=\"false\" />\n    <option name=\"HIGHLIGHT_CONFLICTS\" value=\"true\" />\n    <option name=\"HIGHLIGHT_NON_ACTIVE_CHANGELIST\" value=\"false\" />\n    <option name=\"LAST_RESOLUTION\" value=\"IGNORE\" />\n  </component>\n  <component name=\"ClangdSettings\">\n    <option name=\"formatViaClangd\" value=\"false\" />\n  </component>\n  <component name=\"ExecutionTargetManager\" SELECTED_TARGET=\"CMakeBuildProfile:Debug\" />\n  <component name=\"Git.Settings\">\n    <option name=\"RECENT_GIT_ROOT_PATH\" value=\"$PROJECT_DIR$\" />\n  </component>\n  <component name=\"GitHubPullRequestSearchHistory\">{\n  &quot;lastFilter&quot;: {\n    &quot;state&quot;: &quot;OPEN&quot;,\n    &quot;assignee&quot;: &quot;GalaxyHaze&quot;\n  }\n}</component>\n  <component name=\"GithubPullRequestsUISettings\">{\n  &quot;selectedUrlAndAccountId&quot;: {\n    &quot;url&quot;: &quot;https://github.com/GalaxyHaze/Nova&quot;,\n    &quot;accountId&quot;: &quot;2f491464-9a61-46ca-8c1a-3e7def078770&quot;\n  }\n}</component>\n  <component name=\"HighlightingSettingsPerFile\">\n    <setting file=\"mock:///dummy.cpp\" root0=\"SKIP_HIGHLIGHTING\" />\n    <setting file=\"mock:///dummy.cpp\" root0=\"SKIP_HIGHLIGHTING\" />\n    <setting file=\"mock:///dummy.cpp\" root0=\"SKIP_HIGHLIGHTING\" />\n    <setting file=\"mock:///dummy.cpp\" root0=\"SKIP_HIGHLIGHTING\" />\n  </component>\n  <component name=\"ProblemsViewState\">\n    <option name=\"selectedTabId\" value=\"CurrentFile\" />\n  </component>\n  <component name=\"ProjectColorInfo\">{\n  &quot;customColor&quot;: &quot;&quot;,\n  &quot;associatedIndex&quot;: 3\n}</component>\n  <component name=\"ProjectId\" id=\"35CSrHmCnZWpSkYscGaYqRumV6s\" />\n  <component name=\"ProjectViewState\">\n    <option name=\"hideEmptyMiddlePackages\" value=\"true\" />\n    <option name=\"showLibraryContents\" value=\"true\" />\n  </component>\n  <component name=\"PropertiesComponent\"><![CDATA[{\n  \"keyToString\": {\n    \"CMake Application.Nova.executor\": \"Run\",\n    \"ModuleVcsDetector.initialDetectionPerformed\": \"true\",\n    \"RunOnceActivity.RadMigrateCodeStyle\": \"true\",\n    \"RunOnceActivity.ShowReadmeOnStart\": \"true\",\n    \"RunOnceActivity.cidr.known.project.marker\": \"true\",\n    \"RunOnceActivity.git.unshallow\": \"true\",\n    \"RunOnceActivity.readMode.enableVisualFormatting\": \"true\",\n    \"RunOnceActivity.west.config.association.type.startup.service\": \"true\",\n    \"cf.first.check.clang-format\": \"false\",\n    \"cidr.known.project.marker\": \"true\",\n    \"git-widget-placeholder\": \"master\",\n    \"last_opened_file_path\": \"/home/dioguabo-rei-delas/Nova\",\n    \"node.js.detected.package.eslint\": \"true\",\n    \"node.js.detected.package.tslint\": \"true\",\n    \"node.js.selected.package.eslint\": \"(autodetect)\",\n    \"node.js.selected.package.tslint\": \"(autodetect)\",\n    \"nodejs_package_manager_path\": \"npm\",\n    \"run.code.analysis.last.selected.profile\": \"pProject Default\",\n    \"settings.editor.selected.configurable\": \"settings.codegpt.models\",\n    \"settings.editor.splitter.proportion\": \"0.2874618\",\n    \"vue.rearranger.settings.migration\": \"true\"\n  }\n}]]></component>\n  <component name=\"RecentsManager\">\n    <key name=\"CopyFile.RECENT_KEYS\">\n      <recent name=\"$PROJECT_DIR$\" />\n    </key>\n    <key name=\"MoveFile.RECENT_KEYS\">\n      <recent name=\"$PROJECT_DIR$/internal\" />\n      <recent name=\"$PROJECT_DIR$/internal/dense_map\" />\n    </key>\n  </component>\n  <component name=\"RunManager\">\n    <configuration name=\"Nova\" type=\"CMakeRunConfiguration\" factoryName=\"Application\" REDIRECT_INPUT=\"false\" ELEVATE=\"false\" USE_EXTERNAL_CONSOLE=\"false\" EMULATE_TERMINAL=\"false\" PASS_PARENT_ENVS_2=\"true\" PROJECT_NAME=\"Nova\" TARGET_NAME=\"Nova\" CONFIG_NAME=\"Debug\" RUN_TARGET_PROJECT_NAME=\"Nova\" RUN_TARGET_NAME=\"Nova\">\n      <method v=\"2\">\n        <option name=\"com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask\" enabled=\"true\" />\n      </method>\n    </configuration>\n    <configuration default=\"true\" type=\"CMakeRunConfiguration\" factoryName=\"Application\" REDIRECT_INPUT=\"false\" ELEVATE=\"false\" USE_EXTERNAL_CONSOLE=\"false\" EMULATE_TERMINAL=\"false\" PASS_PARENT_ENVS_2=\"true\">\n      <method v=\"2\">\n        <option name=\"com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask\" enabled=\"true\" />\n      </method>\n    </configuration>\n  </component>\n  <component name=\"TaskManager\">\n    <task active=\"true\" id=\"Default\" summary=\"Default task\">\n      <changelist id=\"2b87c33e-4cb7-4044-b1b5-be9815a3fb95\" name=\"Changes\" comment=\"\" />\n      <created>1762555957548</created>\n      <option name=\"number\" value=\"Default\" />\n      <option name=\"presentableId\" value=\"Default\" />\n      <updated>1762555957548</updated>\n      <workItem from=\"1762555961508\" duration=\"1377000\" />\n      <workItem from=\"1762612763367\" duration=\"3979000\" />\n      <workItem from=\"1762622466328\" duration=\"9093000\" />\n      <workItem from=\"1762687429373\" duration=\"2356000\" />\n      <workItem from=\"1762690683057\" duration=\"6317000\" />\n      <workItem from=\"1762700401076\" duration=\"14083000\" />\n      <workItem from=\"1762725655450\" duration=\"192000\" />\n      <workItem from=\"1762726182313\" duration=\"7320000\" />\n      <workItem from=\"1762758442863\" duration=\"5832000\" />\n      <workItem from=\"1762768726729\" duration=\"5528000\" />\n    </task>\n    <task id=\"LOCAL-00001\" summary=\"Enchancing file.h system\">\n      <option name=\"closed\" value=\"true\" />\n      <created>1762646231989</created>\n      <option name=\"number\" value=\"00001\" />\n      <option name=\"presentableId\" value=\"LOCAL-00001\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1762646231990</updated>\n    </task>\n    <task id=\"LOCAL-00002\" summary=\"ALOT OF IMPROVEMENTS IN TOKENIZER\">\n      <option name=\"closed\" value=\"true\" />\n      <created>1762725118437</created>\n      <option name=\"number\" value=\"00002\" />\n      <option name=\"presentableId\" value=\"LOCAL-00002\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1762725118437</updated>\n    </task>\n    <task id=\"LOCAL-00003\" summary=\"Improving tokenizer, implement otimizations into the maps\">\n      <option name=\"closed\" value=\"true\" />\n      <created>1762775156727</created>\n      <option name=\"number\" value=\"00003\" />\n      <option name=\"presentableId\" value=\"LOCAL-00003\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1762775156727</updated>\n    </task>\n    <task id=\"LOCAL-00004\" summary=\"Improving tokenizer, implement otimizations into the maps\">\n      <option name=\"closed\" value=\"true\" />\n      <created>1762785389712</created>\n      <option name=\"number\" value=\"00004\" />\n      <option name=\"presentableId\" value=\"LOCAL-00004\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1762785389712</updated>\n    </task>\n    <option name=\"localTasksCounter\" value=\"5\" />\n    <servers />\n  </component>\n  <component name=\"TypeScriptGeneratedFilesManager\">\n    <option name=\"version\" value=\"3\" />\n  </component>\n  <component name=\"UnknownFeatures\">\n    <option featureType=\"com.intellij.fileTypeFactory\" implementationName=\"*.nt\" />\n  </component>\n  <component name=\"VCPKGProject\">\n    <isAutomaticCheckingOnLaunch value=\"false\" />\n    <isAutomaticFoundErrors value=\"true\" />\n    <isAutomaticReloadCMake value=\"true\" />\n  </component>\n  <component name=\"VcsManagerConfiguration\">\n    <MESSAGE value=\"Enchancing file.h system\" />\n    <MESSAGE value=\"ALOT OF IMPROVEMENTS IN TOKENIZER\" />\n    <MESSAGE value=\"Improving tokenizer, implement otimizations into the maps\" />\n    <option name=\"LAST_COMMIT_MESSAGE\" value=\"Improving tokenizer, implement otimizations into the maps\" />\n  </component>\n  <component name=\"XDebuggerManager\">\n    <breakpoint-manager>\n      <breakpoints>\n        <line-breakpoint enabled=\"true\" type=\"com.jetbrains.cidr.execution.debugger.OCBreakpointType\">\n          <url>file://$PROJECT_DIR$/internal/tokens.h</url>\n          <line>97</line>\n          <option name=\"timeStamp\" value=\"3\" />\n        </line-breakpoint>\n        <line-breakpoint enabled=\"true\" type=\"com.jetbrains.cidr.execution.debugger.OCBreakpointType\">\n          <url>file://$PROJECT_DIR$/src/main.cpp</url>\n          <line>8</line>\n          <option name=\"timeStamp\" value=\"4\" />\n        </line-breakpoint>\n      </breakpoints>\n    </breakpoint-manager>\n  </component>\n  <component name=\"XSLT-Support.FileAssociations.UIState\">\n    <expand />\n    <select />\n  </component>\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/workspace.xml b/.idea/workspace.xml
+--- a/.idea/workspace.xml	(revision 0114bf6be2e0506a320d80fcf50a5d7565a8887c)
++++ b/.idea/workspace.xml	(date 1762843890941)
+@@ -27,7 +27,9 @@
+     </configurations>
+   </component>
+   <component name="ChangeListManager">
+-    <list default="true" id="2b87c33e-4cb7-4044-b1b5-be9815a3fb95" name="Changes" comment="Improving tokenizer, implement otimizations into the maps" />
++    <list default="true" id="2b87c33e-4cb7-4044-b1b5-be9815a3fb95" name="Changes" comment="Improving tokenizer, implement otimizations into the maps">
++      <change beforePath="$PROJECT_DIR$/src/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.cpp" afterDir="false" />
++    </list>
+     <option name="SHOW_DIALOG" value="false" />
+     <option name="HIGHLIGHT_CONFLICTS" value="true" />
+     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+@@ -132,7 +134,7 @@
+       <workItem from="1762725655450" duration="192000" />
+       <workItem from="1762726182313" duration="7320000" />
+       <workItem from="1762758442863" duration="5832000" />
+-      <workItem from="1762768726729" duration="5528000" />
++      <workItem from="1762768726729" duration="5930000" />
+     </task>
+     <task id="LOCAL-00001" summary="Enchancing file.h system">
+       <option name="closed" value="true" />
+@@ -166,7 +168,15 @@
+       <option name="project" value="LOCAL" />
+       <updated>1762785389712</updated>
+     </task>
+-    <option name="localTasksCounter" value="5" />
++    <task id="LOCAL-00005" summary="Improving tokenizer, implement otimizations into the maps">
++      <option name="closed" value="true" />
++      <created>1762843861239</created>
++      <option name="number" value="00005" />
++      <option name="presentableId" value="LOCAL-00005" />
++      <option name="project" value="LOCAL" />
++      <updated>1762843861239</updated>
++    </task>
++    <option name="localTasksCounter" value="6" />
+     <servers />
+   </component>
+   <component name="TypeScriptGeneratedFilesManager">
+@@ -196,7 +206,7 @@
+         </line-breakpoint>
+         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+           <url>file://$PROJECT_DIR$/src/main.cpp</url>
+-          <line>8</line>
++          <line>6</line>
+           <option name="timeStamp" value="4" />
+         </line-breakpoint>
+       </breakpoints>

@@ -129,9 +129,9 @@ public:
         tokens.emplace_back(Token::Number, lexeme, info);
     }
 
-    [[nodiscard]] static auto tokenize(std::string_view src) noexcept {
+    [[nodiscard]] static auto tokenize(const std::string_view src) noexcept {
         std::vector<TokenType> tokens;
-        tokens.reserve(src.size() / 5);
+        tokens.reserve(src.size() / 3);
         Info info{};
 
         const char* current = src.data();
