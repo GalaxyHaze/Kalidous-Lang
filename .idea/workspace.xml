@@ -28,10 +28,22 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="2b87c33e-4cb7-4044-b1b5-be9815a3fb95" name="Changes" comment="Parser improvements">
+      <change afterPath="$PROJECT_DIR$/internal/perfect_hash.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/internal/tokens_map.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/editor.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/editor.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_11_11_25,_6_51 AM_[Changes]/shelved.patch" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_11_11_25__6_51AM__Changes_.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_11_12_25,_12_40 PM_[Changes]/shelved.patch" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_11_12_25__12_40PM__Changes_.xml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Type rules.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Type rules.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/TokenizerTurbo.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/core.h" beforeDir="false" afterPath="$PROJECT_DIR$/internal/core.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/debug.h" beforeDir="false" afterPath="$PROJECT_DIR$/internal/debug.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/maps.h" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/internal/parser.h" beforeDir="false" afterPath="$PROJECT_DIR$/internal/parser.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/tokenizer.h" beforeDir="false" afterPath="$PROJECT_DIR$/internal/tokenizer.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/tokens.h" beforeDir="false" afterPath="$PROJECT_DIR$/internal/tokens.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -53,8 +65,8 @@
 }</component>
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/GalaxyHaze/Nova&quot;,
-    &quot;accountId&quot;: &quot;2f491464-9a61-46ca-8c1a-3e7def078770&quot;
+    &quot;url&quot;: &quot;https://github.com/GalaxyHaze/Nova.git&quot;,
+    &quot;accountId&quot;: &quot;e52176d4-52d6-49e4-bd1a-2ea736edd5a2&quot;
   }
 }</component>
   <component name="HighlightingSettingsPerFile">
@@ -145,6 +157,8 @@
       <workItem from="1763138734716" duration="117000" />
       <workItem from="1763389071925" duration="67000" />
       <workItem from="1763389150258" duration="5000" />
+      <workItem from="1764588902240" duration="3330000" />
+      <workItem from="1764592253392" duration="50000" />
     </task>
     <task id="LOCAL-00001" summary="Enchancing file.h system">
       <option name="closed" value="true" />
@@ -212,7 +226,7 @@
       <breakpoints>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
           <url>file://$PROJECT_DIR$/internal/tokens.h</url>
-          <line>97</line>
+          <line>104</line>
           <option name="timeStamp" value="3" />
         </line-breakpoint>
       </breakpoints>

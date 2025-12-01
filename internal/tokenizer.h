@@ -5,7 +5,7 @@
 #include <vector>
 
 #include "helpers.h"
-#include "maps.h"
+#include "tokens_map.h"
 #include "tokens.h"
 
 class Tokenizer {
@@ -47,11 +47,11 @@ class Tokenizer {
     }
 
     static bool tryMatchOperator(const char*& current, const char* end,
-                                 std::vector<TokenType>& tokens, Info& info) noexcept {
+                                 std::vector<Token>& tokens, Info& info) noexcept {
         // Try 2-character operators first
         if (current + 1 < end) {
             const std::string_view twoCharOp(current, 2);
-            if (const auto token = lookupOperator(twoCharOp); token != Token::Unknown) {
+            if (const auto token = lookupOperator(twoCharOp); token != TokenType::Unknown) {
                 tokens.emplace_back(token, twoCharOp, info);
                 consume(info, current, 2);
                 return true;
@@ -60,7 +60,7 @@ class Tokenizer {
 
         // Try 1-character operators
         const std::string_view oneCharOp(current, 1);
-        if (const auto token = lookupOperator(oneCharOp); token != Token::Unknown) {
+        if (const auto token = lookupOperator(oneCharOp); token != TokenType::Unknown) {
             tokens.emplace_back(token, oneCharOp, info);
             consume(info, current);
             return true;
@@ -71,7 +71,7 @@ class Tokenizer {
 
 public:
     static void processIdentifierAndKeyword(const char*& current, const char* end,
-                                            std::vector<TokenType>& tokens, Info& info) noexcept {
+                                            std::vector<Token>& tokens, Info& info) noexcept {
         const char* const lexemeStart = current;
 
         while (has(current, end) &&
@@ -81,16 +81,16 @@ public:
 
         const std::string_view lexeme(lexemeStart, static_cast<size_t>(current - lexemeStart));
 
-        if (const auto keyword = lookupKeyword(lexeme); keyword != Token::Unknown) {
+        if (const auto keyword = lookupKeyword(lexeme); keyword != TokenType::Unknown) {
             tokens.emplace_back(keyword, lexeme, info);
             return;
         }
 
-        tokens.emplace_back(Token::Identifier, lexeme, info);
+        tokens.emplace_back(TokenType::Identifier, lexeme, info);
     }
 
     static void processString(const char*& current, const char* end,
-                              std::vector<TokenType>& tokens, Info& info) noexcept {
+                              std::vector<Token>& tokens, Info& info) noexcept {
         const char* const lexemeStart = current;
         consume(info, current); // skip opening quote
         bool ended = false;
@@ -112,10 +112,10 @@ public:
             lexError(info, "Unterminated string at line ");
 
         const std::string_view lexeme(lexemeStart, static_cast<size_t>(current - lexemeStart));
-        tokens.emplace_back(Token::String, lexeme, info);
+        tokens.emplace_back(TokenType::String, lexeme, info);
     }
 
-    static void processNumber(const char*& current, const char * end, std::vector<TokenType>& tokens, Info info) {
+    static void processNumber(const char*& current, const char * end, std::vector<Token>& tokens, Info info) {
         const auto lexemeStart = current;
         consume(info, current);
         while (has(current, end)) {
@@ -126,11 +126,11 @@ public:
             break;
         }
         const auto lexeme = std::string_view(lexemeStart, static_cast<size_t>(current - lexemeStart));
-        tokens.emplace_back(Token::Number, lexeme, info);
+        tokens.emplace_back(TokenType::Number, lexeme, info);
     }
 
     [[nodiscard]] static auto tokenize(const std::string_view src) noexcept {
-        std::vector<TokenType> tokens;
+        std::vector<Token> tokens;
         tokens.reserve(src.size() / 3);
         Info info{};
 
@@ -184,7 +184,7 @@ public:
             }
 
             // Unknown token
-            tokens.emplace_back(Token::Unknown, std::string_view(current, 1), info);
+            tokens.emplace_back(TokenType::Unknown, std::string_view(current, 1), info);
             consume(info, current);
         }
 

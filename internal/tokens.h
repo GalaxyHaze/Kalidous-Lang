@@ -18,7 +18,7 @@ struct Info {
     [[nodiscard]] u_short get() const {
         return index;
     }
-    Info& operator+=(const size_t offset) { index += offset; return *this; }
+    Info& operator+=(const u_short offset) { index += offset; return *this; }
     explicit operator size_t() const { return index; }
 
     void newLine() {
@@ -32,12 +32,12 @@ struct Info {
     }
 };
 
-// --- Token Types ---
-enum class Token : uint8_t {
+// --- TokenType Types ---
+enum class TokenType : uint8_t {
 
-    String,
-    Number,
-    Type,
+    String,//literal, string is not a type
+    Number,//literal
+    Type,//shall I do tokens for each type? I mean, the Token still store a string_view
     Identifier,
     Modifier,
 
@@ -48,6 +48,12 @@ enum class Token : uint8_t {
     Minus,
     Multiply,
     Divide,
+
+    //infer type
+    Const,
+    Let,
+    Auto,
+    Mutable,
 
     GreaterThan,
     LessThan,
@@ -69,16 +75,17 @@ enum class Token : uint8_t {
     Semicolon,
 
     Unknown, // always nice to have a fallback
-    End
+    Return,
+    End, If, Else, While, For, In, Arrow, PlusEqual, MinusEqual, MultiplyEqual, DivideEqual, Dot, Dots, Switch, Struct, Enum, Union, Family, Break, Continue
 };
 
-// --- Token Structure ---
-struct TokenType {
+// --- TokenType Structure ---
+struct Token {
     const std::string_view value{};
     const Info info{};
-    const Token token = Token::Unknown;
+    const TokenType token = TokenType::Unknown;
 
-    explicit TokenType(const Token token, const std::string_view& value, const Info info)
+    explicit Token(const TokenType token, const std::string_view& value, const Info info)
         : value(value), info(info), token(token) {}
 };
 
