@@ -10,27 +10,43 @@ typedef unsigned short u_short;
 
 // --- Info ---
 struct Info {
-    u_short index{1};
-    u_short line{1};
+    size_t index{0};   // 0-based column/offset
+    size_t line{1};    // human-friendly line number (start at 1)
 
-    //size_t operator++(int) { return index++; }
-    Info& operator++(int) { index++; return *this; }
-    [[nodiscard]] u_short get() const {
-        return index;
+    // Prefix increment: ++info -> increments and returns reference
+    Info& operator++() noexcept {
+        ++index;
+        return *this;
     }
-    Info& operator+=(const u_short offset) { index += offset; return *this; }
-    explicit operator size_t() const { return index; }
 
-    void newLine() {
+    // Postfix increment: info++ -> returns copy before increment
+    Info operator++(int) noexcept {
+        const Info tmp = *this;
+        ++index;
+        return tmp;
+    }
+
+    // Add offset
+    Info& operator+=(const size_t offset) noexcept {
+        index += offset;
+        return *this;
+    }
+
+    [[nodiscard]] size_t get() const noexcept { return index; }
+
+    explicit operator size_t() const noexcept { return index; }
+
+    void newLine() noexcept {
         ++line;
-        index = 1;
+        index = 0; // reset to 0 for the new line
     }
 
-    void newLine(const size_t size) {
-        line += size;
-        index = 1;
+    void newLine(size_t n) noexcept {
+        line += n;
+        index = 0;
     }
 };
+
 
 // --- TokenType Types ---
 enum class TokenType : uint8_t {
@@ -76,7 +92,8 @@ enum class TokenType : uint8_t {
 
     Unknown, // always nice to have a fallback
     Return,
-    End, If, Else, While, For, In, Arrow, PlusEqual, MinusEqual, MultiplyEqual, DivideEqual, Dot, Dots, Switch, Struct, Enum, Union, Family, Break, Continue, Mod, Entity, Float
+    End, If, Else, While, For, In, Arrow, PlusEqual, MinusEqual, MultiplyEqual, DivideEqual, Dot, Dots, Switch, Struct,
+    Enum, Union, Family, Break, Continue, Mod, Entity, Float
 };
 
 // --- TokenType Structure ---

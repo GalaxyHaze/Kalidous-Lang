@@ -115,7 +115,7 @@ class Tokenizer {
         const char* suffixStart = current;
         while (has(current, end) && isAlpha(*current)) consume(info, current);
         if (suffixStart != current) {
-            std::string_view suffix = std::string_view(suffixStart, current - suffixStart);
+            auto suffix = std::string_view(suffixStart, current - suffixStart);
             if (lookupToken(suffix) == TokenType::Type) {  // Reuse! Types are in table
                 // Enhance: Could store suffix type in Token, but for now lexeme includes it
             } else {
@@ -137,14 +137,14 @@ public:
      [[nodiscard]] static auto tokenize(const std::string_view src) noexcept {
         std::vector<Token> tokens;
         std::vector<LexError> errors;  // Collect for user
-        tokens.reserve(src.size() / 4);  // Slightly better avg (accounts for numbers/strings)
+        tokens.reserve(src.size() / 3 + 1);  // Slightly better avg (accounts for numbers/strings)
         Info info{};
         const char* current = src.data();
         const char* end = src.data() + src.size();
 
         while (has(current, end)) {
             const char c = *current;
-            info++;  // If Info tracks col, etc.
+            //info++;  // If Info tracks col, etc.
 
             // Whitespace
             if (isSpace(c)) {
@@ -164,26 +164,6 @@ public:
                 continue;
             }
 
-            // Potential keyword/operator/punct: Try longest possible prefix
-            // Creatively: Probe up to 3 chars (your longest is 3: ...), use lookupToken
-            /*const size_t maxLen = std::min<size_t>(3, end - current);  // Adjust if add longer ops
-            std::string_view candidate;
-            size_t matchLen = 0;
-            auto type = TokenType::Unknown;
-            for (size_t len = maxLen; len >= 1; --len) {  // Longest first!
-                candidate = std::string_view(current, len);
-                type = lookupToken(candidate);
-                if (type != TokenType::Unknown) {
-                    matchLen = len;
-                    break;
-                }
-            }
-            if (matchLen > 0) {
-                tokens.emplace_back(type, candidate, info);
-                consume(info, current, matchLen);
-                continue;
-            }*/
-
             // Identifier/keyword
             if (isAlpha(c) || c == '_') {
                 processIdentifierOrKeyword(current, end, tokens, info);
@@ -202,8 +182,26 @@ public:
                 continue;
             }
 
+            const size_t maxLen = std::min<size_t>(3, end - current);  // Adjust if add longer ops
+            std::string_view candidate;
+            size_t matchLen = 0;
+            TokenType type;
+            for (size_t len = maxLen; len > 0; --len) {  // Longest first!
+                candidate = std::string_view(current, len);
+                type = lookupToken(candidate);
+                if (type != TokenType::Unknown) {
+                    matchLen = len;
+                    break;
+                }
+            }
+            if (matchLen > 0) {
+                tokens.emplace_back(type, candidate, info);
+                consume(info, current, matchLen);
+                continue;
+            }
+
             // Fallback unknown
-            addError(errors, "Unknown character '", info);  // + std::string(1,c)
+            addError(errors, std::string("Unknown character '") + c + "' at line ", info);
             tokens.emplace_back(TokenType::Unknown, std::string_view(current, 1), info);
             consume(info, current);
         }

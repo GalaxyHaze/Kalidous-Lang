@@ -1,7 +1,7 @@
 #include "../internal/core.h"
 
 void* operator new(const size_t s){
-    std::cerr << "Allocating memory for " << s << " bytes: " << s << '\n';
+    std::cerr << "Allocating memory for " << s << " bytes: " <<  '\n';
     return malloc(s);
 }
 
