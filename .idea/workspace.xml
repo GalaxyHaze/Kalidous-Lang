@@ -27,11 +27,7 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2b87c33e-4cb7-4044-b1b5-be9815a3fb95" name="Changes" comment="Perfect hasher update">
-      <change beforePath="$PROJECT_DIR$/internal/tokenizer.h" beforeDir="false" afterPath="$PROJECT_DIR$/internal/tokenizer.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/tokens_map.h" beforeDir="false" afterPath="$PROJECT_DIR$/internal/tokens_map.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test.nova" beforeDir="false" afterPath="$PROJECT_DIR$/test.nova" afterDir="false" />
-    </list>
+    <list default="true" id="2b87c33e-4cb7-4044-b1b5-be9815a3fb95" name="Changes" comment="Perfect hasher update" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -178,7 +174,7 @@
       <workItem from="1764670328113" duration="142000" />
       <workItem from="1764673830254" duration="147000" />
       <workItem from="1764685642125" duration="4402000" />
-      <workItem from="1764762316334" duration="1496000" />
+      <workItem from="1764762316334" duration="1541000" />
     </task>
     <task id="LOCAL-00001" summary="Enchancing file.h system">
       <option name="closed" value="true" />
@@ -276,7 +272,15 @@
       <option name="project" value="LOCAL" />
       <updated>1764766830707</updated>
     </task>
-    <option name="localTasksCounter" value="13" />
+    <task id="LOCAL-00013" summary="Perfect hasher update">
+      <option name="closed" value="true" />
+      <created>1764767328638</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1764767328638</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
