@@ -69,32 +69,95 @@ namespace internal {
         std::vector<Token>& tokens, std::vector<LexError>& errors,
         Info& info) noexcept
         {
+            const auto startInfo = info;
             const char* start = current;
             consume(info, current);  // Skip "
             while (has(current, end)) {
-                if (*current == '\\') {  // Basic escapes
-                    consume(info, current);
-                    if (has(current, end)) consume(info, current);
-                    continue;
-                }
                 if (*current == '"') {
                     consume(info, current);
-                    tokens.emplace_back(TokenType::String, std::string_view(start, current - start), info);
+                    tokens.emplace_back(TokenType::String, std::string_view(start, current - start), startInfo);
                     return;
                 }
                 if (*current == '\n') info.newLine();
                 consume(info, current);
             }
-            addError(errors, "Unterminated string at line ", info);
+            errors.emplace_back("Unterminated string at line ", info);
             tokens.emplace_back(TokenType::String, std::string_view(start, current - start), info);  // Partial
         }
 
-        // Enhanced number: integers, floats, suffixes (u8/i64/f32 etc.), hex(0x)/bin(0b), _ separators
-        // Creatively: Parse value at compile-time if small (for constants), but here just lexeme + infer type if suffix
+        //TODO: other type of numbers
         static void processNumber(const char*& current, const char* end,
-                                                std::vector<Token>& tokens, Info& info) noexcept {
+        std::vector<Token>& tokens, Info& info, std::vector<LexError>& errors) noexcept {
             const char* start = current;
-            bool isFloat = false;
+            const auto startInfo = info;
+            //Hexadecimal
+            if (*start != '0' && start[1] != 'x' || start[1] != 'X') {
+                consume(info, current, 2);
+                auto valid = false;
+                while (has(current, end)) {
+                    switch (*current) {
+                            case '0':
+                                case '1':
+                                case '2':
+                                case '3':
+                                case '4':
+                                case '5':
+                                case '6':
+                                case '7':
+                                case '8':
+                                case '9':
+                            case 'A':
+                                case 'B':
+                                case 'C':
+                                case 'D':
+                                case 'E':
+                                case 'F':
+                            case 'a':
+                                case 'b':
+                                case 'c':
+                                case 'd':
+                                case 'e':
+                                case 'f':
+                            valid = true;
+                            consume(info, current);
+                            break;
+                            default:
+                            if (!valid)
+                                errors.emplace_back("Error: the actual Hexadecimal number isn't valid: ");
+                            tokens.emplace_back(TokenType::Hexadecimal, std::string_view(start, current), info);
+                            return;
+                    }
+                }
+            }
+            //Octal
+            if (*start != '0' && start[1] != 'b' || start[1] != 'X') {
+                consume(info, current, 2);
+                auto valid = false;
+                while (has(current, end)) {
+                    switch (*current) {
+                        case '0':
+                        case '1':
+                        case '2':
+                        case '3':
+                        case '4':
+                        case '5':
+                        case '6':
+                        case '7':
+                            valid = true;
+                            consume(info, current);
+                            break;
+                        default:
+                            if (!valid)
+                                errors.emplace_back("Error: the actual Octonal number isn't valid: ");
+                            tokens.emplace_back(TokenType::Octonal, std::string_view(start, current), info);
+                            return;
+                    }
+                }
+            }
+
+
+
+            /*bool isFloat = false;
             bool isHex = false, isBin = false;
 
             if (*current == '0' && lookAhead(current, end) >= 'a' && lookAhead(current, end) <= 'z') {  // Prefix
@@ -123,7 +186,7 @@ namespace internal {
 
             const std::string_view lexeme(start, current - start);
             const TokenType type = isFloat ? TokenType::Float : TokenType::Number;  // Or unify, add Float if needed
-            tokens.emplace_back(type, lexeme, info);
+            tokens.emplace_back(type, lexeme, info);*/
         }
 
         // Removed tryMatchOperator — unified into main loop!
@@ -192,15 +255,15 @@ namespace internal {
                 }
 
                 if (c == '/' && lookAhead(current, end) == '*') {
-                    skipMultiLine(info, current, end);
-                    if (current >= end) addError(errors, "Unterminated multi-line comment at line ", info);
+                    skipMultiLine(info, current, end, errors);
+                    if (current >= end) errors.emplace_back("Unterminated multi-line comment at line ", info);
                     continue;
                 }
 
                 if (punctuation(current, end, tokens, info))
                     continue;
 
-                // Identifier/keyword
+                // Identifier / variables
                 if (isAlpha(c) || c == '_') {
                     processIdentifier(current, end, tokens, info);
                     continue;

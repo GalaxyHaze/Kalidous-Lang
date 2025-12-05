@@ -39,9 +39,4 @@ inline void lexError(const Info& info, const std::string_view msg) {
     std::abort();
 }
 
-
-
-
-
-
 #endif //NOVA_HELPERS_H
