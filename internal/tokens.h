@@ -42,7 +42,7 @@ struct Info {
         index = 1;
     }
 
-    void newLine(size_t n) noexcept {
+    void newLine(const size_t n) noexcept {
         line += n;
         index = 0;
     }
@@ -94,7 +94,7 @@ enum class TokenType : uint8_t {
     Unknown, // always nice to have a fallback
     Return,
     End, If, Else, While, For, In, Arrow, PlusEqual, MinusEqual, MultiplyEqual, DivideEqual, Dot, Dots, Switch, Struct,
-    Enum, Union, Family, Break, Continue, Mod, Entity, Float, Not, Hexadecimal, Octonal
+    Enum, Union, Family, Break, Continue, Mod, Entity, Float, Not, Hexadecimal, Octonal, Binary
 };
 
 // --- TokenType Structure ---

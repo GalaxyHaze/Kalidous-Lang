@@ -6,8 +6,8 @@ void* operator new(const size_t s){
 }
 
 int main() {
-    const auto stream = nova::file::readSource();
-    const auto tokens = Tokenizer::tokenize(stream);
+    const auto stream = internal::nova::file::readSource();
+    const auto tokens = internal::Tokenizer::tokenize(stream);
     //const auto Tree = parse(tokens);
     //printTree(Tree);
     printTokens(tokens);
