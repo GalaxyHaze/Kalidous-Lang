@@ -3,6 +3,9 @@
 
 #include <string_view>
 #include <vector>
+#include <iostream> // Added for std::cerr
+#include <cstdlib>  // Added for std::abort
+#include <cctype>   // Added for standard character checks
 
 #include "helpers.h"
 #include "tokens_map.h"
@@ -11,7 +14,7 @@
 namespace internal {
     class Tokenizer {
         struct LexError {
-            std::string_view message;
+            std::string message; // Changed from string_view to string to fix dangling reference bug
             Info info;
         };
 
@@ -35,11 +38,12 @@ namespace internal {
         }
 
         static void skipMultiLine(Info& info, const char*& current, const char* end, std::vector<LexError>& errors) noexcept {
-            Info startInfo = info;
-            consume(info, current, 2);
+            const Info startInfo = info;
+            consume(info, current, 2); // Skip /*
+
             while (has(current, end)) {
                 if (*current == '*' && lookAhead(current, end) == '/') {
-                    consume(info, current, 2);
+                    consume(info, current, 2); // Skip */
                     return;
                 }
                 if (*current == '\n')
@@ -47,12 +51,13 @@ namespace internal {
 
                 consume(info, current);
             }
-            errors.emplace_back("Unterminated multi-line comment at line ", startInfo);
+            // If we reach here, the comment was not terminated
+            errors.emplace_back(LexError{"Unterminated multi-line comment starting at line " + std::to_string(startInfo.line), startInfo});
         }
 
-        /*static void addError(std::vector<LexError>& errors, const std::string& msg, const Info& info) noexcept {
-            errors.emplace_back(LexError{msg + std::to_string(info.line), info});
-        }*/
+        static void addError(std::vector<LexError>& errors, const std::string& msg, const Info& info) noexcept {
+            errors.emplace_back(LexError{msg, info});
+        }
 
         static void processIdentifier(const char*& current, const char* end,
         std::vector<Token>& tokens, Info& info) noexcept {
@@ -61,140 +66,114 @@ namespace internal {
                 consume(info, current);
             }
             const std::string_view lexeme(start, static_cast<size_t>(current - start));
-            tokens.emplace_back(TokenType::Identifier, lexeme, info);
+
+            // Check if it is a keyword
+            TokenType type = lookupToken(lexeme);
+            if (type == TokenType::Identifier) {
+                 // If lookup returned Identifier (or Unknown if that's your default), ensure it's set to Identifier
+                 // Assuming lookupToken returns TokenType::Identifier if not found as keyword
+                 type = TokenType::Identifier;
+            }
+
+            tokens.emplace_back(type, lexeme, info);
         }
 
-        //TODO: Escape sequences, multiline strings etc.
         static void processString(const char*& current, const char* end,
         std::vector<Token>& tokens, std::vector<LexError>& errors,
         Info& info) noexcept
         {
             const auto startInfo = info;
             const char* start = current;
-            consume(info, current);  // Skip "
+            consume(info, current);  // Skip opening "
+
             while (has(current, end)) {
                 if (*current == '"') {
-                    consume(info, current);
+                    consume(info, current); // Skip closing "
                     tokens.emplace_back(TokenType::String, std::string_view(start, current - start), startInfo);
                     return;
                 }
+
+                // Basic escape sequence handling (prevent \" from terminating string)
+                if (*current == '\\') {
+                    consume(info, current); // Skip backslash
+                    if (has(current, end)) {
+                         consume(info, current); // Skip escaped char
+                         continue;
+                    }
+                }
+
                 if (*current == '\n') info.newLine();
                 consume(info, current);
             }
-            errors.emplace_back("Unterminated string at line ", info);
+
+            addError(errors, "Unterminated string at line " + std::to_string(info.line), info);
             tokens.emplace_back(TokenType::String, std::string_view(start, current - start), info);  // Partial
         }
 
-        //TODO: other type of numbers
         static void processNumber(const char*& current, const char* end,
         std::vector<Token>& tokens, Info& info, std::vector<LexError>& errors) noexcept {
             const char* start = current;
             const auto startInfo = info;
-            //Hexadecimal
-            if (*start != '0' && start[1] != 'x' || start[1] != 'X') {
-                consume(info, current, 2);
-                auto valid = false;
-                while (has(current, end)) {
-                    switch (*current) {
-                            case '0':
-                                case '1':
-                                case '2':
-                                case '3':
-                                case '4':
-                                case '5':
-                                case '6':
-                                case '7':
-                                case '8':
-                                case '9':
-                            case 'A':
-                                case 'B':
-                                case 'C':
-                                case 'D':
-                                case 'E':
-                                case 'F':
-                            case 'a':
-                                case 'b':
-                                case 'c':
-                                case 'd':
-                                case 'e':
-                                case 'f':
-                            valid = true;
-                            consume(info, current);
-                            break;
-                            default:
-                            if (!valid)
-                                errors.emplace_back("Error: the actual Hexadecimal number isn't valid: ");
-                            tokens.emplace_back(TokenType::Hexadecimal, std::string_view(start, current), info);
-                            return;
-                    }
-                }
-            }
-            //Octal
-            if (*start != '0' && start[1] != 'b' || start[1] != 'X') {
-                consume(info, current, 2);
-                auto valid = false;
-                while (has(current, end)) {
-                    switch (*current) {
-                        case '0':
-                        case '1':
-                        case '2':
-                        case '3':
-                        case '4':
-                        case '5':
-                        case '6':
-                        case '7':
-                            valid = true;
-                            consume(info, current);
-                            break;
-                        default:
-                            if (!valid)
-                                errors.emplace_back("Error: the actual Octonal number isn't valid: ");
-                            tokens.emplace_back(TokenType::Octonal, std::string_view(start, current), info);
-                            return;
-                    }
+
+            bool isHex = false;
+            bool isBin = false;
+            bool isFloat = false;
+
+            // Check Prefixes
+            if (*current == '0' && has(current + 1, end)) {
+                char next = toLower(*(current + 1));
+                if (next == 'x') {
+                    isHex = true;
+                    consume(info, current, 2); // Skip 0x
+                } else if (next == 'b') {
+                    isBin = true;
+                    consume(info, current, 2); // Skip 0b
                 }
             }
 
-
-
-            /*bool isFloat = false;
-            bool isHex = false, isBin = false;
-
-            if (*current == '0' && lookAhead(current, end) >= 'a' && lookAhead(current, end) <= 'z') {  // Prefix
-                if (const char prefix = toLower(lookAhead(current, end)); prefix == 'x') { isHex = true; consume(info, current, 2); }
-                else if (prefix == 'b') { isBin = true; consume(info, current, 2); }
-            }
-
+            // Parse Digits
             while (has(current, end)) {
-                if (*current == '.') { if (isFloat) break; isFloat = true; }  // Only one .
-                else if (*current == '_') {}  // Ignore
-                else if (!isAlphaNum(*current) || (isHex && !isxdigit(*current)) || (isBin && *current != '0' && *current != '1')) break;
+                char c = *current;
+
+                // Handle separators (e.g. 1_000)
+                if (c == '_') {
+                    consume(info, current);
+                    continue;
+                }
+
+                if (isHex) {
+                    if (!isxdigit(c)) break;
+                } else if (isBin) {
+                    if (c != '0' && c != '1') break;
+                } else {
+                    // Decimal logic
+                    if (c == '.') {
+                        // Prevent double dots like 1.2.3
+                        if (isFloat) break;
+                        // Ensure dot is followed by digit
+                        if (!has(current + 1, end) || !isdigit(*(current + 1))) break;
+
+                        isFloat = true;
+                    } else if (!isdigit(c)) {
+                        break;
+                    }
+                }
                 consume(info, current);
             }
 
-            // Suffix: match known types (longest first, via lookupToken but manual for perf)
-            const char* suffixStart = current;
-            while (has(current, end) && isAlpha(*current)) consume(info, current);
-            if (suffixStart != current) {
-                if (auto suffix = std::string_view(suffixStart, current - suffixStart); lookupToken(suffix) == TokenType::Type) {  // Reuse! Types are in table
-                    // Enhance: Could store suffix type in Token, but for now lexeme includes it
-                } else {
-                    current = suffixStart;  // Not a type suffix, rewind
-                    suffix = {};
-                }
-            }
+            // Determine Token Type
+            TokenType type = TokenType::Number; // Default Integer
+            if (isHex) type = TokenType::Hexadecimal;
+            else if (isBin) type = TokenType::Binary; // Assuming you have this, or Octonal
+            else if (isFloat) type = TokenType::Float;
 
-            const std::string_view lexeme(start, current - start);
-            const TokenType type = isFloat ? TokenType::Float : TokenType::Number;  // Or unify, add Float if needed
-            tokens.emplace_back(type, lexeme, info);*/
+            tokens.emplace_back(type, std::string_view(start, current - start), startInfo);
         }
-
-        // Removed tryMatchOperator — unified into main loop!
 
     public:
         static void showErrors(const std::vector<LexError>& vector) {
-            for (const auto&[message, info] : vector) {
-                std::cerr << "Lexical Error (line " << info.line << " & column  " << info.index << ") :" << message << '\n';
+            for (const auto& err : vector) {
+                std::cerr << "Lexical Error (line " << err.info.line << " & column " << err.info.index << "): " << err.message << '\n';
             }
             std::abort();
         }
@@ -208,34 +187,31 @@ namespace internal {
             return std::string_view{};
         }
 
-
-        static bool punctuation(const char* current, const char* end,
+        static bool punctuation(const char*& current, const char* end,
                              std::vector<Token>& out,
                              Info& info) noexcept
         {
-
+            // Try 3 chars, then 2, then 1
             for (const size_t len : {3u, 2u, 1u}) {
                 std::string_view view = make_view(current, end, len);
                 if (view.empty()) continue;
 
                 TokenType t = lookupToken(view);
-                if (t == TokenType::Identifier) continue;
+                if (t == TokenType::Identifier) continue; // lookupToken returns Identifier for unknown strings
 
                 consume(info, current, len);
                 out.emplace_back(t, view, info);
                 return true;
             }
-
             return false;
         }
 
-
-
         [[nodiscard]] static auto tokenize(const std::string_view src) noexcept {
             std::vector<Token> tokens;
-            std::vector<LexError> errors;  // Collect for user
-            tokens.reserve(src.size() / 2 + 1);  // Slightly better avg (accounts for numbers/strings)
-            errors.reserve(src.size() / 3);
+            std::vector<LexError> errors;
+            tokens.reserve(src.size() / 2 + 1);
+            errors.reserve(src.size() / 10); // Fewer errors expected usually
+
             Info info{};
             const char* current = src.data();
             const char* end = src.data() + src.size();
@@ -249,6 +225,7 @@ namespace internal {
                     continue;
                 }
 
+                // Comments
                 if (c == '/' && lookAhead(current, end) == '/') {
                     skipSingleLine(info, current, end);
                     continue;
@@ -256,41 +233,42 @@ namespace internal {
 
                 if (c == '/' && lookAhead(current, end) == '*') {
                     skipMultiLine(info, current, end, errors);
-                    if (current >= end) errors.emplace_back("Unterminated multi-line comment at line ", info);
                     continue;
                 }
 
+                // Punctuation / Operators
                 if (punctuation(current, end, tokens, info))
                     continue;
 
-                // Identifier / variables
+                // Identifier / Keywords
                 if (isAlpha(c) || c == '_') {
                     processIdentifier(current, end, tokens, info);
                     continue;
                 }
 
-                // Number
-                if (isNumeric(c) || (c == '.' && isNumeric(lookAhead(current, end)))) {  // .5
-                    processNumber(current, end, tokens, info);
+                // Numbers
+                if (isNumeric(c) || (c == '.' && isNumeric(lookAhead(current, end)))) {
+                    processNumber(current, end, tokens, info, errors);
                     continue;
                 }
 
-                // String
+                // Strings
                 if (c == '"') {
                     processString(current, end, tokens, errors, info);
                     continue;
                 }
 
-
-                addError(errors, std::string("Unknown character '") + c + "' at line ", info);
+                // Unknown Character
+                addError(errors, std::string("Unknown character '") + c + "' at line " + std::to_string(info.line), info);
                 tokens.emplace_back(TokenType::Unknown, std::string_view(current, 1), info);
                 consume(info, current);
             }
 
-            // Optional: Add EOF token
             tokens.emplace_back(TokenType::End, std::string_view(), info);
+
             if (!errors.empty())
                 showErrors(errors);
+
             return tokens;
         }
     };

@@ -21,7 +21,7 @@ constexpr uint64_t mix64(uint64_t x) {
 
 constexpr uint64_t hash64(const std::string_view sv) {
     uint64_t h = 0xcbf29ce484222325ULL;
-    for (unsigned char c : sv) {
+    for (const unsigned char c : sv) {
         h ^= c;
         h *= 0x100000001b3ULL;
     }
@@ -137,7 +137,7 @@ struct PerfectKeywordHash {
         }
     }
 
-    [[nodiscard]] constexpr TokenType lookup(std::string_view sv) const noexcept {
+    [[nodiscard]] constexpr TokenType lookup(const std::string_view sv) const noexcept {
         if (sv.empty()) return TokenType::Identifier;
 
         const uint64_t h = hash64(sv);
