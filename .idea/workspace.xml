@@ -29,11 +29,7 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2b87c33e-4cb7-4044-b1b5-be9815a3fb95" name="Changes" comment="install.sh update">
-      <change beforePath="$PROJECT_DIR$/.idea/Nova.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Nova.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/editor.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/editor.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-    </list>
+    <list default="true" id="2b87c33e-4cb7-4044-b1b5-be9815a3fb95" name="Changes" comment="install.sh update" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -184,7 +180,7 @@
       <workItem from="1767702129421" duration="10000" />
       <workItem from="1768393892915" duration="58000" />
       <workItem from="1768470883398" duration="8000" />
-      <workItem from="1768558599176" duration="1315000" />
+      <workItem from="1768558599176" duration="1665000" />
     </task>
     <task id="LOCAL-00001" summary="Enchancing file.h system">
       <option name="closed" value="true" />
