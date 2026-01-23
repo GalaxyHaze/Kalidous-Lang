@@ -12,5 +12,5 @@ let i: i16 = 5;
 and if you dont change the variable at all, you will have a Warning.
 using const, you declare a immutable variable
 const i = 50;
-print(i); //it's alrigth since you dont change it.
+print(i); //it's alright since you don't change it.
 //i += 5; it's ERROR
