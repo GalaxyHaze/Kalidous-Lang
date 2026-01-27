@@ -32,12 +32,14 @@ add_executable(Nova
         include/Nova/parse/tokens.h
         include/Nova/parse/tokens_map.h
         include/Nova/utils/debug.h
-        include/Nova/parse/parser.h
+        include/Nova/parse/ast.h
         include/Nova/interface/CLI.h
         impl/memory/arena_c_functions.c
         impl/memory/file.c
         include/Nova/memory/bumpAllocator.h
         include/Nova/utils/i_o_utils.h
+        impl/interface/CLI.cpp
+        impl/parser/ast.cpp
 )
 
 

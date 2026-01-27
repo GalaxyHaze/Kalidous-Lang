@@ -28,6 +28,14 @@ namespace nova {
         Arena& operator=(const Arena&) = delete;
         Arena(Arena&&) noexcept = default;
         Arena& operator=(Arena&&) noexcept = default;
+        template<class T, class... Args>
+        T* create(Args&&... args)
+        {
+            auto ptr = nova_arena_alloc(handle_.get(), sizeof(T));
+            if (!ptr) throw std::bad_alloc{};
+            new (ptr) T(std::forward<Args>(args)...);
+            return ptr;
+        }
 
         [[nodiscard]] auto get() const { return handle_.get(); }
 

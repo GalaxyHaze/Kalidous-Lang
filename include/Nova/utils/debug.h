@@ -10,6 +10,13 @@
 #include <iostream>
 namespace nova
 {
+
+    // In public header (or separate io.h)
+    typedef struct OutputStream {
+        void* ctx;
+        void (*write)(void* ctx, const char* data, size_t len);
+    } OutputStream;
+
     inline void printTokens(const std::vector<Token>& tokens) {
         std::cout << "Starting the print of Tokens:\n";
         for (const auto& token : tokens) {
