@@ -1,99 +1,68 @@
-//
-// Created by al24254 on 05/11/2025.
-//
+// include/Nova/utils/file_utils.hpp
+#ifndef NOVA_UTILS_FILE_UTILS_HPP
+#define NOVA_UTILS_FILE_UTILS_HPP
 
-#ifndef NOVA_FILE_H
-#define NOVA_FILE_H
-
-#include <algorithm>
-#include <stdexcept>
-#include <fstream>
-#include <iostream>
-#include <sstream>
-#include <cctype>
-#include <string>
+#include "../memory/file.h"
+#include "../memory/arena.h"
+#include "../memory/Arena.h"
 #include <filesystem>
 #include <vector>
+#include <string>
+#include <iostream>
+#include <stdexcept>
+#include <cctype>
+#include <algorithm>
+#include <ranges>
 
 namespace nova::file {
     namespace fs = std::filesystem;
 
-    // ------------------------------------------------------------
+    // Reuse your existing helpers (they’re great!)
     inline void validateExistence(const fs::path& filePath) {
-        if (!fs::exists(filePath)) {
+        if (!nova_file_exists(filePath.c_str())) {
             throw std::runtime_error("File does not exist: " + filePath.string());
         }
-
-        if (!fs::is_regular_file(filePath)) {
+        if (!nova_file_is_regular(filePath.c_str())) {
             throw std::runtime_error("Path is not a regular file: " + filePath.string());
         }
     }
 
-    // ------------------------------------------------------------
     inline bool compareInsensitiveCase(std::string_view a, std::string_view b) {
-        return a.size() == b.size() &&  std::ranges::equal(a, b,
-            [](const char ca, const char cb) {
-                return
-                std::tolower(static_cast<unsigned char>(ca)) ==
-                    std::tolower(static_cast<unsigned char>(cb));
-        });
+        return a.size() == b.size() && std::ranges::equal(a, b,
+            [](unsigned char ca, unsigned char cb) {
+                return std::tolower(ca) == std::tolower(cb);
+            });
     }
 
-    // ------------------------------------------------------------
     inline void validateExtension(const fs::path& filePath, const std::vector<std::string>& validExtensions) {
-        const std::string extension = filePath.extension().string();
-
+        std::string actual_ext = filePath.extension().string();
         for (const auto& ext : validExtensions) {
-            if (compareInsensitiveCase(extension, ext)) return;
-            //if (extension == ext) return;
-
+            if (compareInsensitiveCase(actual_ext, ext)) return;
         }
-
         std::string list;
         for (const auto& ext : validExtensions) list += ext + " ";
-
-        throw std::runtime_error("\nError: Invalid extension '" + extension +
+        throw std::runtime_error("\nError: Invalid extension '" + actual_ext +
                                  "'\nExpected one of: " + list);
-
     }
 
-    // ------------------------------------------------------------
-    [[nodiscard]] inline size_t getFileSize(const fs::path& filePath) {
+    // 🔁 NEW: Read file using Arena (no std::string allocation in core)
+    inline std::pair<char*, size_t> readFileToArena(const Arena& arena, const fs::path& filePath) {
         validateExistence(filePath);
-        return fs::file_size(filePath);
+        size_t size = 0;
+        char* data = nova_load_file_to_arena(arena.get(), filePath.c_str(), &size);
+        if (!data) throw std::runtime_error("Failed to load file into arena: " + filePath.string());
+        return {data, size};
     }
 
-    // ------------------------------------------------------------
-    [[nodiscard]] inline std::string readFile(const fs::path& filePath) {
-        validateExistence(filePath);
-
-        const size_t fileSize = fs::file_size(filePath);
-        if (fileSize == 0) throw std::runtime_error("File is empty: " + filePath.string());
-
-        std::ifstream file(filePath, std::ios::binary);
-        if (!file.is_open()) throw std::runtime_error("Could not open file: " + filePath.string());
-
-        std::string content;
-        content.resize(fileSize);  // aloca memória de uma vez
-
-        file.read(content.data(), static_cast<long>(fileSize));
-        if (!file) throw std::runtime_error("Failed to read file: " + filePath.string());
-
-        return content;  // retorna std::string por valor (move será otimizado pelo compilador)
-    }
-
-
-    // ------------------------------------------------------------
+    // Keep debugInfo, trim, etc. — they’re fine for tooling
     inline std::string trim(std::string_view str) {
-        const auto start = std::ranges::find_if_not(str,
-                                                    [](const unsigned char c) { return std::isspace(c); });
-        const auto end = std::find_if_not(str.rbegin(), str.rend(),
-            [](const unsigned char c) { return std::isspace(c); }).base();
+        const auto start = std::ranges::find_if_not(str, [](const unsigned char c) { return std::isspace(c); });
+        const auto end = std::find_if_not(str.rbegin(), str.rend(), [](const unsigned char c) { return std::isspace(c); }).base();
         return start < end ? std::string(start, end) : "";
     }
 
-    // ------------------------------------------------------------
-    inline void debugInfo(const fs::path& filePath, const std::string& buffer, const size_t lineShown = 10) {
+    inline void debugInfo(const fs::path& filePath, std::string_view buffer, const size_t lineShown = 10)
+    {
         const std::string extension = filePath.extension().string();
 
         std::cout << "=== File Information ===\n";
@@ -107,58 +76,71 @@ namespace nova::file {
         std::cout << "Content Preview:\n";
         std::cout << "----------------\n\n";
 
-        // Show first few lines for large files
-        std::istringstream contentStream(buffer);
-        std::string line;
+        std::string_view remaining{buffer};
         size_t lineCount = 0;
-        while (std::getline(contentStream, line) && lineCount < lineShown) {
+
+        while (!remaining.empty() && lineCount < lineShown) {
+            // 1. Find the end of the current line
+            const size_t pos = remaining.find('\n');
+
+            // 2. Extract the line as a view (no copying/allocation happens here!)
+            const std::string_view line = (pos == std::string_view::npos)
+                                     ? remaining
+                                     : remaining.substr(0, pos);
+
+            // 3. Print it
             std::cout << line << "\n";
+
+            // 4. Shrink the window: move past the line we just printed
+            if (pos == std::string_view::npos) {
+                remaining = {}; // End of data
+            } else {
+                remaining.remove_prefix(pos + 1); // Skip the content + the '\n'
+            }
+
             lineCount++;
         }
 
-        if (lineCount < lineShown)
-            std::cout << "\n";
-        else
+        if (lineCount >= lineShown && !remaining.empty()) {
             std::cout << "... (truncated)\n";
-
-        std::cout << "----------------\n" << std::endl;
+        } else {
+            std::cout << "\n";
+        }
     }
 
-    // ------------------------------------------------------------
     struct FileReadOptions {
         bool debugEnabled = false;
         size_t maxPreviewLines = 10;
         bool validateExtension = true;
         std::vector<std::string> allowedExtensions = {".nova"};
-
-        explicit FileReadOptions(const bool debug = false, const size_t lines = 10, const bool validate = true,
+        explicit FileReadOptions(bool debug = false, size_t lines = 10, bool validate = true,
                                  std::vector<std::string> extensions = {".nova"})
             : debugEnabled(debug), maxPreviewLines(lines),
               validateExtension(validate), allowedExtensions(std::move(extensions)) {}
     };
 
-    // ------------------------------------------------------------
-    inline auto readSource(const FileReadOptions& options = FileReadOptions{}) {
+    // CLI helper: uses Arena internally
+    inline std::pair<char*, size_t> readSource(const Arena& arena, const FileReadOptions& options = FileReadOptions{}) {
         std::cout << "Insert your source file:\n";
         std::string src;
         std::getline(std::cin, src);
         src = trim(src);
 
-        const fs::path filePath(src);
+        fs::path filePath(src);
         validateExistence(filePath);
 
         if (options.validateExtension) {
             validateExtension(filePath, options.allowedExtensions);
         }
 
-        auto buffer = readFile(filePath);
+        auto [data, size] = readFileToArena(arena, filePath);
 
         if (options.debugEnabled) {
-            debugInfo(filePath, buffer, options.maxPreviewLines);
+            debugInfo(filePath, std::string_view(data, size), options.maxPreviewLines);
         }
 
-        return buffer;
+        return {data, size};
     }
 }
 
-#endif // NOVA_FILE_H
+#endif // NOVA_UTILS_FILE_UTILS_HPP

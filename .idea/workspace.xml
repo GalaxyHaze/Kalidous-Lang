@@ -31,15 +31,20 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2b87c33e-4cb7-4044-b1b5-be9815a3fb95" name="Changes" comment="Project restructuring">
-      <change afterPath="$PROJECT_DIR$/version.txt" afterDir="false" />
+    <list default="true" id="2b87c33e-4cb7-4044-b1b5-be9815a3fb95" name="Changes" comment="Utils restructuring">
+      <change afterPath="$PROJECT_DIR$/include/Nova/memory/arena_c_functions.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/include/Nova/memory/bumpAllocator.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/include/Nova/memory/file.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/runConfigurations/Nova.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/runConfigurations/Nova.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/include/Nova/core.h" beforeDir="false" afterPath="$PROJECT_DIR$/include/Nova/core.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/include/Nova/interface/CLI.h" beforeDir="false" afterPath="$PROJECT_DIR$/include/Nova/interface/CLI.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/include/Nova/utils/debug.h" beforeDir="false" afterPath="$PROJECT_DIR$/include/Nova/utils/debug.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/include/Nova/parse/tokenizer.h" beforeDir="false" afterPath="$PROJECT_DIR$/include/Nova/parse/tokenizer.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/include/Nova/parse/tokens.h" beforeDir="false" afterPath="$PROJECT_DIR$/include/Nova/parse/tokens.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/include/Nova/utils/file.h" beforeDir="false" afterPath="$PROJECT_DIR$/include/Nova/utils/file.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/include/Nova/utils/helpers.h" beforeDir="false" afterPath="$PROJECT_DIR$/include/Nova/utils/helpers.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/version.txt" beforeDir="false" afterPath="$PROJECT_DIR$/config.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -67,6 +72,8 @@
 }</component>
   <component name="HighlightingSettingsPerFile">
     <setting file="file://$PROJECT_DIR$/include/Nova/interface/CLI.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/include/Nova/memory/arena_c_functions.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/include/Nova/utils/file.h" root0="FORCE_HIGHLIGHTING" />
   </component>
   <component name="MacroExpansionManager">
     <option name="directoryName" value="psBWR9Pu" />
@@ -83,48 +90,48 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ASKED_MARK_IGNORED_FILES_AS_EXCLUDED": "true",
-    "CMake Application.Nova.executor": "Run",
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.RadMigrateCodeStyle": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.cidr.known.project.marker": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.readMode.enableVisualFormatting": "true",
-    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
-    "RunOnceActivity.west.config.association.type.startup.service": "true",
-    "SHELLCHECK.PATH": "C:\\Users\\al24254\\AppData\\Roaming\\JetBrains\\CLion2025.3\\plugins\\Shell Script\\shellcheck.exe",
-    "cf.first.check.clang-format": "false",
-    "cidr.known.project.marker": "true",
-    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
-    "git-widget-placeholder": "master",
-    "junie.onboarding.icon.badge.shown": "true",
-    "last_opened_file_path": "/home/diogo/CLionProjects/Nova",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "run.code.analysis.last.selected.profile": "pProject Default",
-    "settings.editor.selected.configurable": "preferences.fileTypes",
-    "settings.editor.splitter.proportion": "0.2874618",
-    "to.speed.mode.migration.done": "true",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ASKED_MARK_IGNORED_FILES_AS_EXCLUDED&quot;: &quot;true&quot;,
+    &quot;CMake Application.Nova.executor&quot;: &quot;Run&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.RadMigrateCodeStyle&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.readMode.enableVisualFormatting&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.west.config.association.type.startup.service&quot;: &quot;true&quot;,
+    &quot;SHELLCHECK.PATH&quot;: &quot;C:\\Users\\al24254\\AppData\\Roaming\\JetBrains\\CLion2025.3\\plugins\\Shell Script\\shellcheck.exe&quot;,
+    &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
+    &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/diogo/CLionProjects/Nova&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;run.code.analysis.last.selected.profile&quot;: &quot;pProject Default&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.fileTypes&quot;,
+    &quot;settings.editor.splitter.proportion&quot;: &quot;0.2874618&quot;,
+    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/include/Nova/memory" />
       <recent name="$PROJECT_DIR$/ankler" />
       <recent name="$PROJECT_DIR$/include/Nova" />
       <recent name="$PROJECT_DIR$/tests" />
       <recent name="$PROJECT_DIR$/internal/interface" />
-      <recent name="$PROJECT_DIR$/internal/parse" />
     </key>
   </component>
   <component name="RunManager" selected="CMake Application.Nova">
@@ -187,7 +194,9 @@
       <workItem from="1768568017735" duration="11000" />
       <workItem from="1769416980943" duration="3665000" />
       <workItem from="1769427923699" duration="164000" />
-      <workItem from="1769429160396" duration="1904000" />
+      <workItem from="1769429160396" duration="3476000" />
+      <workItem from="1769484242470" duration="5409000" />
+      <workItem from="1769490246343" duration="601000" />
     </task>
     <task id="LOCAL-00001" summary="Enchancing file.h system">
       <option name="closed" value="true" />
@@ -389,7 +398,15 @@
       <option name="project" value="LOCAL" />
       <updated>1769430438777</updated>
     </task>
-    <option name="localTasksCounter" value="26" />
+    <task id="LOCAL-00026" summary="Utils restructuring">
+      <option name="closed" value="true" />
+      <created>1769431086094</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1769431086094</updated>
+    </task>
+    <option name="localTasksCounter" value="27" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -416,7 +433,8 @@
     <MESSAGE value="permission: write" />
     <MESSAGE value="Folder organization" />
     <MESSAGE value="Project restructuring" />
-    <option name="LAST_COMMIT_MESSAGE" value="Project restructuring" />
+    <MESSAGE value="Utils restructuring" />
+    <option name="LAST_COMMIT_MESSAGE" value="Utils restructuring" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -425,11 +443,6 @@
           <url>file://$PROJECT_DIR$/src/main.cpp</url>
           <line>2</line>
           <option name="timeStamp" value="8" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
-          <url>file://$PROJECT_DIR$/include/Nova/core.h</url>
-          <line>7</line>
-          <option name="timeStamp" value="9" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

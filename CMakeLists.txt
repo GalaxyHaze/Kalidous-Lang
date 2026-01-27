@@ -20,22 +20,26 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(unordered_dense)
 
+add_definitions(-DNOVA_VERSION="${v.0.0-alpha}")
 
 # Your source files
 add_executable(Nova
         main.cpp
-        include/Nova/utils/file.h
+        include/Nova/memory/file.h
         include/Nova/parse/tokenizer.h
         include/Nova/core.h
         include/Nova/utils/helpers.h
         include/Nova/parse/tokens.h
-        ankler/dense_map/unordered_dense_map.h
-        ankler/dense_map/stl.h
         include/Nova/parse/tokens_map.h
         include/Nova/utils/debug.h
         include/Nova/parse/parser.h
         include/Nova/interface/CLI.h
+        impl/memory/arena_c_functions.c
+        impl/memory/file.c
+        include/Nova/utils/file.h
+        include/Nova/memory/bumpAllocator.h
 )
+
 
 # Link CLI11 (it's an interface library)
 target_link_libraries(Nova PRIVATE CLI11::CLI11)

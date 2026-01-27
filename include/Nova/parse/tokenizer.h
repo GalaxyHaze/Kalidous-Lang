@@ -11,7 +11,8 @@
 #include "tokens_map.h"
 #include "tokens.h"
 
-namespace internal {
+namespace nova {
+    using namespace helpers;
     class Tokenizer {
         struct LexError {
             std::string message; // Changed from string_view to string to fix dangling reference bug
@@ -62,7 +63,7 @@ namespace internal {
         static void processIdentifier(const char*& current, const char* end,
         std::vector<Token>& tokens, Info& info) noexcept {
             const char* start = current;
-            while (has(current, end) && (isAlphaNum(*current) || *current == '_')) {
+            while (has(current, end) && (nova::helpers::isAlphaNum(*current) || *current == '_')) {
                 consume(info, current);
             }
             const std::string_view lexeme(start, static_cast<size_t>(current - start));
@@ -121,7 +122,7 @@ namespace internal {
 
             // Check Prefixes
             if (*current == '0' && has(current + 1, end)) {
-                char next = toLower(*(current + 1));
+                char next = nova::helpers::toLower(*(current + 1));
                 if (next == 'x') {
                     isHex = true;
                     consume(info, current, 2); // Skip 0x
@@ -219,7 +220,7 @@ namespace internal {
             while (has(current, end)) {
                 const char c = *current;
 
-                if (isSpace(c)) {
+                if (nova::helpers::isSpace(c)) {
                     if (c == '\n') info.newLine();
                     consume(info, current);
                     continue;
@@ -241,13 +242,13 @@ namespace internal {
                     continue;
 
                 // Identifier / Keywords
-                if (isAlpha(c) || c == '_') {
+                if (nova::helpers::isAlpha(c) || c == '_') {
                     processIdentifier(current, end, tokens, info);
                     continue;
                 }
 
                 // Numbers
-                if (isNumeric(c) || (c == '.' && isNumeric(lookAhead(current, end)))) {
+                if (nova::helpers::isNumeric(c) || (c == '.' && nova::helpers::isNumeric(lookAhead(current, end)))) {
                     processNumber(current, end, tokens, info, errors);
                     continue;
                 }

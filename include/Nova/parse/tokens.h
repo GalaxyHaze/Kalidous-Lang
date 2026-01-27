@@ -6,6 +6,7 @@
 #define NOVA_TOKENS_H
 
 #include <cstdint>
+#include <string_view>
 typedef unsigned short u_short;
 
 // --- Info ---
