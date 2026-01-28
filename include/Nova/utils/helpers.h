@@ -5,6 +5,9 @@
 #ifndef NOVA_HELPERS_H
 #define NOVA_HELPERS_H
 #include <cstdint>
+#include <cstdio>
+#include <cstdlib>
+
 #include "../parse/tokens.h"
 
 namespace nova::helpers

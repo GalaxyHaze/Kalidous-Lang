@@ -23,6 +23,8 @@ extern "C" {
     // Reset arena (optional: you may omit if not needed)
     void nova_arena_reset(NovaArena* arena);
 
+    void nova_arena_clean_block(NovaArena* arena);
+
     // Destroy arena and all blocks
     void nova_arena_destroy(NovaArena* arena);
 

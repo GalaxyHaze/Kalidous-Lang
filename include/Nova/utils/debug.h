@@ -17,7 +17,7 @@ namespace nova
         void (*write)(void* ctx, const char* data, size_t len);
     } OutputStream;
 
-    inline void printTokens(const std::vector<Token>& tokens) {
+    inline void printTokens(const std::vector<NovaToken>& tokens) {
         std::cout << "Starting the print of Tokens:\n";
         for (const auto& token : tokens) {
             std::cout << token.value << "  ";

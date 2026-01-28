@@ -4,8 +4,29 @@
 
 #include <stddef.h>
 #include "../utils/slice.h"    // defines NovaTokenSlice
+#include "Nova/memory/arena_c_functions.h"
 
 #ifdef __cplusplus
+#include <string>
+#include <vector>
+namespace nova::detail {
+
+    struct LexError {
+        std::string message;
+        NovaInfo info;
+    };
+
+    struct NovaArena;
+
+    // Main C++ tokenizer entry point (returns tokens + errors)
+    std::vector<NovaToken> tokenize(
+        std::string_view src,
+        ::NovaArena* arena,
+        std::vector<LexError>& errors
+    );
+
+} // namespace nova::detail
+
 extern "C" {
 #endif
 
