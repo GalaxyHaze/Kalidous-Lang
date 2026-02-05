@@ -1,7 +1,7 @@
 /impl/
 cmake-build-debug
 cmake-build-release
-tests
+example
 ankler
 /.github/
 /versions/

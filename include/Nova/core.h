@@ -12,6 +12,6 @@
 #include "utils/debug.h"
 
 
-static const auto version = "config.txt";
+static const auto version = "config.toml";
 
 #endif //NOVA_CORE_H

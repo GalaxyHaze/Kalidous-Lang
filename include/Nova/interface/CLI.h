@@ -33,16 +33,11 @@ extern "C" {
     struct Options {
         BuildMode mode;
         bool show_version;
-        const char* iFile;  // null if not provided
+        char iFile[260];
     };
 
-    // Converts string like "release" → BUILD_MODE_RELEASE
-    // Returns BUILD_MODE_DEBUG on invalid input (or handle via Errors)
     BuildMode string_to_build_mode(const NovaSlice* mode_str);
 
-    // Result type:
-    // - If error == ERROR_NONE → options is valid
-    // - Otherwise → ignore options, check error
     typedef struct {
         Options options;
         Errors error;
@@ -66,4 +61,7 @@ public:
 
     static Result parse(int argc, const char** argv);
 };
+
+extern int nova_try_parse(int argc, const char** argv);
+
 #endif

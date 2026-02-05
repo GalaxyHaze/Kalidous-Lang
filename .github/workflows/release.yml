@@ -12,56 +12,42 @@ jobs:
   build-and-release:
     name: Build on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
-    # Added a timeout to prevent hanging indefinitely
     timeout-minutes: 30
-
     strategy:
       fail-fast: false
       matrix:
         include:
           - os: ubuntu-latest
             target_name: nova-linux-amd64
-          # CHANGED: macos-13 is deprecated.
-          # macos-15 is now the latest runner specifically available for Intel (amd64) builds.
           - os: macos-15
             target_name: nova-macos-amd64
           - os: windows-latest
             target_name: nova-windows-amd64.exe
 
     steps:
-      # 1. Checkout Code
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      # 2. Setup CMake
       - name: Setup CMake
         uses: jwlawson/actions-setup-cmake@v2
         with:
-          # Specify a version to avoid potential caching issues with "latest"
           cmake-version: '3.26.x'
 
-      # 3. Install Ninja
-      - name: Install Ninja
-        uses: seanmiddleditch/gha-setup-ninja@master
+      - uses: seanmiddleditch/gha-setup-ninja@master
 
-      # 4. Setup MSVC Environment (Windows Only)
       - name: Setup MSVC Dev Cmd
         if: runner.os == 'Windows'
         uses: ilammy/msvc-dev-cmd@v1
 
-      # 5. Configure & Build
       - name: Configure CMake
         run: cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
 
       - name: Build
         run: cmake --build build --config Release
 
-      # 6. Prepare Artifacts
       - name: Prepare Artifacts
         shell: bash
         run: |
           mkdir -p artifacts
-          
           if [ "${{ runner.os }}" == "Windows" ]; then
             cp build/Nova.exe artifacts/${{ matrix.target_name }}
           else
@@ -69,10 +55,40 @@ jobs:
             cp build/Nova artifacts/${{ matrix.target_name }}
           fi
 
-      # 7. Upload the binaries to the Release
       - name: Upload Release Assets
         uses: softprops/action-gh-release@v1
         with:
           files: artifacts/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  build-void-musl:
+    name: Build Void Linux (musl x86_64)
+    runs-on: ubuntu-latest
+    container: voidlinux/void-musl:latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install build deps
+        run: |
+          xbps-install -Suy xbps
+          xbps-install -Suy cmake ninja gcc make pkg-config
+
+      - name: Configure CMake
+        run: cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: cmake --build build --config Release
+
+      - name: Prepare Artifact
+        run: |
+          mkdir -p artifacts
+          chmod +x build/Nova
+          cp build/Nova artifacts/nova-void-linux-amd64-musl
+
+      - name: Upload to Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: artifacts/nova-void-linux-amd64-musl
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
