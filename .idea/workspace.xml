@@ -21,7 +21,9 @@
     <option name="reloaded" value="true" />
   </component>
   <component name="CMakeRunConfigurationManager">
-    <generated />
+    <generated>
+      <config projectName="Nova" targetName="Nova" />
+    </generated>
   </component>
   <component name="CMakeSettings">
     <configurations>
@@ -30,11 +32,7 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="937c7cd9-f519-449d-aec2-d8c7e63547e5" name="Changes" comment="FetchUpdate">
-      <change afterPath="$PROJECT_DIR$/include/Nova/nova.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
-    </list>
+    <list default="true" id="937c7cd9-f519-449d-aec2-d8c7e63547e5" name="Changes" comment="FetchUpdate" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -119,11 +117,6 @@
   }
 }</component>
   <component name="RunManager">
-    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
-      <method v="2">
-        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
-      </method>
-    </configuration>
     <configuration name="Nova" type="CMakeRunConfiguration" factoryName="Application" PROGRAM_PARAMS="tests/prototype.nova" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" WORKING_DIR="file://$PROJECT_DIR$" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Nova" TARGET_NAME="Nova" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="Nova" RUN_TARGET_NAME="Nova">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -164,7 +157,7 @@
       <workItem from="1770306051783" duration="18000" />
       <workItem from="1770306298772" duration="106000" />
       <workItem from="1770534163657" duration="949000" />
-      <workItem from="1770539497937" duration="764000" />
+      <workItem from="1770539497937" duration="845000" />
     </task>
     <task id="LOCAL-00001" summary="ABI design update">
       <option name="closed" value="true" />
@@ -214,7 +207,15 @@
       <option name="project" value="LOCAL" />
       <updated>1770306007280</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="FetchUpdate">
+      <option name="closed" value="true" />
+      <created>1770540268944</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1770540268944</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
