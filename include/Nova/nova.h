@@ -4,6 +4,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <string.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -215,7 +216,7 @@ bool  nova_file_has_extension(const char* path, const char* ext); // case-insens
 // Load entire file into arena (returns NULL on error, sets *out_size)
 char* nova_load_file_to_arena(NovaArena* arena, const char* path, size_t* out_size);
 
-int nova_run(const int agrc, const char** argv);
+int nova_run(const int argc, const char** argv);
 NovaTokenType nova_lookup_keyword(const char* src, const size_t len);
 
 // ============================================================================
@@ -253,7 +254,7 @@ public:
     char* strdup(const char* s) const { return nova_arena_strdup(handle_.get(), s); }
     char* strdup(std::string_view sv) const {
         char* p = static_cast<char*>(alloc(sv.size() + 1));
-        if (p) { std::memcpy(p, sv.data(), sv.size()); p[sv.size()] = '\0'; }
+        if (p) { memcpy(p, sv.data(), sv.size()); p[sv.size()] = '\0'; }
         return p;
     }
     NovaArena* get() const { return handle_.get(); }
