@@ -120,11 +120,8 @@ typedef struct {
     size_t len;
 } NovaTokenStream;
 
-// Opaque arena handle
-typedef struct NovaArena NovaArena;
-
 // Tokenize source (allocates tokens in arena)
-NovaTokenStream nova_tokenize(NovaArena* arena, const char* source, size_t source_len);
+NovaTokenStream nova_tokenize(void* arena, const char* source, size_t source_len);
 
 // ============================================================================
 // AST System (Generic & Extensible)
@@ -182,7 +179,8 @@ struct NovaNode {
         uint64_t custom;  // Custom payload for extension nodes
     } data;
 };
-
+// Opaque arena handle
+typedef struct NovaArena NovaArena;
 
 // Parse token stream into AST (allocates nodes in arena)
 NovaNode* nova_parse(NovaArena* arena, NovaTokenStream tokens);
@@ -216,8 +214,7 @@ bool  nova_file_has_extension(const char* path, const char* ext); // case-insens
 // Load entire file into arena (returns NULL on error, sets *out_size)
 char* nova_load_file_to_arena(NovaArena* arena, const char* path, size_t* out_size);
 
-int nova_run(const int argc, const char** argv);
-NovaTokenType nova_lookup_keyword(const char* str, size_t len);
+int nova_run(const int agrc, const char** argv);
 
 // ============================================================================
 // Error Handling
@@ -240,32 +237,23 @@ typedef enum {
 }
 #include <memory>
 #include <string_view>
-#include <string.h>
 
 namespace nova {
 
 // RAII wrapper for arena
 class Arena {
-
     struct Deleter { void operator()(NovaArena* a) const { nova_arena_destroy(a); } };
     std::unique_ptr<NovaArena, Deleter> handle_;
-
 public:
     explicit Arena(size_t initial = 65536)
         : handle_(nova_arena_create(initial)) { if (!handle_) throw std::bad_alloc(); }
-
-    explicit Arena(NovaArena* src): handle_(src) {}
-
     void* alloc(size_t size) const { return nova_arena_alloc(handle_.get(), size); }
-
     char* strdup(const char* s) const { return nova_arena_strdup(handle_.get(), s); }
-
     char* strdup(std::string_view sv) const {
         char* p = static_cast<char*>(alloc(sv.size() + 1));
-        if (p) { memcpy(p, sv.data(), sv.size()); p[sv.size()] = '\0'; }
+        if (p) { std::memcpy(p, sv.data(), sv.size()); p[sv.size()] = '\0'; }
         return p;
     }
-
     NovaArena* get() const { return handle_.get(); }
 };
 
