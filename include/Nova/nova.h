@@ -188,7 +188,7 @@ typedef struct {
 
 typedef struct NovaArena NovaArena;
 
-NovaTokenStream nova_tokenize(NovaArena* arena, const char* source, size_t source_len);
+NovaTokenNovaTokenStream nova_tokenize(NovaArena* arena, const char* source, size_t source_len);
 
 // ============================================================================
 // AST System
@@ -239,9 +239,8 @@ struct NovaNode {
 };
 
 NovaNode* nova_parse(NovaArena* arena, NovaTokenStream tokens);
-
 static inline NovaNodeId nova_node_type(const NovaNode* node) {
-    return node ? node->type : NOVA_NODE_ERROR;
+        return node ? node->type : (NovaNodeId)NOVA_NODE_ERROR;
 }
 
 // ============================================================================
