@@ -1,12 +1,12 @@
-# Nova Language
+# Kalidous Language
 
-> **WIP:** Nova is currently in active development. While the core concepts are being defined, the project is not yet stable or ready for production use.
+> **WIP:** Kalidous is currently in active development. While the core concepts are being defined, the project is not yet stable or ready for production use.
 
 ## About
 
-Nova is a general-purpose programming language designed to bridge the gap between high-level developer ergonomics and low-level system performance.
+Kalidous is a general-purpose programming language designed to bridge the gap between high-level developer ergonomics and low-level system performance.
 
-It achieves this by transpiling to Zig, effectively leveraging Zig's powerful compiler backend while offering a modern, distinct syntax and feature set tailored for safety and speed.
+It compiles directly to LLVM IR, leveraging one of the most powerful and battle-tested compiler infrastructures in the world — the same backend used by languages like Clang, Rust, and Swift — while offering a modern, distinct syntax and feature set tailored for safety and speed.
 
 ## Current Status
 
@@ -17,25 +17,25 @@ We are currently in the early stages of development. Here is a snapshot of the p
 - **Tokenizer:** A fully functional lexical analyzer that breaks source code into tokens for processing.
 
 ### In Progress
-- **CLI Interface:** We are currently building out the command-line interface to handle file execution, compilation, and project initialization.
+- **CLI Interface:** Currently building out the command-line interface to handle file execution, compilation, and project initialization.
 
 ### Roadmap
 - Parser & AST construction
-- Zig Transpilation engine
+- LLVM IR code generation
 - Standard Library foundations
 
 ## Design Philosophy
 
-Nova is not just "Zig with different syntax." It aims to inherit the raw power of Zig while introducing new capabilities that make the compiler and the programmer work as a team.
+Kalidous is not just "Zig with different syntax." It aims to inherit the raw power of Zig while introducing new capabilities that make the compiler and the programmer work as a team.
 
-### 1. Deep Integration with Zig
-By targeting Zig as an intermediate language, Nova inherits the battle-tested performance and modern tooling of the Zig ecosystem. This allows us to focus on language design while relying on Zig for optimal machine code generation.
+### 1. Direct LLVM Backend
+By compiling directly to LLVM IR, Kalidous gains access to world-class optimizations, broad platform support, and the same infrastructure trusted by Clang, Rust, and Swift. This allows us to focus on language design while LLVM handles optimal machine code generation across all major architectures.
 
 ### 2. Compilation Capabilities
-One of the core goals of Nova is to unlock deep Compile-Time (comptime) capabilities. We intend to provide features where the programmer and the compiler communicate effectively, allowing for highly optimized code generation and advanced reflection techniques that feel natural rather than hacky.
+One of the core goals of Kalidous is to unlock deep compile-time capabilities. We intend to provide features where the programmer and the compiler communicate effectively, allowing for highly optimized code generation and advanced reflection techniques that feel natural rather than hacky.
 
 ### 3. Safety & Memory Management
-Performance should not come at the cost of safety. Nova is designed with a memory management model that prioritizes both Safety (preventing common vulnerabilities) and Speed (minimal runtime overhead), ensuring developers can write fast code without fear of memory corruption.
+Performance should not come at the cost of safety. Kalidous is designed with a memory management model that prioritizes both **Safety** (preventing common vulnerabilities) and **Speed** (minimal runtime overhead), ensuring developers can write fast code without fear of memory corruption.
 
 ## Installation
 
@@ -46,12 +46,12 @@ Performance should not come at the cost of safety. Nova is designed with a memor
 Run the following command in your terminal:
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/GalaxyHaze/Nova/master/install.sh | bash
+curl -sSL https://raw.githubusercontent.com/GalaxyHaze/Kalidous-Lang/master/install.sh | bash
 ```
 
 To install a specific version:
 ```bash
-curl -sSL https://raw.githubusercontent.com/GalaxyHaze/Nova/master/install.sh | bash -s -- v.alpha-0.3
+curl -sSL https://raw.githubusercontent.com/GalaxyHaze/Kalidous-Lang/master/install.sh | bash -s -- v.alpha-0.3
 ```
 
 ### Windows
@@ -59,17 +59,21 @@ curl -sSL https://raw.githubusercontent.com/GalaxyHaze/Nova/master/install.sh | 
 Run the following command in PowerShell:
 
 ```powershell
-irm https://raw.githubusercontent.com/GalaxyHaze/Nova/master/install.ps1 | iex
+irm https://raw.githubusercontent.com/GalaxyHaze/Kalidous-Lang/master/install.ps1 | iex
 ```
 
 To install a specific version:
 ```powershell
-$env:NOVA_VERSION="v.alpha-0.3"; irm https://raw.githubusercontent.com/GalaxyHaze/Nova/master/install.ps1 | iex
+$env:KALIDOUS_VERSION="v.alpha-0.3"; irm https://raw.githubusercontent.com/GalaxyHaze/Kalidous-Lang/master/install.ps1 | iex
 ```
+
+## Documentation
+
+Full documentation is available at:
+https://bit.ly/kalidous-docs/
 
 ## Contributing
 
 Since this is a Work In Progress, contributions are valuable! Whether it's reporting bugs, discussing syntax ideas, or submitting code, we appreciate the help.
 
 > **Disclaimer:** The API, syntax, and compiler behavior are subject to change frequently during this phase.
-```

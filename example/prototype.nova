@@ -1,5 +1,0 @@
-@import std.io;
-fn   main() {
-    print("-Hello world!\n");
-    return 0;
-}
