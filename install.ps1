@@ -3,7 +3,7 @@ param(
 )
 
 # 1. Setup Global Variables
- $Repo = "GalaxyHaze/Nova"
+ $Repo = "GalaxyHaze/Dain"
  $ApiUrl = "https://api.github.com/repos/$Repo/releases/latest"
 
 # 2. Determine Version
@@ -59,7 +59,7 @@ catch {
 }
 
 # 6. Install
-Write-Host "Installing Nova to $InstallDir..."
+Write-Host "Installing Dain to $InstallDir..."
 
 try {
     # Ensure the directory exists

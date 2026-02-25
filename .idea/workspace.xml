@@ -27,12 +27,20 @@
   </component>
   <component name="CMakeSettings">
     <configurations>
-      <configuration PROFILE_NAME="Debug" ENABLED="true" CONFIG_NAME="Debug" GENERATION_OPTIONS="-DLLVM_DIR=/usr/lib/llvm/21/lib/cmake/llvm" />
-      <configuration PROFILE_NAME="Release" ENABLED="true" CONFIG_NAME="Release" GENERATION_OPTIONS="-DLLVM_DIR=/usr/lib/llvm/21/lib/cmake/llvm" />
+      <configuration PROFILE_NAME="Debug" ENABLED="true" CONFIG_NAME="Debug" />
+      <configuration PROFILE_NAME="Release" ENABLED="true" CONFIG_NAME="Release" />
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="937c7cd9-f519-449d-aec2-d8c7e63547e5" name="Changes" comment="LastBreath old days" />
+    <list default="true" id="937c7cd9-f519-449d-aec2-d8c7e63547e5" name="Changes" comment="Fix: Nova Doc update">
+      <change beforePath="$PROJECT_DIR$/.idea/editor.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/editor.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/NovaConfig.cmake.in" beforeDir="false" afterPath="$PROJECT_DIR$/DainConfig.cmake.in" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/include/Nova/nova.h" beforeDir="false" afterPath="$PROJECT_DIR$/include/Nova/dain.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/install.ps1" beforeDir="false" afterPath="$PROJECT_DIR$/install.ps1" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/nova-docs.html" beforeDir="false" afterPath="$PROJECT_DIR$/dain-docs.html" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -56,9 +64,6 @@
     &quot;assignee&quot;: &quot;GalaxyHaze&quot;
   }
 }</component>
-  <component name="GithubDefaultAccount">
-    <option name="defaultAccountId" value="37378ecd-26b5-45b4-b841-6aa474955bf4" />
-  </component>
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
     &quot;url&quot;: &quot;git@github.com:GalaxyHaze/Nova.git&quot;,
@@ -66,10 +71,7 @@
   }
 }</component>
   <component name="HighlightingSettingsPerFile">
-    <setting file="file://$PROJECT_DIR$/include/Nova/interface/CLI.h" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/include/Nova/memory/arena_c_functions.h" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/include/Nova/memory/file.h" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/include/Nova/parse/tokenizer.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/nova-docs.html" root0="SKIP_INSPECTION" />
   </component>
   <component name="MacroExpansionManager">
     <option name="directoryName" value="uvUc2C5F" />
@@ -91,32 +93,39 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;CMake Application.Nova.executor&quot;: &quot;Run&quot;,
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.RadMigrateCodeStyle&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.readMode.enableVisualFormatting&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.west.config.association.type.startup.service&quot;: &quot;true&quot;,
-    &quot;SHELLCHECK.PATH&quot;: &quot;/home/diogo/.local/share/JetBrains/CLion2025.3/Shell Script/shellcheck&quot;,
-    &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
-    &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;org.rust.first.attach.projects&quot;: &quot;true&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;org.jetbrains.plugins.github.ui.GithubSettingsConfigurable&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "CMake Application.Nova.executor": "Run",
+    "CMake Debug.Nova.executor": "Debug",
+    "JavaScript Debug.dain-docs.html.executor": "Run",
+    "JavaScript Debug.nova-docs.html.executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.RadMigrateCodeStyle": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.cidr.known.project.marker": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.readMode.enableVisualFormatting": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "RunOnceActivity.west.config.association.type.startup.service": "true",
+    "SHELLCHECK.PATH": "/home/diogo/.local/share/JetBrains/CLion2025.3/Shell Script/shellcheck",
+    "cf.first.check.clang-format": "false",
+    "cidr.known.project.marker": "true",
+    "git-widget-placeholder": "master",
+    "last_opened_file_path": "/home/diogo/CLionProjects/Dain",
+    "node.js.detected.package.eslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "org.rust.first.attach.projects": "true",
+    "settings.editor.selected.configurable": "CMakeSettings",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
-  <component name="RunManager">
+}]]></component>
+  <component name="RunManager" selected="JavaScript Debug.dain-docs.html">
+    <configuration name="Nova" type="CMakeListConfigurationType" factoryName="CMakeListConfigurationFactory" temporary="true">
+      <method v="2" />
+    </configuration>
     <configuration name="Nova" type="CMakeRunConfiguration" factoryName="Application" PROGRAM_PARAMS="tests/prototype.nova" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" WORKING_DIR="file://$PROJECT_DIR$" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Nova" TARGET_NAME="Nova" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="Nova" RUN_TARGET_NAME="Nova">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -127,6 +136,20 @@
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
+    <configuration name="dain-docs.html" type="JavascriptDebugType" temporary="true" nameIsGenerated="true" uri="http://localhost:63342/Nova/dain-docs.html" useBuiltInWebServerPort="true">
+      <method v="2" />
+    </configuration>
+    <list>
+      <item itemvalue="CMake Application.Nova" />
+      <item itemvalue="CMake Debug.Nova" />
+      <item itemvalue="JavaScript Debug.dain-docs.html" />
+    </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="JavaScript Debug.dain-docs.html" />
+        <item itemvalue="CMake Debug.Nova" />
+      </list>
+    </recent_temporary>
   </component>
   <component name="SvnConfiguration">
     <configuration>$USER_HOME$/.subversion</configuration>
@@ -171,6 +194,14 @@
       <workItem from="1770545008342" duration="31000" />
       <workItem from="1770545447680" duration="49000" />
       <workItem from="1770626875344" duration="42000" />
+      <workItem from="1770980023294" duration="121000" />
+      <workItem from="1770980470575" duration="576000" />
+      <workItem from="1770981939842" duration="302000" />
+      <workItem from="1771341131629" duration="3000" />
+      <workItem from="1771937202628" duration="612000" />
+      <workItem from="1772032097045" duration="2731000" />
+      <workItem from="1772036054419" duration="360000" />
+      <workItem from="1772038126938" duration="578000" />
     </task>
     <task id="LOCAL-00001" summary="ABI design update">
       <option name="closed" value="true" />
@@ -276,7 +307,47 @@
       <option name="project" value="LOCAL" />
       <updated>1770626880844</updated>
     </task>
-    <option name="localTasksCounter" value="14" />
+    <task id="LOCAL-00014" summary="Fix: nova_tokenize &amp; nova_lookup_keyword definitions">
+      <option name="closed" value="true" />
+      <created>1770980072856</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1770980072856</updated>
+    </task>
+    <task id="LOCAL-00015" summary="Fix: nova_tokenize &amp; nova_lookup_keyword definitions">
+      <option name="closed" value="true" />
+      <created>1770980923115</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1770980923115</updated>
+    </task>
+    <task id="LOCAL-00016" summary="Fix: nova_tokenize &amp; nova_lookup_keyword definitions">
+      <option name="closed" value="true" />
+      <created>1770982175143</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1770982175143</updated>
+    </task>
+    <task id="LOCAL-00017" summary="Fix: Nova update">
+      <option name="closed" value="true" />
+      <created>1772035410340</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1772035410341</updated>
+    </task>
+    <task id="LOCAL-00018" summary="Fix: Nova Doc update">
+      <option name="closed" value="true" />
+      <created>1772036126473</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1772036126474</updated>
+    </task>
+    <option name="localTasksCounter" value="19" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -326,7 +397,10 @@
     <MESSAGE value="More ABI corrections" />
     <MESSAGE value="FetchUpdate" />
     <MESSAGE value="LastBreath old days" />
-    <option name="LAST_COMMIT_MESSAGE" value="LastBreath old days" />
+    <MESSAGE value="Fix: nova_tokenize &amp; nova_lookup_keyword definitions" />
+    <MESSAGE value="Fix: Nova update" />
+    <MESSAGE value="Fix: Nova Doc update" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fix: Nova Doc update" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Nova — Documentation</title>
+  <title>Dain — Documentation</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
@@ -537,14 +537,14 @@
 
 <header>
   <div class="header-logo" onclick="navigate('intro')">
-    <div class="header-logo-mark">N</div>
-    Nova
+    <div class="header-logo-mark">Da</div>
+    Dain
   </div>
   <div class="header-divider"></div>
   <span class="header-tag">docs</span>
   <div class="header-spacer"></div>
   <nav class="header-links">
-    <a class="header-link" href="https://github.com/GalaxyHaze/Nova" target="_blank">GitHub</a>
+    <a class="header-link" href="https://github.com/GalaxyHaze/Dain" target="_blank">GitHub</a>
     <a class="header-link" href="#">Changelog</a>
   </nav>
   <span class="header-badge">v0.1.0-dev</span>
@@ -594,7 +594,7 @@
     <div class="sidebar-section">
       <div class="sidebar-label">Project</div>
       <div class="sidebar-item" onclick="navigate('project-toml')">
-        <span class="sidebar-item-dot"></span> novaProject.toml
+        <span class="sidebar-item-dot"></span> DainProject.toml
       </div>
     </div>
 
@@ -704,7 +704,7 @@
     <section class="page active" id="page-intro">
       <div class="hero-glow"></div>
       <div class="page-eyebrow">Getting Started</div>
-      <h1>Nova</h1>
+      <h1>Dain</h1>
       <p class="lead">A low-level, general-purpose language designed for explicit control flow, zero-cost abstractions, and a clear compilation pipeline.</p>
 
       <div class="version-badge">
@@ -712,8 +712,8 @@
         v0.1.0-dev — early demo
       </div>
 
-      <h2>What is Nova?</h2>
-      <p>Nova is a compiled, statically-typed language with an optional interpreted mode for fast development cycles. It exposes the full compilation pipeline as distinct CLI commands — so you always know exactly what stage your code is at.</p>
+      <h2>What is Dain?</h2>
+      <p>Dain is a compiled, statically-typed language with an optional interpreted mode for fast development cycles. It exposes the full compilation pipeline as distinct CLI commands — so you always know exactly what stage your code is at.</p>
 
       <h2>The Pipeline</h2>
       <p>Each CLI command corresponds to a stage. Every stage includes all previous stages:</p>
@@ -746,10 +746,10 @@
       </div>
 
       <h2>Quick Start</h2>
-      <p>Create a file <code>main.nova</code> and write your first program:</p>
+      <p>Create a file <code>main.dain</code> and write your first program:</p>
       <div class="code-block">
         <div class="code-block-header">
-          <span class="code-block-lang">nova</span>
+          <span class="code-block-lang">dain</span>
           <button class="code-block-copy" onclick="copyCode(this)">copy</button>
         </div>
         <pre><span class="tok-kw">import</span> std.io;
@@ -764,7 +764,7 @@
           <span class="code-block-lang">shell</span>
           <button class="code-block-copy" onclick="copyCode(this)">copy</button>
         </div>
-        <pre><span class="tok-fn">nova</span> run main.nova
+        <pre><span class="tok-fn">dain</span> run main.dain
 <span class="tok-ok">Hello World!</span></pre>
       </div>
       <p style="font-size:13px;margin-top:-4px"><a onclick="navigate('quickstart')" style="color:var(--accent);cursor:pointer">Full Quick Start guide →</a></p>
@@ -803,7 +803,7 @@
       </div>
       <div class="page-eyebrow">Getting Started</div>
       <h1>Installation</h1>
-      <p class="lead">Install Nova with a single command. The installer handles everything — the ABI, the latest compiler binary, and all required dynamic libraries.</p>
+      <p class="lead">Install Dain with a single command. The installer handles everything — the ABI, the latest compiler binary, and all required dynamic libraries.</p>
 
       <h2>Linux &amp; macOS</h2>
       <p>Run the install script from your terminal:</p>
@@ -812,7 +812,7 @@
           <span class="code-block-lang">shell</span>
           <button class="code-block-copy" onclick="copyCode(this)">copy</button>
         </div>
-        <pre><span class="tok-fn">curl</span> <span class="tok-flag">-sSL</span> https://raw.githubusercontent.com/GalaxyHaze/Nova/main/install.sh | <span class="tok-fn">sh</span></pre>
+        <pre><span class="tok-fn">curl</span> <span class="tok-flag">-sSL</span> https://raw.githubusercontent.com/GalaxyHaze/Dain/main/install.sh | <span class="tok-fn">sh</span></pre>
       </div>
 
       <h2>Windows</h2>
@@ -822,7 +822,7 @@
           <span class="code-block-lang">powershell</span>
           <button class="code-block-copy" onclick="copyCode(this)">copy</button>
         </div>
-        <pre><span class="tok-fn">irm</span> https://raw.githubusercontent.com/GalaxyHaze/Nova/main/install.ps1 | <span class="tok-fn">iex</span></pre>
+        <pre><span class="tok-fn">irm</span> https://raw.githubusercontent.com/GalaxyHaze/Dain/main/install.ps1 | <span class="tok-fn">iex</span></pre>
       </div>
 
       <div class="callout callout-tip">
@@ -836,8 +836,8 @@
           <span class="code-block-lang">shell</span>
           <button class="code-block-copy" onclick="copyCode(this)">copy</button>
         </div>
-        <pre><span class="tok-fn">nova</span> version
-<span class="tok-ok">Nova Programming Language</span>
+        <pre><span class="tok-fn">dain</span> version
+<span class="tok-ok">Dain Programming Language</span>
 <span class="tok-ok">Version: 0.1.0-dev</span></pre>
       </div>
     </section>
@@ -851,13 +851,13 @@
       </div>
       <div class="page-eyebrow">Getting Started</div>
       <h1>Quick Start</h1>
-      <p class="lead">Write and run your first Nova program in under a minute.</p>
+      <p class="lead">Write and run your first Dain program in under a minute.</p>
 
       <h2>1. Create a source file</h2>
-      <p>Create a file called <code>main.nova</code> with the following content:</p>
+      <p>Create a file called <code>main.dain</code> with the following content:</p>
       <div class="code-block">
         <div class="code-block-header">
-          <span class="code-block-lang">nova</span>
+          <span class="code-block-lang">dain</span>
           <button class="code-block-copy" onclick="copyCode(this)">copy</button>
         </div>
         <pre><span class="tok-kw">import</span> std.io;
@@ -868,13 +868,13 @@
       </div>
 
       <h2>2. Run it</h2>
-      <p>Use <code>nova run</code> to compile and execute in one step:</p>
+      <p>Use <code>dain run</code> to compile and execute in one step:</p>
       <div class="code-block">
         <div class="code-block-header">
           <span class="code-block-lang">shell</span>
           <button class="code-block-copy" onclick="copyCode(this)">copy</button>
         </div>
-        <pre><span class="tok-fn">nova</span> run main.nova
+        <pre><span class="tok-fn">dain</span> run main.dain
 <span class="tok-ok">Hello World!</span></pre>
       </div>
 
@@ -885,19 +885,19 @@
           <span class="code-block-lang">shell</span>
           <button class="code-block-copy" onclick="copyCode(this)">copy</button>
         </div>
-        <pre><span class="tok-fn">nova</span> run <span class="tok-flag">--interpreted</span> main.nova
+        <pre><span class="tok-fn">dain</span> run <span class="tok-flag">--interpreted</span> main.dain
 <span class="tok-ok">Hello World!</span></pre>
       </div>
 
       <h2>4. Check for errors without building</h2>
-      <p>Hook <code>nova check</code> into your editor's save event for instant feedback:</p>
+      <p>Hook <code>dain check</code> into your editor's save event for instant feedback:</p>
       <div class="code-block">
         <div class="code-block-header">
           <span class="code-block-lang">shell</span>
           <button class="code-block-copy" onclick="copyCode(this)">copy</button>
         </div>
-        <pre><span class="tok-fn">nova</span> check main.nova
-<span class="tok-ok">[ok] Check passed: main.nova</span></pre>
+        <pre><span class="tok-fn">dain</span> check main.dain
+<span class="tok-ok">[ok] Check passed: main.dain</span></pre>
       </div>
 
       <h2>5. Build a release binary</h2>
@@ -906,14 +906,14 @@
           <span class="code-block-lang">shell</span>
           <button class="code-block-copy" onclick="copyCode(this)">copy</button>
         </div>
-        <pre><span class="tok-fn">nova</span> build main.nova <span class="tok-flag">-m</span> release <span class="tok-flag">-o</span> <span class="tok-path">bin/hello</span>
+        <pre><span class="tok-fn">dain</span> build main.dain <span class="tok-flag">-m</span> release <span class="tok-flag">-o</span> <span class="tok-path">bin/hello</span>
 <span class="tok-fn">./bin/hello</span>
 <span class="tok-ok">Hello World!</span></pre>
       </div>
 
       <div class="callout callout-tip">
         <span class="callout-icon">→</span>
-        <div class="callout-body">Ready to grow your project? Add a <a onclick="navigate('project-toml')" style="color:var(--accent);cursor:pointer"><code>novaProject.toml</code></a> at the root and run <code>nova</code> with no arguments to build automatically.</div>
+        <div class="callout-body">Ready to grow your project? Add a <a onclick="navigate('project-toml')" style="color:var(--accent);cursor:pointer"><code>DainProject.toml</code></a> at the root and run <code>dain</code> with no arguments to build automatically.</div>
       </div>
     </section>
 
@@ -926,12 +926,12 @@
       </div>
       <div class="page-eyebrow">CLI Reference</div>
       <h1>CLI Overview</h1>
-      <p class="lead">The Nova CLI exposes the full compiler pipeline as individual commands. Each command maps to a distinct stage of compilation.</p>
+      <p class="lead">The Dain CLI exposes the full compiler pipeline as individual commands. Each command maps to a distinct stage of compilation.</p>
 
       <h2>Usage</h2>
       <div class="code-block">
         <div class="code-block-header"><span class="code-block-lang">shell</span></div>
-        <pre><span class="tok-fn">nova</span> [OPTIONS] &lt;COMMAND&gt; [ARGS]</pre>
+        <pre><span class="tok-fn">dain</span> [OPTIONS] &lt;COMMAND&gt; [ARGS]</pre>
       </div>
 
       <h2>Pipeline</h2>
@@ -963,15 +963,15 @@
       </div>
 
       <h2>Interpreted Mode</h2>
-      <p>Every command that produces or consumes a compiled artifact accepts <code>--interpreted</code>. This switches the target from native binary to Nova Bytecode (<code>.nbc</code>).</p>
+      <p>Every command that produces or consumes a compiled artifact accepts <code>--interpreted</code>. This switches the target from native binary to Dain Bytecode (<code>.nbc</code>).</p>
 
       <div class="table-wrap">
         <table>
           <thead><tr><th>Native</th><th>Interpreted equivalent</th></tr></thead>
           <tbody>
-          <tr><td>nova compile main.nova</td><td>nova compile --interpreted main.nova</td></tr>
-          <tr><td>nova execute</td><td>nova execute --interpreted</td></tr>
-          <tr><td>nova run</td><td>nova run --interpreted</td></tr>
+          <tr><td>dain compile main.dain</td><td>dain compile --interpreted main.dain</td></tr>
+          <tr><td>dain execute</td><td>dain execute --interpreted</td></tr>
+          <tr><td>dain run</td><td>dain run --interpreted</td></tr>
           </tbody>
         </table>
       </div>
@@ -982,7 +982,7 @@
       </div>
 
       <h2>Project Resolution</h2>
-      <p>Commands that accept an optional <code>input</code> file will fall back to reading <code>novaProject.toml</code> in the current directory when no file is specified. If neither is found, the command fails with an explicit error.</p>
+      <p>Commands that accept an optional <code>input</code> file will fall back to reading <code>DainProject.toml</code> in the current directory when no file is specified. If neither is found, the command fails with an explicit error.</p>
     </section>
 
     <!-- CMD: CHECK -->
@@ -995,13 +995,13 @@
         <span>check</span>
       </div>
       <div class="page-eyebrow">CLI Reference</div>
-      <h1>nova check</h1>
+      <h1>dain check</h1>
       <p class="lead">Parse and type-check a source file. Reports all errors to stderr. Produces no output files.</p>
 
       <h2>Synopsis</h2>
       <div class="code-block">
         <div class="code-block-header"><span class="code-block-lang">shell</span></div>
-        <pre><span class="tok-fn">nova</span> check [input] [<span class="tok-flag">-m</span> MODE] [<span class="tok-flag">-v</span>]</pre>
+        <pre><span class="tok-fn">dain</span> check [input] [<span class="tok-flag">-m</span> MODE] [<span class="tok-flag">-v</span>]</pre>
       </div>
 
       <h2>Arguments</h2>
@@ -1009,7 +1009,7 @@
         <table>
           <thead><tr><th>Argument</th><th>Description</th></tr></thead>
           <tbody>
-          <tr><td>input</td><td>Source file to check. Optional — reads <code>novaProject.toml</code> if omitted.</td></tr>
+          <tr><td>input</td><td>Source file to check. Optional — reads <code>DainProject.toml</code> if omitted.</td></tr>
           </tbody>
         </table>
       </div>
@@ -1018,13 +1018,13 @@
       <div class="code-block">
         <div class="code-block-header"><span class="code-block-lang">shell</span><button class="code-block-copy" onclick="copyCode(this)">copy</button></div>
         <pre><span class="tok-cmt"># check a specific file</span>
-<span class="tok-fn">nova</span> check main.nova
+<span class="tok-fn">dain</span> check main.dain
 
 <span class="tok-cmt"># check with verbose output</span>
-<span class="tok-fn">nova</span> check main.nova <span class="tok-flag">-v</span>
+<span class="tok-fn">dain</span> check main.dain <span class="tok-flag">-v</span>
 
-<span class="tok-cmt"># check entry from novaProject.toml</span>
-<span class="tok-fn">nova</span> check</pre>
+<span class="tok-cmt"># check entry from DainProject.toml</span>
+<span class="tok-fn">dain</span> check</pre>
       </div>
 
       <h2>Output</h2>
@@ -1046,13 +1046,13 @@
         <span>compile</span>
       </div>
       <div class="page-eyebrow">CLI Reference</div>
-      <h1>nova compile</h1>
+      <h1>dain compile</h1>
       <p class="lead">Compile a source file to an IR/object file (native) or bytecode file (interpreted). Does not link.</p>
 
       <h2>Synopsis</h2>
       <div class="code-block">
         <div class="code-block-header"><span class="code-block-lang">shell</span></div>
-        <pre><span class="tok-fn">nova</span> compile &lt;input&gt; [<span class="tok-flag">-o</span> OUTPUT] [<span class="tok-flag">--interpreted</span>] [<span class="tok-flag">-m</span> MODE] [<span class="tok-flag">-I</span> DIR] [<span class="tok-flag">-v</span>]</pre>
+        <pre><span class="tok-fn">dain</span> compile &lt;input&gt; [<span class="tok-flag">-o</span> OUTPUT] [<span class="tok-flag">--interpreted</span>] [<span class="tok-flag">-m</span> MODE] [<span class="tok-flag">-I</span> DIR] [<span class="tok-flag">-v</span>]</pre>
       </div>
 
       <h2>Arguments & Flags</h2>
@@ -1060,9 +1060,9 @@
         <table>
           <thead><tr><th>Flag</th><th>Description</th></tr></thead>
           <tbody>
-          <tr><td>input</td><td>Source file (.nova). Required.</td></tr>
+          <tr><td>input</td><td>Source file (.dain). Required.</td></tr>
           <tr><td>-o, --output</td><td>Output file. Defaults to <code>a.o</code> (native) or <code>a.nbc</code> (interpreted).</td></tr>
-          <tr><td>--interpreted</td><td>Compile to Nova Bytecode (.nbc) instead of native object.</td></tr>
+          <tr><td>--interpreted</td><td>Compile to Dain Bytecode (.nbc) instead of native object.</td></tr>
           <tr><td>-m, --mode</td><td>Build mode. See <a onclick="navigate('cli-flags')" style="color:var(--accent);cursor:pointer">Global Flags</a>.</td></tr>
           <tr><td>-I, --include</td><td>Add include directory. Repeatable.</td></tr>
           </tbody>
@@ -1073,13 +1073,13 @@
       <div class="code-block">
         <div class="code-block-header"><span class="code-block-lang">shell</span><button class="code-block-copy" onclick="copyCode(this)">copy</button></div>
         <pre><span class="tok-cmt"># compile to native object</span>
-<span class="tok-fn">nova</span> compile main.nova <span class="tok-flag">-o</span> <span class="tok-path">main.o</span>
+<span class="tok-fn">dain</span> compile main.dain <span class="tok-flag">-o</span> <span class="tok-path">main.o</span>
 
 <span class="tok-cmt"># compile to bytecode</span>
-<span class="tok-fn">nova</span> compile <span class="tok-flag">--interpreted</span> main.nova <span class="tok-flag">-o</span> <span class="tok-path">main.nbc</span>
+<span class="tok-fn">dain</span> compile <span class="tok-flag">--interpreted</span> main.dain <span class="tok-flag">-o</span> <span class="tok-path">main.nbc</span>
 
 <span class="tok-cmt"># release mode with include paths</span>
-<span class="tok-fn">nova</span> compile main.nova <span class="tok-flag">-m</span> release <span class="tok-flag">-I</span> <span class="tok-path">./libs</span> <span class="tok-flag">-I</span> <span class="tok-path">./vendor</span></pre>
+<span class="tok-fn">dain</span> compile main.dain <span class="tok-flag">-m</span> release <span class="tok-flag">-I</span> <span class="tok-path">./libs</span> <span class="tok-flag">-I</span> <span class="tok-path">./vendor</span></pre>
       </div>
     </section>
 
@@ -1093,17 +1093,17 @@
         <span>build</span>
       </div>
       <div class="page-eyebrow">CLI Reference</div>
-      <h1>nova build</h1>
+      <h1>dain build</h1>
       <p class="lead">Compile and link to a native binary. Always produces a native executable — there is no interpreted mode for build.</p>
 
       <h2>Synopsis</h2>
       <div class="code-block">
         <div class="code-block-header"><span class="code-block-lang">shell</span></div>
-        <pre><span class="tok-fn">nova</span> build [input] [<span class="tok-flag">-o</span> OUTPUT] [<span class="tok-flag">-m</span> MODE] [<span class="tok-flag">-I</span> DIR] [<span class="tok-flag">-v</span>]</pre>
+        <pre><span class="tok-fn">dain</span> build [input] [<span class="tok-flag">-o</span> OUTPUT] [<span class="tok-flag">-m</span> MODE] [<span class="tok-flag">-I</span> DIR] [<span class="tok-flag">-v</span>]</pre>
       </div>
 
       <h2>Project Resolution</h2>
-      <p>When <code>input</code> is omitted, <code>build</code> reads <code>novaProject.toml</code> from the current directory. CLI flags take precedence over toml values.</p>
+      <p>When <code>input</code> is omitted, <code>build</code> reads <code>DainProject.toml</code> from the current directory. CLI flags take precedence over toml values.</p>
 
       <div class="callout callout-note">
         <span class="callout-icon">i</span>
@@ -1113,14 +1113,14 @@
       <h2>Examples</h2>
       <div class="code-block">
         <div class="code-block-header"><span class="code-block-lang">shell</span><button class="code-block-copy" onclick="copyCode(this)">copy</button></div>
-        <pre><span class="tok-cmt"># build from novaProject.toml</span>
-<span class="tok-fn">nova</span> build
+        <pre><span class="tok-cmt"># build from DainProject.toml</span>
+<span class="tok-fn">dain</span> build
 
 <span class="tok-cmt"># build a specific file</span>
-<span class="tok-fn">nova</span> build main.nova <span class="tok-flag">-o</span> <span class="tok-path">bin/app</span>
+<span class="tok-fn">dain</span> build main.dain <span class="tok-flag">-o</span> <span class="tok-path">bin/app</span>
 
 <span class="tok-cmt"># release build</span>
-<span class="tok-fn">nova</span> build <span class="tok-flag">-m</span> release <span class="tok-flag">-o</span> <span class="tok-path">bin/app</span></pre>
+<span class="tok-fn">dain</span> build <span class="tok-flag">-m</span> release <span class="tok-flag">-o</span> <span class="tok-path">bin/app</span></pre>
       </div>
     </section>
 
@@ -1134,25 +1134,25 @@
         <span>execute</span>
       </div>
       <div class="page-eyebrow">CLI Reference</div>
-      <h1>nova execute</h1>
+      <h1>dain execute</h1>
       <p class="lead">Run an existing binary or bytecode file. Does not compile anything. Fails with an explicit error if the target is not found.</p>
 
       <h2>Synopsis</h2>
       <div class="code-block">
         <div class="code-block-header"><span class="code-block-lang">shell</span></div>
-        <pre><span class="tok-fn">nova</span> execute [target] [<span class="tok-flag">--interpreted</span>] [<span class="tok-flag">-v</span>]</pre>
+        <pre><span class="tok-fn">dain</span> execute [target] [<span class="tok-flag">--interpreted</span>] [<span class="tok-flag">-v</span>]</pre>
       </div>
 
       <h2>Target Resolution</h2>
-      <p>When <code>target</code> is omitted, reads <code>output</code> from <code>novaProject.toml</code>. If no toml exists, the command fails immediately.</p>
+      <p>When <code>target</code> is omitted, reads <code>output</code> from <code>DainProject.toml</code>. If no toml exists, the command fails immediately.</p>
 
       <div class="table-wrap">
         <table>
           <thead><tr><th>Invocation</th><th>Resolves to</th></tr></thead>
           <tbody>
-          <tr><td>nova execute</td><td><code>toml.output</code></td></tr>
-          <tr><td>nova execute --interpreted</td><td><code>toml.output.nbc</code></td></tr>
-          <tr><td>nova execute bin/app</td><td><code>bin/app</code></td></tr>
+          <tr><td>dain execute</td><td><code>toml.output</code></td></tr>
+          <tr><td>dain execute --interpreted</td><td><code>toml.output.nbc</code></td></tr>
+          <tr><td>dain execute bin/app</td><td><code>bin/app</code></td></tr>
           </tbody>
         </table>
       </div>
@@ -1161,13 +1161,13 @@
       <div class="code-block">
         <div class="code-block-header"><span class="code-block-lang">shell</span><button class="code-block-copy" onclick="copyCode(this)">copy</button></div>
         <pre><span class="tok-cmt"># run binary from toml</span>
-<span class="tok-fn">nova</span> execute
+<span class="tok-fn">dain</span> execute
 
 <span class="tok-cmt"># run specific binary</span>
-<span class="tok-fn">nova</span> execute <span class="tok-path">bin/app</span>
+<span class="tok-fn">dain</span> execute <span class="tok-path">bin/app</span>
 
 <span class="tok-cmt"># run bytecode</span>
-<span class="tok-fn">nova</span> execute <span class="tok-flag">--interpreted</span> <span class="tok-path">bin/app.nbc</span></pre>
+<span class="tok-fn">dain</span> execute <span class="tok-flag">--interpreted</span> <span class="tok-path">bin/app.nbc</span></pre>
       </div>
 
       <div class="callout callout-warn">
@@ -1186,13 +1186,13 @@
         <span>run</span>
       </div>
       <div class="page-eyebrow">CLI Reference</div>
-      <h1>nova run</h1>
-      <p class="lead">Build and execute in a single step. Equivalent to <code>nova build &amp;&amp; nova execute</code>.</p>
+      <h1>dain run</h1>
+      <p class="lead">Build and execute in a single step. Equivalent to <code>dain build &amp;&amp; dain execute</code>.</p>
 
       <h2>Synopsis</h2>
       <div class="code-block">
         <div class="code-block-header"><span class="code-block-lang">shell</span></div>
-        <pre><span class="tok-fn">nova</span> run [input] [<span class="tok-flag">-o</span> OUTPUT] [<span class="tok-flag">--interpreted</span>] [<span class="tok-flag">-m</span> MODE] [<span class="tok-flag">-I</span> DIR] [<span class="tok-flag">-v</span>]</pre>
+        <pre><span class="tok-fn">dain</span> run [input] [<span class="tok-flag">-o</span> OUTPUT] [<span class="tok-flag">--interpreted</span>] [<span class="tok-flag">-m</span> MODE] [<span class="tok-flag">-I</span> DIR] [<span class="tok-flag">-v</span>]</pre>
       </div>
 
       <h2>Interpreted Mode</h2>
@@ -1202,8 +1202,8 @@
         <table>
           <thead><tr><th>Command</th><th>Equivalent to</th></tr></thead>
           <tbody>
-          <tr><td>nova run</td><td>nova build &amp;&amp; nova execute</td></tr>
-          <tr><td>nova run --interpreted</td><td>nova compile --interpreted &amp;&amp; nova execute --interpreted</td></tr>
+          <tr><td>dain run</td><td>dain build &amp;&amp; dain execute</td></tr>
+          <tr><td>dain run --interpreted</td><td>dain compile --interpreted &amp;&amp; dain execute --interpreted</td></tr>
           </tbody>
         </table>
       </div>
@@ -1212,16 +1212,16 @@
       <div class="code-block">
         <div class="code-block-header"><span class="code-block-lang">shell</span><button class="code-block-copy" onclick="copyCode(this)">copy</button></div>
         <pre><span class="tok-cmt"># build and run from toml</span>
-<span class="tok-fn">nova</span> run
+<span class="tok-fn">dain</span> run
 
 <span class="tok-cmt"># run a specific file</span>
-<span class="tok-fn">nova</span> run main.nova
+<span class="tok-fn">dain</span> run main.dain
 
 <span class="tok-cmt"># interpreted mode (fast iteration)</span>
-<span class="tok-fn">nova</span> run <span class="tok-flag">--interpreted</span> main.nova
+<span class="tok-fn">dain</span> run <span class="tok-flag">--interpreted</span> main.dain
 
 <span class="tok-cmt"># release build and run</span>
-<span class="tok-fn">nova</span> run <span class="tok-flag">-m</span> release</pre>
+<span class="tok-fn">dain</span> run <span class="tok-flag">-m</span> release</pre>
       </div>
     </section>
 
@@ -1289,21 +1289,21 @@
       <div class="breadcrumb">
         <span onclick="navigate('intro')" style="cursor:pointer">docs</span>
         <span class="breadcrumb-sep">/</span>
-        <span>novaProject.toml</span>
+        <span>DainProject.toml</span>
       </div>
       <div class="page-eyebrow">Project</div>
-      <h1>novaProject.toml</h1>
+      <h1>DainProject.toml</h1>
       <p class="lead">The project manifest file. Placed at the root of your project, it lets <code>build</code>, <code>run</code>, <code>check</code>, and <code>execute</code> work without explicit file arguments.</p>
 
       <h2>Example</h2>
       <div class="code-block">
         <div class="code-block-header"><span class="code-block-lang">toml</span><button class="code-block-copy" onclick="copyCode(this)">copy</button></div>
-        <pre><span class="tok-cmt"># novaProject.toml</span>
+        <pre><span class="tok-cmt"># DainProject.toml</span>
 
 [<span class="tok-kw">project</span>]
 <span class="tok-flag">name</span>    = <span class="tok-str">"my_project"</span>
 <span class="tok-flag">version</span> = <span class="tok-str">"0.1.0"</span>
-<span class="tok-flag">entry</span>   = <span class="tok-str">"src/main.nova"</span>
+<span class="tok-flag">entry</span>   = <span class="tok-str">"src/main.dain"</span>
 
 [<span class="tok-kw">build</span>]
 <span class="tok-flag">mode</span>    = <span class="tok-str">"debug"</span>
@@ -1341,7 +1341,7 @@
 
       <div class="callout callout-tip">
         <span class="callout-icon">→</span>
-        <div class="callout-body">Running <code>nova</code> with no arguments in a directory that has a <code>novaProject.toml</code> will automatically invoke <code>nova build</code>.</div>
+        <div class="callout-body">Running <code>dain</code> with no arguments in a directory that has a <code>DainProject.toml</code> will automatically invoke <code>dain build</code>.</div>
       </div>
     </section>
 
@@ -1350,7 +1350,7 @@
       <div class="breadcrumb"><span onclick="navigate('intro')" style="cursor:pointer">docs</span><span class="breadcrumb-sep">/</span><span>language</span></div>
       <div class="page-eyebrow">Language Guide</div>
       <h1>Language Overview</h1>
-      <p class="lead">Nova is statically typed with a focus on explicit control flow and zero-cost abstractions.</p>
+      <p class="lead">Dain is statically typed with a focus on explicit control flow and zero-cost abstractions.</p>
       <div class="callout callout-note"><span class="callout-icon">i</span><div class="callout-body">This section is under construction. Content will be available in a future release.</div></div>
     </section>
 
@@ -1358,7 +1358,7 @@
       <div class="breadcrumb"><span onclick="navigate('intro')" style="cursor:pointer">docs</span><span class="breadcrumb-sep">/</span><span onclick="navigate('lang-overview')" style="cursor:pointer">language</span><span class="breadcrumb-sep">/</span><span>syntax</span></div>
       <div class="page-eyebrow">Language Guide</div>
       <h1>Syntax Basics</h1>
-      <p class="lead">Nova's syntax is influenced by modern systems languages, favoring clarity and explicitness.</p>
+      <p class="lead">Dain's syntax is influenced by modern systems languages, favoring clarity and explicitness.</p>
       <div class="callout callout-note"><span class="callout-icon">i</span><div class="callout-body">This section is under construction. Content will be available in a future release.</div></div>
     </section>
 
@@ -1366,7 +1366,7 @@
       <div class="breadcrumb"><span onclick="navigate('intro')" style="cursor:pointer">docs</span><span class="breadcrumb-sep">/</span><span onclick="navigate('lang-overview')" style="cursor:pointer">language</span><span class="breadcrumb-sep">/</span><span>variables</span></div>
       <div class="page-eyebrow">Language Guide</div>
       <h1>Variables &amp; Constants</h1>
-      <p class="lead">Nova distinguishes between mutable variables and immutable constants at the syntax level.</p>
+      <p class="lead">Dain distinguishes between mutable variables and immutable constants at the syntax level.</p>
       <div class="callout callout-note"><span class="callout-icon">i</span><div class="callout-body">This section is under construction. Content will be available in a future release.</div></div>
     </section>
 
@@ -1374,7 +1374,7 @@
       <div class="breadcrumb"><span onclick="navigate('intro')" style="cursor:pointer">docs</span><span class="breadcrumb-sep">/</span><span onclick="navigate('lang-overview')" style="cursor:pointer">language</span><span class="breadcrumb-sep">/</span><span>types</span></div>
       <div class="page-eyebrow">Language Guide</div>
       <h1>Types</h1>
-      <p class="lead">Nova's type system includes primitives, compound types, and user-defined custom types.</p>
+      <p class="lead">Dain's type system includes primitives, compound types, and user-defined custom types.</p>
       <div class="callout callout-note"><span class="callout-icon">i</span><div class="callout-body">This section is under construction. Content will be available in a future release.</div></div>
     </section>
 
@@ -1398,7 +1398,7 @@
       <div class="breadcrumb"><span onclick="navigate('intro')" style="cursor:pointer">docs</span><span class="breadcrumb-sep">/</span><span onclick="navigate('lang-overview')" style="cursor:pointer">language</span><span class="breadcrumb-sep">/</span><span>memory</span></div>
       <div class="page-eyebrow">Language Guide</div>
       <h1>Memory Management</h1>
-      <p class="lead">Nova gives you explicit control over memory with a deterministic ownership model.</p>
+      <p class="lead">Dain gives you explicit control over memory with a deterministic ownership model.</p>
       <div class="callout callout-note"><span class="callout-icon">i</span><div class="callout-body">This section is under construction. Content will be available in a future release.</div></div>
     </section>
 
@@ -1406,7 +1406,7 @@
       <div class="breadcrumb"><span onclick="navigate('intro')" style="cursor:pointer">docs</span><span class="breadcrumb-sep">/</span><span onclick="navigate('lang-overview')" style="cursor:pointer">language</span><span class="breadcrumb-sep">/</span><span>errors</span></div>
       <div class="page-eyebrow">Language Guide</div>
       <h1>Error Handling</h1>
-      <p class="lead">Nova uses typed error returns rather than exceptions for explicit, composable error handling.</p>
+      <p class="lead">Dain uses typed error returns rather than exceptions for explicit, composable error handling.</p>
       <div class="callout callout-note"><span class="callout-icon">i</span><div class="callout-body">This section is under construction. Content will be available in a future release.</div></div>
     </section>
 
@@ -1414,7 +1414,7 @@
       <div class="breadcrumb"><span onclick="navigate('intro')" style="cursor:pointer">docs</span><span class="breadcrumb-sep">/</span><span onclick="navigate('lang-overview')" style="cursor:pointer">language</span><span class="breadcrumb-sep">/</span><span>modules</span></div>
       <div class="page-eyebrow">Language Guide</div>
       <h1>Modules &amp; Imports</h1>
-      <p class="lead">Nova's module system is path-based with explicit imports and no hidden global state.</p>
+      <p class="lead">Dain's module system is path-based with explicit imports and no hidden global state.</p>
       <div class="callout callout-note"><span class="callout-icon">i</span><div class="callout-body">This section is under construction. Content will be available in a future release.</div></div>
     </section>
 
@@ -1431,7 +1431,7 @@
       <div class="breadcrumb"><span onclick="navigate('intro')" style="cursor:pointer">docs</span><span class="breadcrumb-sep">/</span><span>stdlib</span></div>
       <div class="page-eyebrow">Standard Library</div>
       <h1>Standard Library</h1>
-      <p class="lead">Nova's standard library provides modules for I/O, collections, strings, math, and system access.</p>
+      <p class="lead">Dain's standard library provides modules for I/O, collections, strings, math, and system access.</p>
       <div class="callout callout-note"><span class="callout-icon">i</span><div class="callout-body">Standard library documentation is under construction and will be available in a future release.</div></div>
     </section>
 
@@ -1442,28 +1442,28 @@
     <section class="page" id="page-stdlib-system"><div class="page-eyebrow">Standard Library</div><h1>System</h1><div class="callout callout-note"><span class="callout-icon">i</span><div class="callout-body">Under construction.</div></div></section>
 
     <!-- ADVANCED stubs -->
-    <section class="page" id="page-adv-ffi"><div class="page-eyebrow">Advanced Topics</div><h1>FFI</h1><p class="lead">Call C libraries and expose Nova symbols to external code.</p><div class="callout callout-note"><span class="callout-icon">i</span><div class="callout-body">Under construction.</div></div></section>
+    <section class="page" id="page-adv-ffi"><div class="page-eyebrow">Advanced Topics</div><h1>FFI</h1><p class="lead">Call C libraries and expose Dain symbols to external code.</p><div class="callout callout-note"><span class="callout-icon">i</span><div class="callout-body">Under construction.</div></div></section>
     <section class="page" id="page-adv-concurrency"><div class="page-eyebrow">Advanced Topics</div><h1>Concurrency</h1><p class="lead">Structured concurrency primitives for safe parallel execution.</p><div class="callout callout-note"><span class="callout-icon">i</span><div class="callout-body">Under construction.</div></div></section>
     <section class="page" id="page-adv-meta"><div class="page-eyebrow">Advanced Topics</div><h1>Metaprogramming</h1><p class="lead">Compile-time code generation and reflection.</p><div class="callout callout-note"><span class="callout-icon">i</span><div class="callout-body">Under construction.</div></div></section>
     <section class="page" id="page-adv-opt"><div class="page-eyebrow">Advanced Topics</div><h1>Optimization Tips</h1><p class="lead">Profiling, inlining, and build-mode tuning for maximum performance.</p><div class="callout callout-note"><span class="callout-icon">i</span><div class="callout-body">Under construction.</div></div></section>
 
     <!-- TOOLING stubs -->
     <section class="page" id="page-tool-editor"><div class="page-eyebrow">Tooling</div><h1>Editor Setup</h1><p class="lead">Syntax highlighting and LSP support for VS Code, Neovim, and more.</p><div class="callout callout-note"><span class="callout-icon">i</span><div class="callout-body">Under construction.</div></div></section>
-    <section class="page" id="page-tool-debug"><div class="page-eyebrow">Tooling</div><h1>Debugging</h1><p class="lead">Using GDB/LLDB with Nova's debug symbols.</p><div class="callout callout-note"><span class="callout-icon">i</span><div class="callout-body">Under construction.</div></div></section>
-    <section class="page" id="page-tool-testing"><div class="page-eyebrow">Tooling</div><h1>Testing</h1><p class="lead">Built-in test harness via <code>nova build -m test</code>.</p><div class="callout callout-note"><span class="callout-icon">i</span><div class="callout-body">Under construction.</div></div></section>
+    <section class="page" id="page-tool-debug"><div class="page-eyebrow">Tooling</div><h1>Debugging</h1><p class="lead">Using GDB/LLDB with Dain's debug symbols.</p><div class="callout callout-note"><span class="callout-icon">i</span><div class="callout-body">Under construction.</div></div></section>
+    <section class="page" id="page-tool-testing"><div class="page-eyebrow">Tooling</div><h1>Testing</h1><p class="lead">Built-in test harness via <code>dain build -m test</code>.</p><div class="callout callout-note"><span class="callout-icon">i</span><div class="callout-body">Under construction.</div></div></section>
 
     <!-- ROADMAP -->
     <section class="page" id="page-roadmap">
       <div class="breadcrumb"><span onclick="navigate('intro')" style="cursor:pointer">docs</span><span class="breadcrumb-sep">/</span><span>roadmap</span></div>
       <div class="page-eyebrow">Roadmap</div>
       <h1>Roadmap</h1>
-      <p class="lead">Nova is at v0.1.0-dev. The language and toolchain are under active development.</p>
+      <p class="lead">Dain is at v0.1.0-dev. The language and toolchain are under active development.</p>
       <div class="callout callout-warn">
         <span class="callout-icon">!</span>
         <div class="callout-body">APIs and language syntax may change before v1.0. Do not use in production.</div>
       </div>
       <h2>Currently Available (v0.1.0)</h2>
-      <p>Core CLI pipeline: <code>check</code>, <code>compile</code>, <code>build</code>, <code>execute</code>, <code>run</code>. Native compilation and interpreted bytecode mode. <code>novaProject.toml</code> project manifest.</p>
+      <p>Core CLI pipeline: <code>check</code>, <code>compile</code>, <code>build</code>, <code>execute</code>, <code>run</code>. Native compilation and interpreted bytecode mode. <code>DainProject.toml</code> project manifest.</p>
       <h2>Planned Features</h2>
       <p>Cross-compilation via <code>--target</code>. IR/ASM/obj emission via <code>--emit</code>. Full standard library documentation. Package manager. LSP server.</p>
     </section>
@@ -1473,12 +1473,12 @@
       <div class="breadcrumb"><span onclick="navigate('intro')" style="cursor:pointer">docs</span><span class="breadcrumb-sep">/</span><span>community</span></div>
       <div class="page-eyebrow">Community</div>
       <h1>Community</h1>
-      <p class="lead">Nova is open-source and community-driven. Contributions are welcome.</p>
+      <p class="lead">Dain is open-source and community-driven. Contributions are welcome.</p>
       <div class="table-wrap">
         <table>
           <thead><tr><th>Platform</th><th>Link</th></tr></thead>
           <tbody>
-          <tr><td>GitHub</td><td><a href="https://github.com/GalaxyHaze/Nova" style="color:var(--accent)">github.com/GalaxyHaze/Nova</a></td></tr>
+          <tr><td>GitHub</td><td><a href="https://github.com/GalaxyHaze/Dain" style="color:var(--accent)">github.com/GalaxyHaze/Dain</a></td></tr>
           <tr><td>Discord</td><td><span style="color:var(--text-3)">Coming soon</span></td></tr>
           </tbody>
         </table>
