@@ -101,7 +101,9 @@
       font-size: 14px; font-weight: 900; color: #060608;
       font-family: var(--font-display);
       box-shadow: 0 0 20px rgba(240, 180, 41, 0.35);
+      transition: transform var(--transition);
     }
+    .header-logo:hover .header-logo-mark { transform: scale(1.05); }
 
     .header-divider { width: 1px; height: 18px; background: var(--border-2); }
 
@@ -138,12 +140,49 @@
       letter-spacing: 0.04em;
     }
 
+    /* Mobile Toggle */
+    .mobile-toggle {
+      display: none;
+      background: none;
+      border: none;
+      color: var(--text);
+      cursor: pointer;
+      padding: 8px;
+      margin-right: -8px;
+    }
+    .mobile-toggle span {
+      display: block;
+      width: 20px;
+      height: 2px;
+      background: var(--text-2);
+      margin-bottom: 4px;
+      border-radius: 2px;
+      transition: all 0.3s ease;
+    }
+    .mobile-toggle.active span:nth-child(1) { transform: rotate(45deg) translate(4px, 4px); background: var(--accent); }
+    .mobile-toggle.active span:nth-child(2) { opacity: 0; }
+    .mobile-toggle.active span:nth-child(3) { transform: rotate(-45deg) translate(4px, -4px); background: var(--accent); }
+
     /* ── Layout ── */
     .layout {
       display: flex;
       padding-top: var(--header-h);
       min-height: 100vh;
+      position: relative;
     }
+
+    /* Mobile Overlay */
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(4px);
+      z-index: 90; /* Below header (100), above content */
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    .sidebar-overlay.visible { opacity: 1; }
 
     /* ── Sidebar ── */
     .sidebar {
@@ -157,6 +196,36 @@
       padding: 28px 0 60px;
       border-right: 1px solid var(--border);
       background: var(--bg);
+      z-index: 95;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .sidebar-search {
+      margin: 0 22px 20px;
+      position: relative;
+    }
+    .sidebar-search input {
+      width: 100%;
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 8px 12px 8px 32px;
+      border-radius: var(--radius);
+      font-size: 13px;
+      font-family: var(--font-sans);
+      outline: none;
+      transition: border-color var(--transition);
+    }
+    .sidebar-search input:focus { border-color: var(--accent); }
+    .sidebar-search::before {
+      content: '⌘';
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-3);
+      font-size: 11px;
+      font-family: var(--font-mono);
     }
 
     .sidebar-section { margin-bottom: 6px; }
@@ -178,7 +247,7 @@
       color: var(--text-2);
       cursor: pointer;
       border-left: 2px solid transparent;
-      transition: color var(--transition), background var(--transition), border-color var(--transition);
+      transition: all 0.2s ease;
       position: relative;
       font-weight: 400;
     }
@@ -186,6 +255,7 @@
     .sidebar-item:hover {
       color: var(--text);
       background: var(--bg-2);
+      padding-left: 24px; /* Subtle movement */
     }
 
     .sidebar-item.active {
@@ -200,9 +270,12 @@
       border-radius: 50%;
       background: var(--border-3);
       flex-shrink: 0;
-      transition: background var(--transition);
+      transition: all 0.2s ease;
     }
-    .sidebar-item.active .sidebar-item-dot { background: var(--accent); }
+    .sidebar-item.active .sidebar-item-dot {
+      background: var(--accent);
+      box-shadow: 0 0 8px var(--accent);
+    }
 
     /* ── Main content ── */
     .main {
@@ -212,12 +285,24 @@
       padding: 60px 72px 140px;
     }
 
-    /* ── Pages ── */
+    /* ── Pages & Animations ── */
     .page { display: none; }
-    .page.active { display: block; animation: fadeUp 220ms ease; }
+    .page.active { display: block; }
+
+    /* Staggered animation classes */
+    .animate-in {
+      opacity: 0;
+      transform: translateY(10px);
+      animation: fadeUp 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+    }
+
+    .page.active .page-eyebrow { animation-delay: 0ms; }
+    .page.active h1 { animation-delay: 50ms; }
+    .page.active .lead { animation-delay: 100ms; }
+    .page-active-block > * { opacity: 0; animation: fadeUp 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
 
     @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(8px); }
+      from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: none; }
     }
 
@@ -326,10 +411,15 @@
       border-radius: 4px;
       padding: 3px 9px;
       cursor: pointer;
-      transition: color var(--transition), border-color var(--transition), background var(--transition);
+      transition: all 0.2s ease;
       letter-spacing: 0.04em;
     }
     .code-block-copy:hover { color: var(--text); border-color: var(--text-3); background: var(--bg-4); }
+    .code-block-copy.copied {
+      color: var(--bg);
+      background: var(--green);
+      border-color: var(--green);
+    }
 
     .code-block pre {
       padding: 22px 20px;
@@ -401,7 +491,7 @@
     .callout-body { color: var(--text-2); }
     .callout-body strong { color: var(--text); }
 
-    /* ── Pipeline ── */
+    /* ── Pipeline Animation ── */
     .pipeline {
       display: flex; align-items: center;
       margin: 26px 0;
@@ -410,7 +500,7 @@
       gap: 0;
     }
 
-    .pipeline-step { display: flex; flex-direction: column; align-items: center; gap: 5px; flex-shrink: 0; }
+    .pipeline-step { display: flex; flex-direction: column; align-items: center; gap: 5px; flex-shrink: 0; position: relative; }
 
     .pipeline-box {
       padding: 9px 20px;
@@ -420,20 +510,47 @@
       font-size: 13px;
       color: var(--text-2);
       background: var(--bg-2);
-      transition: border-color var(--transition), color var(--transition), background var(--transition), box-shadow var(--transition);
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
       cursor: pointer;
+      position: relative;
+      z-index: 2;
     }
-    .pipeline-box:hover { border-color: var(--accent); color: var(--text); background: var(--bg-3); }
+
+    .pipeline-arrow {
+      color: var(--border-3);
+      font-size: 14px;
+      padding: 0 8px;
+      margin-bottom: 19px;
+      flex-shrink: 0;
+      z-index: 1;
+      transition: color 0.3s ease;
+    }
+
+    /* Animation Logic */
+    .pipeline-step:hover .pipeline-box {
+      border-color: var(--accent);
+      color: var(--text);
+      background: var(--bg-3);
+      box-shadow: 0 0 15px rgba(240, 180, 41, 0.1);
+    }
+
+    .pipeline-step:hover .pipeline-arrow { color: var(--accent-dim); }
+
     .pipeline-box.highlight {
       border-color: var(--accent);
       color: var(--accent);
       background: var(--accent-bg);
-      box-shadow: 0 0 16px rgba(240, 180, 41, 0.12);
+      box-shadow: 0 0 20px rgba(240, 180, 41, 0.15);
+      animation: pulse-border 2s infinite;
+    }
+
+    @keyframes pulse-border {
+      0% { box-shadow: 0 0 0 0 rgba(240, 180, 41, 0.4); }
+      70% { box-shadow: 0 0 0 6px rgba(240, 180, 41, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(240, 180, 41, 0); }
     }
 
     .pipeline-sub { font-size: 10.5px; color: var(--text-3); font-family: var(--font-mono); letter-spacing: 0.03em; }
-
-    .pipeline-arrow { color: var(--border-3); font-size: 14px; padding: 0 8px; margin-bottom: 19px; flex-shrink: 0; }
 
     /* ── Command cards ── */
     .cmd-grid {
@@ -449,9 +566,21 @@
       border: 1px solid var(--border);
       border-radius: var(--radius);
       cursor: pointer;
-      transition: border-color var(--transition), background var(--transition), transform var(--transition);
+      transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+      position: relative;
+      overflow: hidden;
     }
-    .cmd-card:hover { border-color: var(--border-3); background: var(--bg-3); transform: translateY(-1px); }
+    .cmd-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; width: 3px; height: 100%;
+      background: var(--accent);
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+
+    .cmd-card:hover { border-color: var(--border-3); background: var(--bg-3); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+    .cmd-card:hover::before { opacity: 1; }
 
     .cmd-card-name {
       font-family: var(--font-mono);
@@ -495,7 +624,9 @@
       margin-bottom: 24px;
       letter-spacing: 0.03em;
     }
-    .version-badge-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 8px rgba(240, 180, 41, 0.6); }
+    .version-badge-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 8px rgba(240, 180, 41, 0.6); animation: blink 2s infinite; }
+
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
 
     /* ── Breadcrumb ── */
     .breadcrumb {
@@ -508,15 +639,22 @@
     .breadcrumb-sep { color: var(--border-3); }
     .breadcrumb span:last-child { color: var(--text-2); }
 
-    /* ── Intro hero glow ── */
+    /* ── Intro hero glow animation ── */
     .hero-glow {
       position: absolute;
       top: -100px;
       left: -200px;
       width: 600px;
       height: 400px;
-      background: radial-gradient(ellipse at center, rgba(240, 180, 41, 0.06) 0%, transparent 65%);
+      background: radial-gradient(ellipse at center, rgba(240, 180, 41, 0.08) 0%, transparent 65%);
       pointer-events: none;
+      z-index: -1;
+      animation: breathe 8s ease-in-out infinite;
+    }
+
+    @keyframes breathe {
+      0%, 100% { transform: scale(1); opacity: 0.8; }
+      50% { transform: scale(1.1); opacity: 1; }
     }
 
     #page-intro { position: relative; overflow: hidden; }
@@ -524,12 +662,26 @@
     /* ── Responsive ── */
     @media (max-width: 900px) {
       .main { padding: 40px 32px 100px; }
+      h1 { font-size: 34px; }
     }
+
     @media (max-width: 768px) {
-      .sidebar { transform: translateX(-100%); transition: transform 300ms ease; z-index: 50; }
-      .sidebar.open { transform: none; }
+      .sidebar {
+        transform: translateX(-100%);
+        width: 85%;
+        max-width: 300px;
+        box-shadow: 10px 0 30px rgba(0,0,0,0.5);
+      }
+      .sidebar.open { transform: translateX(0); }
+
+      .sidebar-overlay { display: block; }
+
       .main { margin-left: 0; padding: 32px 20px 80px; }
-      h1 { font-size: 30px; }
+
+      .header-links { display: none; } /* Hide top links on mobile to save space */
+      .mobile-toggle { display: block; }
+
+      h1 { font-size: 28px; }
     }
   </style>
 </head>
@@ -542,7 +694,16 @@
   </div>
   <div class="header-divider"></div>
   <span class="header-tag">docs</span>
+
+  <!-- Mobile Menu Button -->
+  <button class="mobile-toggle" id="menu-toggle" aria-label="Toggle navigation">
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
+
   <div class="header-spacer"></div>
+
   <nav class="header-links">
     <a class="header-link" href="https://github.com/GalaxyHaze/Dain" target="_blank">GitHub</a>
     <a class="header-link" href="#">Changelog</a>
@@ -551,8 +712,14 @@
 </header>
 
 <div class="layout">
+  <!-- Overlay for mobile -->
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
 
   <aside class="sidebar" id="sidebar">
+    <div class="sidebar-search">
+      <input type="text" placeholder="Search..." disabled title="Search coming soon">
+    </div>
+
     <div class="sidebar-section">
       <div class="sidebar-label">Getting Started</div>
       <div class="sidebar-item active" onclick="navigate('intro')">
@@ -698,98 +865,100 @@
     </div>
   </aside>
 
-  <main class="main">
+  <main class="main" onclick="closeSidebarOnMobile(event)">
 
     <!-- INTRO -->
     <section class="page active" id="page-intro">
       <div class="hero-glow"></div>
-      <div class="page-eyebrow">Getting Started</div>
-      <h1>Dain</h1>
-      <p class="lead">A low-level, general-purpose language designed for explicit control flow, zero-cost abstractions, and a clear compilation pipeline.</p>
+      <div class="page-eyebrow animate-in">Getting Started</div>
+      <h1 class="animate-in">Dain</h1>
+      <p class="lead animate-in">A low-level, general-purpose language designed for explicit control flow, zero-cost abstractions, and a clear compilation pipeline.</p>
 
-      <div class="version-badge">
+      <div class="version-badge animate-in">
         <span class="version-badge-dot"></span>
         v0.1.0-dev — early demo
       </div>
 
-      <h2>What is Dain?</h2>
-      <p>Dain is a compiled, statically-typed language with an optional interpreted mode for fast development cycles. It exposes the full compilation pipeline as distinct CLI commands — so you always know exactly what stage your code is at.</p>
+      <div class="page-active-block">
+        <h2>What is Dain?</h2>
+        <p>Dain is a compiled, statically-typed language with an optional interpreted mode for fast development cycles. It exposes the full compilation pipeline as distinct CLI commands — so you always know exactly what stage your code is at.</p>
 
-      <h2>The Pipeline</h2>
-      <p>Each CLI command corresponds to a stage. Every stage includes all previous stages:</p>
+        <h2>The Pipeline</h2>
+        <p>Each CLI command corresponds to a stage. Every stage includes all previous stages:</p>
 
-      <div class="pipeline">
-        <div class="pipeline-step">
-          <div class="pipeline-box highlight" onclick="navigate('cmd-check')">check</div>
-          <div class="pipeline-sub">errors only</div>
+        <div class="pipeline">
+          <div class="pipeline-step">
+            <div class="pipeline-box highlight" onclick="navigate('cmd-check')">check</div>
+            <div class="pipeline-sub">errors only</div>
+          </div>
+          <div class="pipeline-arrow">→</div>
+          <div class="pipeline-step">
+            <div class="pipeline-box" onclick="navigate('cmd-compile')">compile</div>
+            <div class="pipeline-sub">IR / object</div>
+          </div>
+          <div class="pipeline-arrow">→</div>
+          <div class="pipeline-step">
+            <div class="pipeline-box" onclick="navigate('cmd-build')">build</div>
+            <div class="pipeline-sub">native binary</div>
+          </div>
+          <div class="pipeline-arrow">→</div>
+          <div class="pipeline-step">
+            <div class="pipeline-box" onclick="navigate('cmd-execute')">execute</div>
+            <div class="pipeline-sub">run existing</div>
+          </div>
         </div>
-        <div class="pipeline-arrow">→</div>
-        <div class="pipeline-step">
-          <div class="pipeline-box" onclick="navigate('cmd-compile')">compile</div>
-          <div class="pipeline-sub">IR / object</div>
-        </div>
-        <div class="pipeline-arrow">→</div>
-        <div class="pipeline-step">
-          <div class="pipeline-box" onclick="navigate('cmd-build')">build</div>
-          <div class="pipeline-sub">native binary</div>
-        </div>
-        <div class="pipeline-arrow">→</div>
-        <div class="pipeline-step">
-          <div class="pipeline-box" onclick="navigate('cmd-execute')">execute</div>
-          <div class="pipeline-sub">run existing</div>
-        </div>
-      </div>
 
-      <div class="callout callout-tip">
-        <span class="callout-icon">→</span>
-        <div class="callout-body"><strong>run</strong> is a shortcut for <code>build + execute</code>. Add <code>--interpreted</code> to any of these commands to use the bytecode path instead of native compilation.</div>
-      </div>
-
-      <h2>Quick Start</h2>
-      <p>Create a file <code>main.dain</code> and write your first program:</p>
-      <div class="code-block">
-        <div class="code-block-header">
-          <span class="code-block-lang">dain</span>
-          <button class="code-block-copy" onclick="copyCode(this)">copy</button>
+        <div class="callout callout-tip">
+          <span class="callout-icon">→</span>
+          <div class="callout-body"><strong>run</strong> is a shortcut for <code>build + execute</code>. Add <code>--interpreted</code> to any of these commands to use the bytecode path instead of native compilation.</div>
         </div>
-        <pre><span class="tok-kw">import</span> std.io;
+
+        <h2>Quick Start</h2>
+        <p>Create a file <code>main.dain</code> and write your first program:</p>
+        <div class="code-block">
+          <div class="code-block-header">
+            <span class="code-block-lang">dain</span>
+            <button class="code-block-copy" onclick="copyCode(this)">copy</button>
+          </div>
+          <pre><span class="tok-kw">import</span> std.io;
 
 <span class="tok-kw">fn</span> <span class="tok-fn">main</span>() {
     <span class="tok-fn">println</span>(<span class="tok-str">"Hello World!"</span>);
 }</pre>
-      </div>
-      <p>Then run it:</p>
-      <div class="code-block">
-        <div class="code-block-header">
-          <span class="code-block-lang">shell</span>
-          <button class="code-block-copy" onclick="copyCode(this)">copy</button>
         </div>
-        <pre><span class="tok-fn">dain</span> run main.dain
+        <p>Then run it:</p>
+        <div class="code-block">
+          <div class="code-block-header">
+            <span class="code-block-lang">shell</span>
+            <button class="code-block-copy" onclick="copyCode(this)">copy</button>
+          </div>
+          <pre><span class="tok-fn">dain</span> run main.dain
 <span class="tok-ok">Hello World!</span></pre>
-      </div>
-      <p style="font-size:13px;margin-top:-4px"><a onclick="navigate('quickstart')" style="color:var(--accent);cursor:pointer">Full Quick Start guide →</a></p>
+        </div>
+        <p style="font-size:13px;margin-top:-4px"><a onclick="navigate('quickstart')" style="color:var(--accent);cursor:pointer">Full Quick Start guide →</a></p>
 
-      <h2>Commands</h2>
-      <div class="cmd-grid">
-        <div class="cmd-card" onclick="navigate('cmd-check')">
-          <div class="cmd-card-name">check</div>
-          <div class="cmd-card-desc">Parse and type-check. Report errors, produce no output.</div>
-        </div>
-        <div class="cmd-card" onclick="navigate('cmd-compile')">
-          <div class="cmd-card-name">compile</div>
-          <div class="cmd-card-desc">Compile to IR or object file. No linking.</div>
-        </div>
-        <div class="cmd-card" onclick="navigate('cmd-build')">
-          <div class="cmd-card-name">build</div>
-          <div class="cmd-card-desc">Compile and link to a native binary.</div>
-        </div>
-        <div class="cmd-card" onclick="navigate('cmd-execute')">
-          <div class="cmd-card-name">execute</div>
-          <div class="cmd-card-desc">Run an existing binary. Fails if not found.</div>
-        </div>
-        <div class="cmd-card" onclick="navigate('cmd-run')">
-          <div class="cmd-card-name">run</div>
-          <div class="cmd-card-desc">Build then execute in one step.</div>
+        <h2>Commands</h2>
+        <div class="cmd-grid">
+          <div class="cmd-card" onclick="navigate('cmd-check')">
+            <div class="cmd-card-name">check</div>
+            <div class="cmd-card-desc">Parse and type-check. Report errors, produce no output.</div>
+          </div>
+          <div class="cmd-card" onclick="navigate('cmd-compile')">
+            <div class="cmd-card-name">compile</div>
+            <div class="cmd-card-desc">Compile to IR or object file. No linking.</div>
+          </div>
+          <div class="cmd-card" onclick="navigate('cmd-build')">
+            <div class="cmd-card-name">build</div>
+            <div class="cmd-card-desc">Compile and link to a native binary.</div>
+          </div>
+          <div class="cmd-card" onclick="navigate('cmd-execute')">
+            <div class="cmd-card-name">execute</div>
+            <div class="cmd-card-desc">Run an existing binary. Fails if not found.</div>
+          </div>
+          <div class="cmd-card" onclick="navigate('cmd-run')">
+            <div class="cmd-card-name">run</div>
+            <div class="cmd-card-desc">Build then execute in one step.</div>
+          </div>
         </div>
       </div>
     </section>
@@ -801,44 +970,46 @@
         <span class="breadcrumb-sep">/</span>
         <span>installation</span>
       </div>
-      <div class="page-eyebrow">Getting Started</div>
-      <h1>Installation</h1>
-      <p class="lead">Install Dain with a single command. The installer handles everything — the ABI, the latest compiler binary, and all required dynamic libraries.</p>
+      <div class="page-eyebrow animate-in">Getting Started</div>
+      <h1 class="animate-in">Installation</h1>
+      <p class="lead animate-in">Install Dain with a single command. The installer handles everything — the ABI, the latest compiler binary, and all required dynamic libraries.</p>
 
-      <h2>Linux &amp; macOS</h2>
-      <p>Run the install script from your terminal:</p>
-      <div class="code-block">
-        <div class="code-block-header">
-          <span class="code-block-lang">shell</span>
-          <button class="code-block-copy" onclick="copyCode(this)">copy</button>
+      <div class="page-active-block">
+        <h2>Linux &amp; macOS</h2>
+        <p>Run the install script from your terminal:</p>
+        <div class="code-block">
+          <div class="code-block-header">
+            <span class="code-block-lang">shell</span>
+            <button class="code-block-copy" onclick="copyCode(this)">copy</button>
+          </div>
+          <pre><span class="tok-fn">curl</span> <span class="tok-flag">-sSL</span> https://raw.githubusercontent.com/GalaxyHaze/Dain/main/install.sh | <span class="tok-fn">sh</span></pre>
         </div>
-        <pre><span class="tok-fn">curl</span> <span class="tok-flag">-sSL</span> https://raw.githubusercontent.com/GalaxyHaze/Dain/main/install.sh | <span class="tok-fn">sh</span></pre>
-      </div>
 
-      <h2>Windows</h2>
-      <p>Run the PowerShell installer from an elevated terminal:</p>
-      <div class="code-block">
-        <div class="code-block-header">
-          <span class="code-block-lang">powershell</span>
-          <button class="code-block-copy" onclick="copyCode(this)">copy</button>
+        <h2>Windows</h2>
+        <p>Run the PowerShell installer from an elevated terminal:</p>
+        <div class="code-block">
+          <div class="code-block-header">
+            <span class="code-block-lang">powershell</span>
+            <button class="code-block-copy" onclick="copyCode(this)">copy</button>
+          </div>
+          <pre><span class="tok-fn">irm</span> https://raw.githubusercontent.com/GalaxyHaze/Dain/main/install.ps1 | <span class="tok-fn">iex</span></pre>
         </div>
-        <pre><span class="tok-fn">irm</span> https://raw.githubusercontent.com/GalaxyHaze/Dain/main/install.ps1 | <span class="tok-fn">iex</span></pre>
-      </div>
 
-      <div class="callout callout-tip">
-        <span class="callout-icon">→</span>
-        <div class="callout-body">The installer automatically fetches the latest compiler binary, the ABI layer, and all required dynamic libraries. No manual dependency management needed.</div>
-      </div>
-
-      <h2>Verify</h2>
-      <div class="code-block">
-        <div class="code-block-header">
-          <span class="code-block-lang">shell</span>
-          <button class="code-block-copy" onclick="copyCode(this)">copy</button>
+        <div class="callout callout-tip">
+          <span class="callout-icon">→</span>
+          <div class="callout-body">The installer automatically fetches the latest compiler binary, the ABI layer, and all required dynamic libraries. No manual dependency management needed.</div>
         </div>
-        <pre><span class="tok-fn">dain</span> version
+
+        <h2>Verify</h2>
+        <div class="code-block">
+          <div class="code-block-header">
+            <span class="code-block-lang">shell</span>
+            <button class="code-block-copy" onclick="copyCode(this)">copy</button>
+          </div>
+          <pre><span class="tok-fn">dain</span> version
 <span class="tok-ok">Dain Programming Language</span>
 <span class="tok-ok">Version: 0.1.0-dev</span></pre>
+        </div>
       </div>
     </section>
 
@@ -849,71 +1020,73 @@
         <span class="breadcrumb-sep">/</span>
         <span>quick start</span>
       </div>
-      <div class="page-eyebrow">Getting Started</div>
-      <h1>Quick Start</h1>
-      <p class="lead">Write and run your first Dain program in under a minute.</p>
+      <div class="page-eyebrow animate-in">Getting Started</div>
+      <h1 class="animate-in">Quick Start</h1>
+      <p class="lead animate-in">Write and run your first Dain program in under a minute.</p>
 
-      <h2>1. Create a source file</h2>
-      <p>Create a file called <code>main.dain</code> with the following content:</p>
-      <div class="code-block">
-        <div class="code-block-header">
-          <span class="code-block-lang">dain</span>
-          <button class="code-block-copy" onclick="copyCode(this)">copy</button>
-        </div>
-        <pre><span class="tok-kw">import</span> std.io;
+      <div class="page-active-block">
+        <h2>1. Create a source file</h2>
+        <p>Create a file called <code>main.dain</code> with the following content:</p>
+        <div class="code-block">
+          <div class="code-block-header">
+            <span class="code-block-lang">dain</span>
+            <button class="code-block-copy" onclick="copyCode(this)">copy</button>
+          </div>
+          <pre><span class="tok-kw">import</span> std.io;
 
 <span class="tok-kw">fn</span> <span class="tok-fn">main</span>() {
     <span class="tok-fn">println</span>(<span class="tok-str">"Hello World!"</span>);
 }</pre>
-      </div>
-
-      <h2>2. Run it</h2>
-      <p>Use <code>dain run</code> to compile and execute in one step:</p>
-      <div class="code-block">
-        <div class="code-block-header">
-          <span class="code-block-lang">shell</span>
-          <button class="code-block-copy" onclick="copyCode(this)">copy</button>
         </div>
-        <pre><span class="tok-fn">dain</span> run main.dain
+
+        <h2>2. Run it</h2>
+        <p>Use <code>dain run</code> to compile and execute in one step:</p>
+        <div class="code-block">
+          <div class="code-block-header">
+            <span class="code-block-lang">shell</span>
+            <button class="code-block-copy" onclick="copyCode(this)">copy</button>
+          </div>
+          <pre><span class="tok-fn">dain</span> run main.dain
 <span class="tok-ok">Hello World!</span></pre>
-      </div>
-
-      <h2>3. Or iterate faster with interpreted mode</h2>
-      <p>Skip native compilation entirely during development — the bytecode path is faster to invoke:</p>
-      <div class="code-block">
-        <div class="code-block-header">
-          <span class="code-block-lang">shell</span>
-          <button class="code-block-copy" onclick="copyCode(this)">copy</button>
         </div>
-        <pre><span class="tok-fn">dain</span> run <span class="tok-flag">--interpreted</span> main.dain
+
+        <h2>3. Or iterate faster with interpreted mode</h2>
+        <p>Skip native compilation entirely during development — the bytecode path is faster to invoke:</p>
+        <div class="code-block">
+          <div class="code-block-header">
+            <span class="code-block-lang">shell</span>
+            <button class="code-block-copy" onclick="copyCode(this)">copy</button>
+          </div>
+          <pre><span class="tok-fn">dain</span> run <span class="tok-flag">--interpreted</span> main.dain
 <span class="tok-ok">Hello World!</span></pre>
-      </div>
-
-      <h2>4. Check for errors without building</h2>
-      <p>Hook <code>dain check</code> into your editor's save event for instant feedback:</p>
-      <div class="code-block">
-        <div class="code-block-header">
-          <span class="code-block-lang">shell</span>
-          <button class="code-block-copy" onclick="copyCode(this)">copy</button>
         </div>
-        <pre><span class="tok-fn">dain</span> check main.dain
+
+        <h2>4. Check for errors without building</h2>
+        <p>Hook <code>dain check</code> into your editor's save event for instant feedback:</p>
+        <div class="code-block">
+          <div class="code-block-header">
+            <span class="code-block-lang">shell</span>
+            <button class="code-block-copy" onclick="copyCode(this)">copy</button>
+          </div>
+          <pre><span class="tok-fn">dain</span> check main.dain
 <span class="tok-ok">[ok] Check passed: main.dain</span></pre>
-      </div>
-
-      <h2>5. Build a release binary</h2>
-      <div class="code-block">
-        <div class="code-block-header">
-          <span class="code-block-lang">shell</span>
-          <button class="code-block-copy" onclick="copyCode(this)">copy</button>
         </div>
-        <pre><span class="tok-fn">dain</span> build main.dain <span class="tok-flag">-m</span> release <span class="tok-flag">-o</span> <span class="tok-path">bin/hello</span>
+
+        <h2>5. Build a release binary</h2>
+        <div class="code-block">
+          <div class="code-block-header">
+            <span class="code-block-lang">shell</span>
+            <button class="code-block-copy" onclick="copyCode(this)">copy</button>
+          </div>
+          <pre><span class="tok-fn">dain</span> build main.dain <span class="tok-flag">-m</span> release <span class="tok-flag">-o</span> <span class="tok-path">bin/hello</span>
 <span class="tok-fn">./bin/hello</span>
 <span class="tok-ok">Hello World!</span></pre>
-      </div>
+        </div>
 
-      <div class="callout callout-tip">
-        <span class="callout-icon">→</span>
-        <div class="callout-body">Ready to grow your project? Add a <a onclick="navigate('project-toml')" style="color:var(--accent);cursor:pointer"><code>DainProject.toml</code></a> at the root and run <code>dain</code> with no arguments to build automatically.</div>
+        <div class="callout callout-tip">
+          <span class="callout-icon">→</span>
+          <div class="callout-body">Ready to grow your project? Add a <a onclick="navigate('project-toml')" style="color:var(--accent);cursor:pointer"><code>DainProject.toml</code></a> at the root and run <code>dain</code> with no arguments to build automatically.</div>
+        </div>
       </div>
     </section>
 
@@ -924,65 +1097,67 @@
         <span class="breadcrumb-sep">/</span>
         <span>cli</span>
       </div>
-      <div class="page-eyebrow">CLI Reference</div>
-      <h1>CLI Overview</h1>
-      <p class="lead">The Dain CLI exposes the full compiler pipeline as individual commands. Each command maps to a distinct stage of compilation.</p>
+      <div class="page-eyebrow animate-in">CLI Reference</div>
+      <h1 class="animate-in">CLI Overview</h1>
+      <p class="lead animate-in">The Dain CLI exposes the full compiler pipeline as individual commands. Each command maps to a distinct stage of compilation.</p>
 
-      <h2>Usage</h2>
-      <div class="code-block">
-        <div class="code-block-header"><span class="code-block-lang">shell</span></div>
-        <pre><span class="tok-fn">dain</span> [OPTIONS] &lt;COMMAND&gt; [ARGS]</pre>
+      <div class="page-active-block">
+        <h2>Usage</h2>
+        <div class="code-block">
+          <div class="code-block-header"><span class="code-block-lang">shell</span></div>
+          <pre><span class="tok-fn">dain</span> [OPTIONS] &lt;COMMAND&gt; [ARGS]</pre>
+        </div>
+
+        <h2>Pipeline</h2>
+        <div class="pipeline">
+          <div class="pipeline-step">
+            <div class="pipeline-box highlight">check</div>
+            <div class="pipeline-sub">errors only</div>
+          </div>
+          <div class="pipeline-arrow">⊂</div>
+          <div class="pipeline-step">
+            <div class="pipeline-box">compile</div>
+            <div class="pipeline-sub">IR / .o / .nbc</div>
+          </div>
+          <div class="pipeline-arrow">⊂</div>
+          <div class="pipeline-step">
+            <div class="pipeline-box">build</div>
+            <div class="pipeline-sub">native binary</div>
+          </div>
+          <div class="pipeline-arrow">+</div>
+          <div class="pipeline-step">
+            <div class="pipeline-box">execute</div>
+            <div class="pipeline-sub">run existing</div>
+          </div>
+          <div class="pipeline-arrow">=</div>
+          <div class="pipeline-step">
+            <div class="pipeline-box">run</div>
+            <div class="pipeline-sub">build + execute</div>
+          </div>
+        </div>
+
+        <h2>Interpreted Mode</h2>
+        <p>Every command that produces or consumes a compiled artifact accepts <code>--interpreted</code>. This switches the target from native binary to Dain Bytecode (<code>.nbc</code>).</p>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Native</th><th>Interpreted equivalent</th></tr></thead>
+            <tbody>
+            <tr><td>dain compile main.dain</td><td>dain compile --interpreted main.dain</td></tr>
+            <tr><td>dain execute</td><td>dain execute --interpreted</td></tr>
+            <tr><td>dain run</td><td>dain run --interpreted</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout callout-note">
+          <span class="callout-icon">i</span>
+          <div class="callout-body"><strong>build</strong> always produces a native binary. There is no <code>build --interpreted</code>.</div>
+        </div>
+
+        <h2>Project Resolution</h2>
+        <p>Commands that accept an optional <code>input</code> file will fall back to reading <code>DainProject.toml</code> in the current directory when no file is specified. If neither is found, the command fails with an explicit error.</p>
       </div>
-
-      <h2>Pipeline</h2>
-      <div class="pipeline">
-        <div class="pipeline-step">
-          <div class="pipeline-box highlight">check</div>
-          <div class="pipeline-sub">errors only</div>
-        </div>
-        <div class="pipeline-arrow">⊂</div>
-        <div class="pipeline-step">
-          <div class="pipeline-box">compile</div>
-          <div class="pipeline-sub">IR / .o / .nbc</div>
-        </div>
-        <div class="pipeline-arrow">⊂</div>
-        <div class="pipeline-step">
-          <div class="pipeline-box">build</div>
-          <div class="pipeline-sub">native binary</div>
-        </div>
-        <div class="pipeline-arrow">+</div>
-        <div class="pipeline-step">
-          <div class="pipeline-box">execute</div>
-          <div class="pipeline-sub">run existing</div>
-        </div>
-        <div class="pipeline-arrow">=</div>
-        <div class="pipeline-step">
-          <div class="pipeline-box">run</div>
-          <div class="pipeline-sub">build + execute</div>
-        </div>
-      </div>
-
-      <h2>Interpreted Mode</h2>
-      <p>Every command that produces or consumes a compiled artifact accepts <code>--interpreted</code>. This switches the target from native binary to Dain Bytecode (<code>.nbc</code>).</p>
-
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>Native</th><th>Interpreted equivalent</th></tr></thead>
-          <tbody>
-          <tr><td>dain compile main.dain</td><td>dain compile --interpreted main.dain</td></tr>
-          <tr><td>dain execute</td><td>dain execute --interpreted</td></tr>
-          <tr><td>dain run</td><td>dain run --interpreted</td></tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div class="callout callout-note">
-        <span class="callout-icon">i</span>
-        <div class="callout-body"><strong>build</strong> always produces a native binary. There is no <code>build --interpreted</code>.</div>
-      </div>
-
-      <h2>Project Resolution</h2>
-      <p>Commands that accept an optional <code>input</code> file will fall back to reading <code>DainProject.toml</code> in the current directory when no file is specified. If neither is found, the command fails with an explicit error.</p>
     </section>
 
     <!-- CMD: CHECK -->
@@ -994,30 +1169,31 @@
         <span class="breadcrumb-sep">/</span>
         <span>check</span>
       </div>
-      <div class="page-eyebrow">CLI Reference</div>
-      <h1>dain check</h1>
-      <p class="lead">Parse and type-check a source file. Reports all errors to stderr. Produces no output files.</p>
+      <div class="page-eyebrow animate-in">CLI Reference</div>
+      <h1 class="animate-in">dain check</h1>
+      <p class="lead animate-in">Parse and type-check a source file. Reports all errors to stderr. Produces no output files.</p>
 
-      <h2>Synopsis</h2>
-      <div class="code-block">
-        <div class="code-block-header"><span class="code-block-lang">shell</span></div>
-        <pre><span class="tok-fn">dain</span> check [input] [<span class="tok-flag">-m</span> MODE] [<span class="tok-flag">-v</span>]</pre>
-      </div>
+      <div class="page-active-block">
+        <h2>Synopsis</h2>
+        <div class="code-block">
+          <div class="code-block-header"><span class="code-block-lang">shell</span></div>
+          <pre><span class="tok-fn">dain</span> check [input] [<span class="tok-flag">-m</span> MODE] [<span class="tok-flag">-v</span>]</pre>
+        </div>
 
-      <h2>Arguments</h2>
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>Argument</th><th>Description</th></tr></thead>
-          <tbody>
-          <tr><td>input</td><td>Source file to check. Optional — reads <code>DainProject.toml</code> if omitted.</td></tr>
-          </tbody>
-        </table>
-      </div>
+        <h2>Arguments</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Argument</th><th>Description</th></tr></thead>
+            <tbody>
+            <tr><td>input</td><td>Source file to check. Optional — reads <code>DainProject.toml</code> if omitted.</td></tr>
+            </tbody>
+          </table>
+        </div>
 
-      <h2>Examples</h2>
-      <div class="code-block">
-        <div class="code-block-header"><span class="code-block-lang">shell</span><button class="code-block-copy" onclick="copyCode(this)">copy</button></div>
-        <pre><span class="tok-cmt"># check a specific file</span>
+        <h2>Examples</h2>
+        <div class="code-block">
+          <div class="code-block-header"><span class="code-block-lang">shell</span><button class="code-block-copy" onclick="copyCode(this)">copy</button></div>
+          <pre><span class="tok-cmt"># check a specific file</span>
 <span class="tok-fn">dain</span> check main.dain
 
 <span class="tok-cmt"># check with verbose output</span>
@@ -1025,14 +1201,15 @@
 
 <span class="tok-cmt"># check entry from DainProject.toml</span>
 <span class="tok-fn">dain</span> check</pre>
-      </div>
+        </div>
 
-      <h2>Output</h2>
-      <p>On success, prints <code>[ok] Check passed: &lt;file&gt;</code>. On failure, all errors are printed to stderr and the exit code is non-zero. <strong>No files are written to disk.</strong></p>
+        <h2>Output</h2>
+        <p>On success, prints <code>[ok] Check passed: &lt;file&gt;</code>. On failure, all errors are printed to stderr and the exit code is non-zero. <strong>No files are written to disk.</strong></p>
 
-      <div class="callout callout-tip">
-        <span class="callout-icon">→</span>
-        <div class="callout-body">Use <code>check</code> in your editor's save hook or CI pipeline for fast feedback without touching the build artifacts.</div>
+        <div class="callout callout-tip">
+          <span class="callout-icon">→</span>
+          <div class="callout-body">Use <code>check</code> in your editor's save hook or CI pipeline for fast feedback without touching the build artifacts.</div>
+        </div>
       </div>
     </section>
 
@@ -1045,34 +1222,35 @@
         <span class="breadcrumb-sep">/</span>
         <span>compile</span>
       </div>
-      <div class="page-eyebrow">CLI Reference</div>
-      <h1>dain compile</h1>
-      <p class="lead">Compile a source file to an IR/object file (native) or bytecode file (interpreted). Does not link.</p>
+      <div class="page-eyebrow animate-in">CLI Reference</div>
+      <h1 class="animate-in">dain compile</h1>
+      <p class="lead animate-in">Compile a source file to an IR/object file (native) or bytecode file (interpreted). Does not link.</p>
 
-      <h2>Synopsis</h2>
-      <div class="code-block">
-        <div class="code-block-header"><span class="code-block-lang">shell</span></div>
-        <pre><span class="tok-fn">dain</span> compile &lt;input&gt; [<span class="tok-flag">-o</span> OUTPUT] [<span class="tok-flag">--interpreted</span>] [<span class="tok-flag">-m</span> MODE] [<span class="tok-flag">-I</span> DIR] [<span class="tok-flag">-v</span>]</pre>
-      </div>
+      <div class="page-active-block">
+        <h2>Synopsis</h2>
+        <div class="code-block">
+          <div class="code-block-header"><span class="code-block-lang">shell</span></div>
+          <pre><span class="tok-fn">dain</span> compile &lt;input&gt; [<span class="tok-flag">-o</span> OUTPUT] [<span class="tok-flag">--interpreted</span>] [<span class="tok-flag">-m</span> MODE] [<span class="tok-flag">-I</span> DIR] [<span class="tok-flag">-v</span>]</pre>
+        </div>
 
-      <h2>Arguments & Flags</h2>
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>Flag</th><th>Description</th></tr></thead>
-          <tbody>
-          <tr><td>input</td><td>Source file (.dain). Required.</td></tr>
-          <tr><td>-o, --output</td><td>Output file. Defaults to <code>a.o</code> (native) or <code>a.nbc</code> (interpreted).</td></tr>
-          <tr><td>--interpreted</td><td>Compile to Dain Bytecode (.nbc) instead of native object.</td></tr>
-          <tr><td>-m, --mode</td><td>Build mode. See <a onclick="navigate('cli-flags')" style="color:var(--accent);cursor:pointer">Global Flags</a>.</td></tr>
-          <tr><td>-I, --include</td><td>Add include directory. Repeatable.</td></tr>
-          </tbody>
-        </table>
-      </div>
+        <h2>Arguments & Flags</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Flag</th><th>Description</th></tr></thead>
+            <tbody>
+            <tr><td>input</td><td>Source file (.dain). Required.</td></tr>
+            <tr><td>-o, --output</td><td>Output file. Defaults to <code>a.o</code> (native) or <code>a.nbc</code> (interpreted).</td></tr>
+            <tr><td>--interpreted</td><td>Compile to Dain Bytecode (.nbc) instead of native object.</td></tr>
+            <tr><td>-m, --mode</td><td>Build mode. See <a onclick="navigate('cli-flags')" style="color:var(--accent);cursor:pointer">Global Flags</a>.</td></tr>
+            <tr><td>-I, --include</td><td>Add include directory. Repeatable.</td></tr>
+            </tbody>
+          </table>
+        </div>
 
-      <h2>Examples</h2>
-      <div class="code-block">
-        <div class="code-block-header"><span class="code-block-lang">shell</span><button class="code-block-copy" onclick="copyCode(this)">copy</button></div>
-        <pre><span class="tok-cmt"># compile to native object</span>
+        <h2>Examples</h2>
+        <div class="code-block">
+          <div class="code-block-header"><span class="code-block-lang">shell</span><button class="code-block-copy" onclick="copyCode(this)">copy</button></div>
+          <pre><span class="tok-cmt"># compile to native object</span>
 <span class="tok-fn">dain</span> compile main.dain <span class="tok-flag">-o</span> <span class="tok-path">main.o</span>
 
 <span class="tok-cmt"># compile to bytecode</span>
@@ -1080,6 +1258,7 @@
 
 <span class="tok-cmt"># release mode with include paths</span>
 <span class="tok-fn">dain</span> compile main.dain <span class="tok-flag">-m</span> release <span class="tok-flag">-I</span> <span class="tok-path">./libs</span> <span class="tok-flag">-I</span> <span class="tok-path">./vendor</span></pre>
+        </div>
       </div>
     </section>
 
@@ -1092,28 +1271,29 @@
         <span class="breadcrumb-sep">/</span>
         <span>build</span>
       </div>
-      <div class="page-eyebrow">CLI Reference</div>
-      <h1>dain build</h1>
-      <p class="lead">Compile and link to a native binary. Always produces a native executable — there is no interpreted mode for build.</p>
+      <div class="page-eyebrow animate-in">CLI Reference</div>
+      <h1 class="animate-in">dain build</h1>
+      <p class="lead animate-in">Compile and link to a native binary. Always produces a native executable — there is no interpreted mode for build.</p>
 
-      <h2>Synopsis</h2>
-      <div class="code-block">
-        <div class="code-block-header"><span class="code-block-lang">shell</span></div>
-        <pre><span class="tok-fn">dain</span> build [input] [<span class="tok-flag">-o</span> OUTPUT] [<span class="tok-flag">-m</span> MODE] [<span class="tok-flag">-I</span> DIR] [<span class="tok-flag">-v</span>]</pre>
-      </div>
+      <div class="page-active-block">
+        <h2>Synopsis</h2>
+        <div class="code-block">
+          <div class="code-block-header"><span class="code-block-lang">shell</span></div>
+          <pre><span class="tok-fn">dain</span> build [input] [<span class="tok-flag">-o</span> OUTPUT] [<span class="tok-flag">-m</span> MODE] [<span class="tok-flag">-I</span> DIR] [<span class="tok-flag">-v</span>]</pre>
+        </div>
 
-      <h2>Project Resolution</h2>
-      <p>When <code>input</code> is omitted, <code>build</code> reads <code>DainProject.toml</code> from the current directory. CLI flags take precedence over toml values.</p>
+        <h2>Project Resolution</h2>
+        <p>When <code>input</code> is omitted, <code>build</code> reads <code>DainProject.toml</code> from the current directory. CLI flags take precedence over toml values.</p>
 
-      <div class="callout callout-note">
-        <span class="callout-icon">i</span>
-        <div class="callout-body">The <code>-m</code> flag only overrides the toml <code>mode</code> if you explicitly pass it. The default <code>debug</code> does <strong>not</strong> override a toml that specifies <code>release</code>.</div>
-      </div>
+        <div class="callout callout-note">
+          <span class="callout-icon">i</span>
+          <div class="callout-body">The <code>-m</code> flag only overrides the toml <code>mode</code> if you explicitly pass it. The default <code>debug</code> does <strong>not</strong> override a toml that specifies <code>release</code>.</div>
+        </div>
 
-      <h2>Examples</h2>
-      <div class="code-block">
-        <div class="code-block-header"><span class="code-block-lang">shell</span><button class="code-block-copy" onclick="copyCode(this)">copy</button></div>
-        <pre><span class="tok-cmt"># build from DainProject.toml</span>
+        <h2>Examples</h2>
+        <div class="code-block">
+          <div class="code-block-header"><span class="code-block-lang">shell</span><button class="code-block-copy" onclick="copyCode(this)">copy</button></div>
+          <pre><span class="tok-cmt"># build from DainProject.toml</span>
 <span class="tok-fn">dain</span> build
 
 <span class="tok-cmt"># build a specific file</span>
@@ -1121,6 +1301,7 @@
 
 <span class="tok-cmt"># release build</span>
 <span class="tok-fn">dain</span> build <span class="tok-flag">-m</span> release <span class="tok-flag">-o</span> <span class="tok-path">bin/app</span></pre>
+        </div>
       </div>
     </section>
 
@@ -1133,34 +1314,35 @@
         <span class="breadcrumb-sep">/</span>
         <span>execute</span>
       </div>
-      <div class="page-eyebrow">CLI Reference</div>
-      <h1>dain execute</h1>
-      <p class="lead">Run an existing binary or bytecode file. Does not compile anything. Fails with an explicit error if the target is not found.</p>
+      <div class="page-eyebrow animate-in">CLI Reference</div>
+      <h1 class="animate-in">dain execute</h1>
+      <p class="lead animate-in">Run an existing binary or bytecode file. Does not compile anything. Fails with an explicit error if the target is not found.</p>
 
-      <h2>Synopsis</h2>
-      <div class="code-block">
-        <div class="code-block-header"><span class="code-block-lang">shell</span></div>
-        <pre><span class="tok-fn">dain</span> execute [target] [<span class="tok-flag">--interpreted</span>] [<span class="tok-flag">-v</span>]</pre>
-      </div>
+      <div class="page-active-block">
+        <h2>Synopsis</h2>
+        <div class="code-block">
+          <div class="code-block-header"><span class="code-block-lang">shell</span></div>
+          <pre><span class="tok-fn">dain</span> execute [target] [<span class="tok-flag">--interpreted</span>] [<span class="tok-flag">-v</span>]</pre>
+        </div>
 
-      <h2>Target Resolution</h2>
-      <p>When <code>target</code> is omitted, reads <code>output</code> from <code>DainProject.toml</code>. If no toml exists, the command fails immediately.</p>
+        <h2>Target Resolution</h2>
+        <p>When <code>target</code> is omitted, reads <code>output</code> from <code>DainProject.toml</code>. If no toml exists, the command fails immediately.</p>
 
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>Invocation</th><th>Resolves to</th></tr></thead>
-          <tbody>
-          <tr><td>dain execute</td><td><code>toml.output</code></td></tr>
-          <tr><td>dain execute --interpreted</td><td><code>toml.output.nbc</code></td></tr>
-          <tr><td>dain execute bin/app</td><td><code>bin/app</code></td></tr>
-          </tbody>
-        </table>
-      </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Invocation</th><th>Resolves to</th></tr></thead>
+            <tbody>
+            <tr><td>dain execute</td><td><code>toml.output</code></td></tr>
+            <tr><td>dain execute --interpreted</td><td><code>toml.output.nbc</code></td></tr>
+            <tr><td>dain execute bin/app</td><td><code>bin/app</code></td></tr>
+            </tbody>
+          </table>
+        </div>
 
-      <h2>Examples</h2>
-      <div class="code-block">
-        <div class="code-block-header"><span class="code-block-lang">shell</span><button class="code-block-copy" onclick="copyCode(this)">copy</button></div>
-        <pre><span class="tok-cmt"># run binary from toml</span>
+        <h2>Examples</h2>
+        <div class="code-block">
+          <div class="code-block-header"><span class="code-block-lang">shell</span><button class="code-block-copy" onclick="copyCode(this)">copy</button></div>
+          <pre><span class="tok-cmt"># run binary from toml</span>
 <span class="tok-fn">dain</span> execute
 
 <span class="tok-cmt"># run specific binary</span>
@@ -1168,11 +1350,12 @@
 
 <span class="tok-cmt"># run bytecode</span>
 <span class="tok-fn">dain</span> execute <span class="tok-flag">--interpreted</span> <span class="tok-path">bin/app.nbc</span></pre>
-      </div>
+        </div>
 
-      <div class="callout callout-warn">
-        <span class="callout-icon">!</span>
-        <div class="callout-body"><code>execute</code> never compiles. If the binary doesn't exist, it tells you exactly which command to run first.</div>
+        <div class="callout callout-warn">
+          <span class="callout-icon">!</span>
+          <div class="callout-body"><code>execute</code> never compiles. If the binary doesn't exist, it tells you exactly which command to run first.</div>
+        </div>
       </div>
     </section>
 
@@ -1185,33 +1368,34 @@
         <span class="breadcrumb-sep">/</span>
         <span>run</span>
       </div>
-      <div class="page-eyebrow">CLI Reference</div>
-      <h1>dain run</h1>
-      <p class="lead">Build and execute in a single step. Equivalent to <code>dain build &amp;&amp; dain execute</code>.</p>
+      <div class="page-eyebrow animate-in">CLI Reference</div>
+      <h1 class="animate-in">dain run</h1>
+      <p class="lead animate-in">Build and execute in a single step. Equivalent to <code>dain build &amp;&amp; dain execute</code>.</p>
 
-      <h2>Synopsis</h2>
-      <div class="code-block">
-        <div class="code-block-header"><span class="code-block-lang">shell</span></div>
-        <pre><span class="tok-fn">dain</span> run [input] [<span class="tok-flag">-o</span> OUTPUT] [<span class="tok-flag">--interpreted</span>] [<span class="tok-flag">-m</span> MODE] [<span class="tok-flag">-I</span> DIR] [<span class="tok-flag">-v</span>]</pre>
-      </div>
+      <div class="page-active-block">
+        <h2>Synopsis</h2>
+        <div class="code-block">
+          <div class="code-block-header"><span class="code-block-lang">shell</span></div>
+          <pre><span class="tok-fn">dain</span> run [input] [<span class="tok-flag">-o</span> OUTPUT] [<span class="tok-flag">--interpreted</span>] [<span class="tok-flag">-m</span> MODE] [<span class="tok-flag">-I</span> DIR] [<span class="tok-flag">-v</span>]</pre>
+        </div>
 
-      <h2>Interpreted Mode</h2>
-      <p>With <code>--interpreted</code>, <code>run</code> calls <code>compile --interpreted</code> followed by <code>execute --interpreted</code>. No linking occurs.</p>
+        <h2>Interpreted Mode</h2>
+        <p>With <code>--interpreted</code>, <code>run</code> calls <code>compile --interpreted</code> followed by <code>execute --interpreted</code>. No linking occurs.</p>
 
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>Command</th><th>Equivalent to</th></tr></thead>
-          <tbody>
-          <tr><td>dain run</td><td>dain build &amp;&amp; dain execute</td></tr>
-          <tr><td>dain run --interpreted</td><td>dain compile --interpreted &amp;&amp; dain execute --interpreted</td></tr>
-          </tbody>
-        </table>
-      </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Command</th><th>Equivalent to</th></tr></thead>
+            <tbody>
+            <tr><td>dain run</td><td>dain build &amp;&amp; dain execute</td></tr>
+            <tr><td>dain run --interpreted</td><td>dain compile --interpreted &amp;&amp; dain execute --interpreted</td></tr>
+            </tbody>
+          </table>
+        </div>
 
-      <h2>Examples</h2>
-      <div class="code-block">
-        <div class="code-block-header"><span class="code-block-lang">shell</span><button class="code-block-copy" onclick="copyCode(this)">copy</button></div>
-        <pre><span class="tok-cmt"># build and run from toml</span>
+        <h2>Examples</h2>
+        <div class="code-block">
+          <div class="code-block-header"><span class="code-block-lang">shell</span><button class="code-block-copy" onclick="copyCode(this)">copy</button></div>
+          <pre><span class="tok-cmt"># build and run from toml</span>
 <span class="tok-fn">dain</span> run
 
 <span class="tok-cmt"># run a specific file</span>
@@ -1222,6 +1406,7 @@
 
 <span class="tok-cmt"># release build and run</span>
 <span class="tok-fn">dain</span> run <span class="tok-flag">-m</span> release</pre>
+        </div>
       </div>
     </section>
 
@@ -1234,53 +1419,55 @@
         <span class="breadcrumb-sep">/</span>
         <span>global flags</span>
       </div>
-      <div class="page-eyebrow">CLI Reference</div>
-      <h1>Global Flags</h1>
-      <p class="lead">These flags are available on all commands that produce or consume compilation artifacts.</p>
+      <div class="page-eyebrow animate-in">CLI Reference</div>
+      <h1 class="animate-in">Global Flags</h1>
+      <p class="lead animate-in">These flags are available on all commands that produce or consume compilation artifacts.</p>
 
-      <ul class="flag-list">
-        <li>
-          <span class="flag-name">-m, --mode &lt;MODE&gt;</span>
-          <span class="flag-desc">Build mode. One of <code>debug</code>, <code>dev</code>, <code>release</code>, <code>fast</code>, <code>test</code>. <em>Default: debug</em></span>
-        </li>
-        <li>
-          <span class="flag-name">-o, --output &lt;FILE&gt;</span>
-          <span class="flag-desc">Output file path. Defaults vary by command.</span>
-        </li>
-        <li>
-          <span class="flag-name">-I, --include &lt;DIR&gt;</span>
-          <span class="flag-desc">Add a directory to the import search path. Can be repeated.</span>
-        </li>
-        <li>
-          <span class="flag-name">--interpreted</span>
-          <span class="flag-desc">Use bytecode compilation path instead of native. Not available on <code>build</code>.</span>
-        </li>
-        <li>
-          <span class="flag-name">--emit &lt;FORMAT&gt;</span>
-          <span class="flag-desc">Emit an intermediate representation: <code>ast</code>, <code>ir</code>, <code>asm</code>, <code>obj</code>, <code>bin</code>. <em>Not yet implemented.</em></span>
-        </li>
-        <li>
-          <span class="flag-name">--target &lt;TRIPLE&gt;</span>
-          <span class="flag-desc">Cross-compilation target triple (e.g., <code>x86_64-linux-gnu</code>). <em>Not yet implemented.</em></span>
-        </li>
-        <li>
-          <span class="flag-name">-v, --verbose</span>
-          <span class="flag-desc">Print detailed progress information.</span>
-        </li>
-      </ul>
+      <div class="page-active-block">
+        <ul class="flag-list">
+          <li>
+            <span class="flag-name">-m, --mode &lt;MODE&gt;</span>
+            <span class="flag-desc">Build mode. One of <code>debug</code>, <code>dev</code>, <code>release</code>, <code>fast</code>, <code>test</code>. <em>Default: debug</em></span>
+          </li>
+          <li>
+            <span class="flag-name">-o, --output &lt;FILE&gt;</span>
+            <span class="flag-desc">Output file path. Defaults vary by command.</span>
+          </li>
+          <li>
+            <span class="flag-name">-I, --include &lt;DIR&gt;</span>
+            <span class="flag-desc">Add a directory to the import search path. Can be repeated.</span>
+          </li>
+          <li>
+            <span class="flag-name">--interpreted</span>
+            <span class="flag-desc">Use bytecode compilation path instead of native. Not available on <code>build</code>.</span>
+          </li>
+          <li>
+            <span class="flag-name">--emit &lt;FORMAT&gt;</span>
+            <span class="flag-desc">Emit an intermediate representation: <code>ast</code>, <code>ir</code>, <code>asm</code>, <code>obj</code>, <code>bin</code>. <em>Not yet implemented.</em></span>
+          </li>
+          <li>
+            <span class="flag-name">--target &lt;TRIPLE&gt;</span>
+            <span class="flag-desc">Cross-compilation target triple (e.g., <code>x86_64-linux-gnu</code>). <em>Not yet implemented.</em></span>
+          </li>
+          <li>
+            <span class="flag-name">-v, --verbose</span>
+            <span class="flag-desc">Print detailed progress information.</span>
+          </li>
+        </ul>
 
-      <h2>Build Modes</h2>
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>Mode</th><th>Description</th></tr></thead>
-          <tbody>
-          <tr><td>debug</td><td>Full debug info, no optimizations. Default.</td></tr>
-          <tr><td>dev</td><td>Light optimizations, debug info retained.</td></tr>
-          <tr><td>release</td><td>Full optimizations, no debug info.</td></tr>
-          <tr><td>fast</td><td>Aggressive optimizations, may sacrifice safety checks.</td></tr>
-          <tr><td>test</td><td>Enables test harness and assertions.</td></tr>
-          </tbody>
-        </table>
+        <h2>Build Modes</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Mode</th><th>Description</th></tr></thead>
+            <tbody>
+            <tr><td>debug</td><td>Full debug info, no optimizations. Default.</td></tr>
+            <tr><td>dev</td><td>Light optimizations, debug info retained.</td></tr>
+            <tr><td>release</td><td>Full optimizations, no debug info.</td></tr>
+            <tr><td>fast</td><td>Aggressive optimizations, may sacrifice safety checks.</td></tr>
+            <tr><td>test</td><td>Enables test harness and assertions.</td></tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </section>
 
@@ -1291,14 +1478,15 @@
         <span class="breadcrumb-sep">/</span>
         <span>DainProject.toml</span>
       </div>
-      <div class="page-eyebrow">Project</div>
-      <h1>DainProject.toml</h1>
-      <p class="lead">The project manifest file. Placed at the root of your project, it lets <code>build</code>, <code>run</code>, <code>check</code>, and <code>execute</code> work without explicit file arguments.</p>
+      <div class="page-eyebrow animate-in">Project</div>
+      <h1 class="animate-in">DainProject.toml</h1>
+      <p class="lead animate-in">The project manifest file. Placed at the root of your project, it lets <code>build</code>, <code>run</code>, <code>check</code>, and <code>execute</code> work without explicit file arguments.</p>
 
-      <h2>Example</h2>
-      <div class="code-block">
-        <div class="code-block-header"><span class="code-block-lang">toml</span><button class="code-block-copy" onclick="copyCode(this)">copy</button></div>
-        <pre><span class="tok-cmt"># DainProject.toml</span>
+      <div class="page-active-block">
+        <h2>Example</h2>
+        <div class="code-block">
+          <div class="code-block-header"><span class="code-block-lang">toml</span><button class="code-block-copy" onclick="copyCode(this)">copy</button></div>
+          <pre><span class="tok-cmt"># DainProject.toml</span>
 
 [<span class="tok-kw">project</span>]
 <span class="tok-flag">name</span>    = <span class="tok-str">"my_project"</span>
@@ -1309,155 +1497,156 @@
 <span class="tok-flag">mode</span>    = <span class="tok-str">"debug"</span>
 <span class="tok-flag">output</span>  = <span class="tok-str">"bin/my_project"</span>
 <span class="tok-flag">include</span> = [<span class="tok-str">"libs"</span>, <span class="tok-str">"vendor"</span>]</pre>
-      </div>
+        </div>
 
-      <h2>Fields</h2>
-      <h3>[project]</h3>
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
-          <tbody>
-          <tr><td>name</td><td>string</td><td>Project name.</td></tr>
-          <tr><td>version</td><td>string</td><td>Semantic version string.</td></tr>
-          <tr><td>entry</td><td>string</td><td>Path to the main source file.</td></tr>
-          </tbody>
-        </table>
-      </div>
+        <h2>Fields</h2>
+        <h3>[project]</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+            <tbody>
+            <tr><td>name</td><td>string</td><td>Project name.</td></tr>
+            <tr><td>version</td><td>string</td><td>Semantic version string.</td></tr>
+            <tr><td>entry</td><td>string</td><td>Path to the main source file.</td></tr>
+            </tbody>
+          </table>
+        </div>
 
-      <h3>[build]</h3>
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
-          <tbody>
-          <tr><td>mode</td><td>string</td><td>Default build mode. Overridden by <code>-m</code>.</td></tr>
-          <tr><td>output</td><td>string</td><td>Output binary path.</td></tr>
-          <tr><td>include</td><td>string[]</td><td>Include directories, equivalent to repeated <code>-I</code>.</td></tr>
-          </tbody>
-        </table>
-      </div>
+        <h3>[build]</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+            <tbody>
+            <tr><td>mode</td><td>string</td><td>Default build mode. Overridden by <code>-m</code>.</td></tr>
+            <tr><td>output</td><td>string</td><td>Output binary path.</td></tr>
+            <tr><td>include</td><td>string[]</td><td>Include directories, equivalent to repeated <code>-I</code>.</td></tr>
+            </tbody>
+          </table>
+        </div>
 
-      <h2>Precedence</h2>
-      <p>CLI flags always take precedence over toml values. The toml is only read when a value is not provided on the command line.</p>
+        <h2>Precedence</h2>
+        <p>CLI flags always take precedence over toml values. The toml is only read when a value is not provided on the command line.</p>
 
-      <div class="callout callout-tip">
-        <span class="callout-icon">→</span>
-        <div class="callout-body">Running <code>dain</code> with no arguments in a directory that has a <code>DainProject.toml</code> will automatically invoke <code>dain build</code>.</div>
+        <div class="callout callout-tip">
+          <span class="callout-icon">→</span>
+          <div class="callout-body">Running <code>dain</code> with no arguments in a directory that has a <code>DainProject.toml</code> will automatically invoke <code>dain build</code>.</div>
+        </div>
       </div>
     </section>
 
     <!-- PLACEHOLDER PAGES for sidebar items not in original docs -->
     <section class="page" id="page-lang-overview">
       <div class="breadcrumb"><span onclick="navigate('intro')" style="cursor:pointer">docs</span><span class="breadcrumb-sep">/</span><span>language</span></div>
-      <div class="page-eyebrow">Language Guide</div>
-      <h1>Language Overview</h1>
-      <p class="lead">Dain is statically typed with a focus on explicit control flow and zero-cost abstractions.</p>
+      <div class="page-eyebrow animate-in">Language Guide</div>
+      <h1 class="animate-in">Language Overview</h1>
+      <p class="lead animate-in">Dain is statically typed with a focus on explicit control flow and zero-cost abstractions.</p>
       <div class="callout callout-note"><span class="callout-icon">i</span><div class="callout-body">This section is under construction. Content will be available in a future release.</div></div>
     </section>
 
     <section class="page" id="page-lang-syntax">
       <div class="breadcrumb"><span onclick="navigate('intro')" style="cursor:pointer">docs</span><span class="breadcrumb-sep">/</span><span onclick="navigate('lang-overview')" style="cursor:pointer">language</span><span class="breadcrumb-sep">/</span><span>syntax</span></div>
-      <div class="page-eyebrow">Language Guide</div>
-      <h1>Syntax Basics</h1>
-      <p class="lead">Dain's syntax is influenced by modern systems languages, favoring clarity and explicitness.</p>
+      <div class="page-eyebrow animate-in">Language Guide</div>
+      <h1 class="animate-in">Syntax Basics</h1>
+      <p class="lead animate-in">Dain's syntax is influenced by modern systems languages, favoring clarity and explicitness.</p>
       <div class="callout callout-note"><span class="callout-icon">i</span><div class="callout-body">This section is under construction. Content will be available in a future release.</div></div>
     </section>
 
     <section class="page" id="page-lang-vars">
       <div class="breadcrumb"><span onclick="navigate('intro')" style="cursor:pointer">docs</span><span class="breadcrumb-sep">/</span><span onclick="navigate('lang-overview')" style="cursor:pointer">language</span><span class="breadcrumb-sep">/</span><span>variables</span></div>
-      <div class="page-eyebrow">Language Guide</div>
-      <h1>Variables &amp; Constants</h1>
-      <p class="lead">Dain distinguishes between mutable variables and immutable constants at the syntax level.</p>
+      <div class="page-eyebrow animate-in">Language Guide</div>
+      <h1 class="animate-in">Variables &amp; Constants</h1>
+      <p class="lead animate-in">Dain distinguishes between mutable variables and immutable constants at the syntax level.</p>
       <div class="callout callout-note"><span class="callout-icon">i</span><div class="callout-body">This section is under construction. Content will be available in a future release.</div></div>
     </section>
 
     <section class="page" id="page-lang-types">
       <div class="breadcrumb"><span onclick="navigate('intro')" style="cursor:pointer">docs</span><span class="breadcrumb-sep">/</span><span onclick="navigate('lang-overview')" style="cursor:pointer">language</span><span class="breadcrumb-sep">/</span><span>types</span></div>
-      <div class="page-eyebrow">Language Guide</div>
-      <h1>Types</h1>
-      <p class="lead">Dain's type system includes primitives, compound types, and user-defined custom types.</p>
+      <div class="page-eyebrow animate-in">Language Guide</div>
+      <h1 class="animate-in">Types</h1>
+      <p class="lead animate-in">Dain's type system includes primitives, compound types, and user-defined custom types.</p>
       <div class="callout callout-note"><span class="callout-icon">i</span><div class="callout-body">This section is under construction. Content will be available in a future release.</div></div>
     </section>
 
     <section class="page" id="page-lang-control">
       <div class="breadcrumb"><span onclick="navigate('intro')" style="cursor:pointer">docs</span><span class="breadcrumb-sep">/</span><span onclick="navigate('lang-overview')" style="cursor:pointer">language</span><span class="breadcrumb-sep">/</span><span>control flow</span></div>
-      <div class="page-eyebrow">Language Guide</div>
-      <h1>Control Flow</h1>
-      <p class="lead">Conditionals, loops, and pattern matching — all with explicit, readable syntax.</p>
+      <div class="page-eyebrow animate-in">Language Guide</div>
+      <h1 class="animate-in">Control Flow</h1>
+      <p class="lead animate-in">Conditionals, loops, and pattern matching — all with explicit, readable syntax.</p>
       <div class="callout callout-note"><span class="callout-icon">i</span><div class="callout-body">This section is under construction. Content will be available in a future release.</div></div>
     </section>
 
     <section class="page" id="page-lang-functions">
       <div class="breadcrumb"><span onclick="navigate('intro')" style="cursor:pointer">docs</span><span class="breadcrumb-sep">/</span><span onclick="navigate('lang-overview')" style="cursor:pointer">language</span><span class="breadcrumb-sep">/</span><span>functions</span></div>
-      <div class="page-eyebrow">Language Guide</div>
-      <h1>Functions</h1>
-      <p class="lead">First-class functions with clear declaration syntax, typed parameters, and inline lambdas.</p>
+      <div class="page-eyebrow animate-in">Language Guide</div>
+      <h1 class="animate-in">Functions</h1>
+      <p class="lead animate-in">First-class functions with clear declaration syntax, typed parameters, and inline lambdas.</p>
       <div class="callout callout-note"><span class="callout-icon">i</span><div class="callout-body">This section is under construction. Content will be available in a future release.</div></div>
     </section>
 
     <section class="page" id="page-lang-memory">
       <div class="breadcrumb"><span onclick="navigate('intro')" style="cursor:pointer">docs</span><span class="breadcrumb-sep">/</span><span onclick="navigate('lang-overview')" style="cursor:pointer">language</span><span class="breadcrumb-sep">/</span><span>memory</span></div>
-      <div class="page-eyebrow">Language Guide</div>
-      <h1>Memory Management</h1>
-      <p class="lead">Dain gives you explicit control over memory with a deterministic ownership model.</p>
+      <div class="page-eyebrow animate-in">Language Guide</div>
+      <h1 class="animate-in">Memory Management</h1>
+      <p class="lead animate-in">Dain gives you explicit control over memory with a deterministic ownership model.</p>
       <div class="callout callout-note"><span class="callout-icon">i</span><div class="callout-body">This section is under construction. Content will be available in a future release.</div></div>
     </section>
 
     <section class="page" id="page-lang-errors">
       <div class="breadcrumb"><span onclick="navigate('intro')" style="cursor:pointer">docs</span><span class="breadcrumb-sep">/</span><span onclick="navigate('lang-overview')" style="cursor:pointer">language</span><span class="breadcrumb-sep">/</span><span>errors</span></div>
-      <div class="page-eyebrow">Language Guide</div>
-      <h1>Error Handling</h1>
-      <p class="lead">Dain uses typed error returns rather than exceptions for explicit, composable error handling.</p>
+      <div class="page-eyebrow animate-in">Language Guide</div>
+      <h1 class="animate-in">Error Handling</h1>
+      <p class="lead animate-in">Dain uses typed error returns rather than exceptions for explicit, composable error handling.</p>
       <div class="callout callout-note"><span class="callout-icon">i</span><div class="callout-body">This section is under construction. Content will be available in a future release.</div></div>
     </section>
 
     <section class="page" id="page-lang-modules">
       <div class="breadcrumb"><span onclick="navigate('intro')" style="cursor:pointer">docs</span><span class="breadcrumb-sep">/</span><span onclick="navigate('lang-overview')" style="cursor:pointer">language</span><span class="breadcrumb-sep">/</span><span>modules</span></div>
-      <div class="page-eyebrow">Language Guide</div>
-      <h1>Modules &amp; Imports</h1>
-      <p class="lead">Dain's module system is path-based with explicit imports and no hidden global state.</p>
+      <div class="page-eyebrow animate-in">Language Guide</div>
+      <h1 class="animate-in">Modules &amp; Imports</h1>
+      <p class="lead animate-in">Dain's module system is path-based with explicit imports and no hidden global state.</p>
       <div class="callout callout-note"><span class="callout-icon">i</span><div class="callout-body">This section is under construction. Content will be available in a future release.</div></div>
     </section>
 
     <section class="page" id="page-lang-generics">
       <div class="breadcrumb"><span onclick="navigate('intro')" style="cursor:pointer">docs</span><span class="breadcrumb-sep">/</span><span onclick="navigate('lang-overview')" style="cursor:pointer">language</span><span class="breadcrumb-sep">/</span><span>generics</span></div>
-      <div class="page-eyebrow">Language Guide</div>
-      <h1>Generics</h1>
-      <p class="lead">Monomorphized generics with trait-based constraints — zero runtime overhead.</p>
+      <div class="page-eyebrow animate-in">Language Guide</div>
+      <h1 class="animate-in">Generics</h1>
+      <p class="lead animate-in">Monomorphized generics with trait-based constraints — zero runtime overhead.</p>
       <div class="callout callout-note"><span class="callout-icon">i</span><div class="callout-body">This section is under construction. Content will be available in a future release.</div></div>
     </section>
 
     <!-- STDLIB stubs -->
     <section class="page" id="page-stdlib-overview">
       <div class="breadcrumb"><span onclick="navigate('intro')" style="cursor:pointer">docs</span><span class="breadcrumb-sep">/</span><span>stdlib</span></div>
-      <div class="page-eyebrow">Standard Library</div>
-      <h1>Standard Library</h1>
-      <p class="lead">Dain's standard library provides modules for I/O, collections, strings, math, and system access.</p>
+      <div class="page-eyebrow animate-in">Standard Library</div>
+      <h1 class="animate-in">Standard Library</h1>
+      <p class="lead animate-in">Dain's standard library provides modules for I/O, collections, strings, math, and system access.</p>
       <div class="callout callout-note"><span class="callout-icon">i</span><div class="callout-body">Standard library documentation is under construction and will be available in a future release.</div></div>
     </section>
 
-    <section class="page" id="page-stdlib-io"><div class="page-eyebrow">Standard Library</div><h1>I/O</h1><div class="callout callout-note"><span class="callout-icon">i</span><div class="callout-body">Under construction.</div></div></section>
-    <section class="page" id="page-stdlib-collections"><div class="page-eyebrow">Standard Library</div><h1>Collections</h1><div class="callout callout-note"><span class="callout-icon">i</span><div class="callout-body">Under construction.</div></div></section>
-    <section class="page" id="page-stdlib-strings"><div class="page-eyebrow">Standard Library</div><h1>Strings</h1><div class="callout callout-note"><span class="callout-icon">i</span><div class="callout-body">Under construction.</div></div></section>
-    <section class="page" id="page-stdlib-math"><div class="page-eyebrow">Standard Library</div><h1>Math</h1><div class="callout callout-note"><span class="callout-icon">i</span><div class="callout-body">Under construction.</div></div></section>
-    <section class="page" id="page-stdlib-system"><div class="page-eyebrow">Standard Library</div><h1>System</h1><div class="callout callout-note"><span class="callout-icon">i</span><div class="callout-body">Under construction.</div></div></section>
+    <section class="page" id="page-stdlib-io"><div class="page-eyebrow animate-in">Standard Library</div><h1 class="animate-in">I/O</h1><div class="callout callout-note"><span class="callout-icon">i</span><div class="callout-body">Under construction.</div></div></section>
+    <section class="page" id="page-stdlib-collections"><div class="page-eyebrow animate-in">Standard Library</div><h1 class="animate-in">Collections</h1><div class="callout callout-note"><span class="callout-icon">i</span><div class="callout-body">Under construction.</div></div></section>
+    <section class="page" id="page-stdlib-strings"><div class="page-eyebrow animate-in">Standard Library</div><h1 class="animate-in">Strings</h1><div class="callout callout-note"><span class="callout-icon">i</span><div class="callout-body">Under construction.</div></div></section>
+    <section class="page" id="page-stdlib-math"><div class="page-eyebrow animate-in">Standard Library</div><h1 class="animate-in">Math</h1><div class="callout callout-note"><span class="callout-icon">i</span><div class="callout-body">Under construction.</div></div></section>
+    <section class="page" id="page-stdlib-system"><div class="page-eyebrow animate-in">Standard Library</div><h1 class="animate-in">System</h1><div class="callout callout-note"><span class="callout-icon">i</span><div class="callout-body">Under construction.</div></div></section>
 
     <!-- ADVANCED stubs -->
-    <section class="page" id="page-adv-ffi"><div class="page-eyebrow">Advanced Topics</div><h1>FFI</h1><p class="lead">Call C libraries and expose Dain symbols to external code.</p><div class="callout callout-note"><span class="callout-icon">i</span><div class="callout-body">Under construction.</div></div></section>
-    <section class="page" id="page-adv-concurrency"><div class="page-eyebrow">Advanced Topics</div><h1>Concurrency</h1><p class="lead">Structured concurrency primitives for safe parallel execution.</p><div class="callout callout-note"><span class="callout-icon">i</span><div class="callout-body">Under construction.</div></div></section>
-    <section class="page" id="page-adv-meta"><div class="page-eyebrow">Advanced Topics</div><h1>Metaprogramming</h1><p class="lead">Compile-time code generation and reflection.</p><div class="callout callout-note"><span class="callout-icon">i</span><div class="callout-body">Under construction.</div></div></section>
-    <section class="page" id="page-adv-opt"><div class="page-eyebrow">Advanced Topics</div><h1>Optimization Tips</h1><p class="lead">Profiling, inlining, and build-mode tuning for maximum performance.</p><div class="callout callout-note"><span class="callout-icon">i</span><div class="callout-body">Under construction.</div></div></section>
+    <section class="page" id="page-adv-ffi"><div class="page-eyebrow animate-in">Advanced Topics</div><h1 class="animate-in">FFI</h1><p class="lead animate-in">Call C libraries and expose Dain symbols to external code.</p><div class="callout callout-note"><span class="callout-icon">i</span><div class="callout-body">Under construction.</div></div></section>
+    <section class="page" id="page-adv-concurrency"><div class="page-eyebrow animate-in">Advanced Topics</div><h1 class="animate-in">Concurrency</h1><p class="lead animate-in">Structured concurrency primitives for safe parallel execution.</p><div class="callout callout-note"><span class="callout-icon">i</span><div class="callout-body">Under construction.</div></div></section>
+    <section class="page" id="page-adv-meta"><div class="page-eyebrow animate-in">Advanced Topics</div><h1 class="animate-in">Metaprogramming</h1><p class="lead animate-in">Compile-time code generation and reflection.</p><div class="callout callout-note"><span class="callout-icon">i</span><div class="callout-body">Under construction.</div></div></section>
+    <section class="page" id="page-adv-opt"><div class="page-eyebrow animate-in">Advanced Topics</div><h1 class="animate-in">Optimization Tips</h1><p class="lead animate-in">Profiling, inlining, and build-mode tuning for maximum performance.</p><div class="callout callout-note"><span class="callout-icon">i</span><div class="callout-body">Under construction.</div></div></section>
 
     <!-- TOOLING stubs -->
-    <section class="page" id="page-tool-editor"><div class="page-eyebrow">Tooling</div><h1>Editor Setup</h1><p class="lead">Syntax highlighting and LSP support for VS Code, Neovim, and more.</p><div class="callout callout-note"><span class="callout-icon">i</span><div class="callout-body">Under construction.</div></div></section>
-    <section class="page" id="page-tool-debug"><div class="page-eyebrow">Tooling</div><h1>Debugging</h1><p class="lead">Using GDB/LLDB with Dain's debug symbols.</p><div class="callout callout-note"><span class="callout-icon">i</span><div class="callout-body">Under construction.</div></div></section>
-    <section class="page" id="page-tool-testing"><div class="page-eyebrow">Tooling</div><h1>Testing</h1><p class="lead">Built-in test harness via <code>dain build -m test</code>.</p><div class="callout callout-note"><span class="callout-icon">i</span><div class="callout-body">Under construction.</div></div></section>
+    <section class="page" id="page-tool-editor"><div class="page-eyebrow animate-in">Tooling</div><h1 class="animate-in">Editor Setup</h1><p class="lead animate-in">Syntax highlighting and LSP support for VS Code, Neovim, and more.</p><div class="callout callout-note"><span class="callout-icon">i</span><div class="callout-body">Under construction.</div></div></section>
+    <section class="page" id="page-tool-debug"><div class="page-eyebrow animate-in">Tooling</div><h1 class="animate-in">Debugging</h1><p class="lead animate-in">Using GDB/LLDB with Dain's debug symbols.</p><div class="callout callout-note"><span class="callout-icon">i</span><div class="callout-body">Under construction.</div></div></section>
+    <section class="page" id="page-tool-testing"><div class="page-eyebrow animate-in">Tooling</div><h1 class="animate-in">Testing</h1><p class="lead animate-in">Built-in test harness via <code>dain build -m test</code>.</p><div class="callout callout-note"><span class="callout-icon">i</span><div class="callout-body">Under construction.</div></div></section>
 
     <!-- ROADMAP -->
     <section class="page" id="page-roadmap">
       <div class="breadcrumb"><span onclick="navigate('intro')" style="cursor:pointer">docs</span><span class="breadcrumb-sep">/</span><span>roadmap</span></div>
-      <div class="page-eyebrow">Roadmap</div>
-      <h1>Roadmap</h1>
-      <p class="lead">Dain is at v0.1.0-dev. The language and toolchain are under active development.</p>
+      <div class="page-eyebrow animate-in">Roadmap</div>
+      <h1 class="animate-in">Roadmap</h1>
+      <p class="lead animate-in">Dain is at v0.1.0-dev. The language and toolchain are under active development.</p>
       <div class="callout callout-warn">
         <span class="callout-icon">!</span>
         <div class="callout-body">APIs and language syntax may change before v1.0. Do not use in production.</div>
@@ -1471,9 +1660,9 @@
     <!-- COMMUNITY -->
     <section class="page" id="page-community">
       <div class="breadcrumb"><span onclick="navigate('intro')" style="cursor:pointer">docs</span><span class="breadcrumb-sep">/</span><span>community</span></div>
-      <div class="page-eyebrow">Community</div>
-      <h1>Community</h1>
-      <p class="lead">Dain is open-source and community-driven. Contributions are welcome.</p>
+      <div class="page-eyebrow animate-in">Community</div>
+      <h1 class="animate-in">Community</h1>
+      <p class="lead animate-in">Dain is open-source and community-driven. Contributions are welcome.</p>
       <div class="table-wrap">
         <table>
           <thead><tr><th>Platform</th><th>Link</th></tr></thead>
@@ -1489,36 +1678,149 @@
 </div>
 
 <script>
+  // State Management
+  const state = {
+    currentPage: 'intro',
+    isMobileMenuOpen: false
+  };
+
+  // Elements
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebar-overlay');
+  const menuToggle = document.getElementById('menu-toggle');
+
+  // Initialize Staggered Animation Delays for content blocks
+  function applyStaggeredAnimation() {
+    const blocks = document.querySelectorAll('.page-active-block');
+    blocks.forEach(block => {
+      const children = block.children;
+      Array.from(children).forEach((child, index) => {
+        child.style.animationDelay = `${150 + (index * 50)}ms`;
+        child.classList.add('animate-in');
+      });
+    });
+  }
+
+  // Navigation Logic
   function navigate(pageId) {
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    // Prevent reloading same page unnecessarily
+    if (state.currentPage === pageId) return;
+    state.currentPage = pageId;
+
+    // UI Update: Active States
+    document.querySelectorAll('.page').forEach(p => {
+      p.classList.remove('active');
+      p.classList.remove('page-active-block'); // Reset stagger helper
+    });
+
     document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
 
+    // Activate Page
     const page = document.getElementById('page-' + pageId);
-    if (page) page.classList.add('active');
+    if (page) {
+      page.classList.add('active');
+      // Add helper class for staggering if it's a long content page
+      if(!page.querySelector('.hero-glow')) {
+        page.classList.add('page-active-block');
+        applyStaggeredAnimation();
+      }
+    }
 
+    // Activate Sidebar Item
     document.querySelectorAll('.sidebar-item').forEach(item => {
       const onclickAttr = item.getAttribute('onclick') || '';
       if (onclickAttr === `navigate('${pageId}')`) item.classList.add('active');
     });
 
+    // Scroll to top smoothly
     document.querySelector('.main').scrollTo({ top: 0, behavior: 'smooth' });
     window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    // Mobile UX: Close menu after selection
+    closeSidebar();
   }
 
+  // Sidebar Logic
+  function toggleSidebar() {
+    state.isMobileMenuOpen = !state.isMobileMenuOpen;
+
+    if (state.isMobileMenuOpen) {
+      sidebar.classList.add('open');
+      overlay.classList.add('visible');
+      menuToggle.classList.add('active');
+      document.body.style.overflow = 'hidden'; // Prevent background scrolling
+    } else {
+      closeSidebar();
+    }
+  }
+
+  function closeSidebar() {
+    state.isMobileMenuOpen = false;
+    sidebar.classList.remove('open');
+    overlay.classList.remove('visible');
+    menuToggle.classList.remove('active');
+    document.body.style.overflow = ''; // Restore scrolling
+  }
+
+  // Close sidebar when clicking overlay
+  function closeSidebarOnMobile(event) {
+    if (window.innerWidth <= 768 && state.isMobileMenuOpen) {
+      // If click is outside sidebar and not on the toggle button
+      if (!sidebar.contains(event.target) && !menuToggle.contains(event.target)) {
+        closeSidebar();
+      }
+    }
+  }
+
+  // Copy Code Logic
   function copyCode(btn) {
     const pre = btn.closest('.code-block').querySelector('pre');
     const text = pre.innerText;
+
     navigator.clipboard.writeText(text).then(() => {
-      btn.textContent = 'copied!';
-      btn.style.color = 'var(--green)';
-      btn.style.borderColor = 'var(--green)';
+      const originalText = btn.innerText;
+      btn.innerText = 'copied!';
+      btn.classList.add('copied');
+
       setTimeout(() => {
-        btn.textContent = 'copy';
-        btn.style.color = '';
-        btn.style.borderColor = '';
+        btn.innerText = originalText;
+        btn.classList.remove('copied');
       }, 1800);
+    }).catch(err => {
+      console.error('Failed to copy text: ', err);
     });
   }
+
+  // Event Listeners
+  menuToggle.addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggleSidebar();
+  });
+
+  overlay.addEventListener('click', closeSidebar);
+
+  // Handle window resize to reset state if moving to desktop
+  window.addEventListener('resize', () => {
+    if (window.innerWidth > 768 && state.isMobileMenuOpen) {
+      closeSidebar();
+    }
+  });
+
+  // Initial Animation Trigger
+  document.addEventListener('DOMContentLoaded', () => {
+    // Trigger initial animations for the intro page
+    const introPage = document.getElementById('page-intro');
+    if(introPage) {
+      const introChildren = introPage.children;
+      Array.from(introChildren).forEach((child, index) => {
+        if(!child.classList.contains('hero-glow')) {
+          child.style.animationDelay = `${index * 100}ms`;
+          child.classList.add('animate-in');
+        }
+      });
+    }
+  });
+
 </script>
 </body>
 </html>
