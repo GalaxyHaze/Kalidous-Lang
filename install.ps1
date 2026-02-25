@@ -3,8 +3,9 @@ param(
 )
 
 # 1. Setup Global Variables
- $Repo = "GalaxyHaze/Kalidous"
- $ApiUrl = "https://api.github.com/repos/$Repo/releases/latest"
+# Update this if your repository owner/name is different
+$Repo = "GalaxyHaze/Kalidous"
+$ApiUrl = "https://api.github.com/repos/$Repo/releases/latest"
 
 # 2. Determine Version
 if ([string]::IsNullOrWhiteSpace($Version)) {
@@ -24,37 +25,30 @@ else {
 }
 
 # 3. Detect OS and Architecture
-# Windows is usually AMD64, but we check just in case
- $FileName = ""
- $IsWindow = $true
+$OS = "windows"
+$Arch = "amd64"
 
-if ($IsWindow) {
-    $FileName = "nova-windows-amd64.exe"
+if ($env:PROCESSOR_ARCHITECTURE -eq "ARM64") {
+    $Arch = "arm64"
 }
-else {
-    # Fallback (shouldn't happen on PS, but good practice)
-    Write-Error "Unsupported Operating System."
-    exit 1
-}
+
+$FileName = "kalidous-$OS-$Arch.exe"
 
 # 4. Setup Download URL and Destination
- $DownloadUrl = "https://github.com/$Repo/releases/download/$Version/$FileName"
-# We download to the temp folder first to avoid permission issues
- $TempPath = "$env:TEMP\nova-installer.exe"
-# Final destination (e.g. C:\Users\You\AppData\Local\Microsoft\WindowsApps)
-# Note: Sometimes WindowsApps is write-protected. ProgramData is often safer for tools,
-# but we'll try CurrentUser AppData first.
- $InstallDir = "$env:LOCALAPPDATA\Microsoft\WindowsApps"
+$DownloadUrl = "https://github.com/$Repo/releases/download/$Version/$FileName"
+$TempPath = "$env:TEMP\kalidous-installer.exe"
+
+# Using Local AppData for user-level installation (no Admin required usually)
+$InstallDir = "$env:LOCALAPPDATA\Microsoft\WindowsApps"
 
 # 5. Download the binary
 Write-Host "Downloading from $DownloadUrl..." -ForegroundColor Cyan
 
 try {
-    # -UseBasicParsing is essential to avoid errors in server environments
     Invoke-WebRequest -Uri $DownloadUrl -OutFile $TempPath -UseBasicParsing
 }
 catch {
-    Write-Error "Failed to download file. The version '$Version' might not exist."
+    Write-Error "Failed to download file. The version '$Version' or asset '$FileName' might not exist."
     exit 1
 }
 
@@ -67,12 +61,12 @@ try {
         New-Item -ItemType Directory -Path $InstallDir -Force | Out-Null
     }
 
-    # Move the file
-    Move-Item -Path $TempPath -Destination "$InstallDir\nova.exe" -Force
+    # Move the file and rename to kalidous.exe
+    Move-Item -Path $TempPath -Destination "$InstallDir\kalidous.exe" -Force
 
     Write-Host "--------------------------------------------------"
     Write-Host "Installation Complete!" -ForegroundColor Green
-    Write-Host "Run 'nova --help' in a NEW terminal window to get started."
+    Write-Host "Run 'kalidous --help' in a NEW terminal window to get started."
     Write-Host "--------------------------------------------------"
 }
 catch {

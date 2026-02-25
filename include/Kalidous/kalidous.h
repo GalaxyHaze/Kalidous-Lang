@@ -17,17 +17,17 @@ extern "C" {
 typedef struct {
     size_t index;
     size_t line;
-} NovaSourceLoc;
+} KalidousSourceLoc;
 
 typedef struct {
     const void* data;
     size_t len;
-} NovaSlice;
+} KalidousSlice;
 
 typedef struct {
     const char* data;
     size_t len;
-} NovaStr;
+} KalidousStr;
 
 // ============================================================================
 // Token System
@@ -172,29 +172,29 @@ typedef enum {
     // ------------------------------------------------------------------------
     KALIDOUS_TOKEN_END,
     KALIDOUS_TOKEN_UNKNOWN
-} NovaTokenType;
+} KalidousTokenType;
 
 typedef struct {
-    NovaStr lexeme;
-    NovaSourceLoc loc;
-    NovaTokenType type;
+    KalidousStr lexeme;
+    KalidousSourceLoc loc;
+    KalidousTokenType type;
     uint16_t keyword_id;
-} NovaToken;
+} KalidousToken;
 
 typedef struct {
-    const NovaToken* data;
+    const KalidousToken* data;
     size_t len;
-} NovaTokenStream;
+} KalidousTokenStream;
 
-typedef struct NovaArena NovaArena;
+typedef struct KalidousArena KalidousArena;
 
-NovaTokenNovaTokenStream kalidous_tokenize(NovaArena* arena, const char* source, size_t source_len);
+KalidousTokenStream kalidous_tokenize(KalidousArena* arena, const char* source, size_t source_len);
 
 // ============================================================================
 // AST System
 // ============================================================================
 
-typedef uint16_t NovaNodeId;
+typedef uint16_t KalidousNodeId;
 
 enum {
     KALIDOUS_NODE_ERROR = 0,
@@ -223,13 +223,13 @@ enum {
     KALIDOUS_NODE_CUSTOM_START = 1000
 };
 
-typedef struct NovaNode NovaNode;
-struct NovaNode {
-    NovaNodeId type;
-    NovaSourceLoc loc;
+typedef struct KalidousNode KalidousNode;
+struct KalidousNode {
+    KalidousNodeId type;
+    KalidousSourceLoc loc;
 
     union {
-        struct { NovaNode* a; NovaNode* b; NovaNode* c; } kids;
+        struct { KalidousNode* a; KalidousNode* b; KalidousNode* c; } kids;
         struct { void* ptr; size_t len; } list;
         struct { const char* str; size_t len; } ident;
         struct { double num; } number;
@@ -238,20 +238,20 @@ struct NovaNode {
     } data;
 };
 
-NovaNode* kalidous_parse(NovaArena* arena, NovaTokenStream tokens);
-static inline NovaNodeId kalidous_node_type(const NovaNode* node) {
-        return node ? node->type : (NovaNodeId)KALIDOUS_NODE_ERROR;
+KalidousNode* kalidous_parse(KalidousArena* arena, KalidousTokenStream tokens);
+static inline KalidousNodeId kalidous_node_type(const KalidousNode* node) {
+        return node ? node->type : (KalidousNodeId)KALIDOUS_NODE_ERROR;
 }
 
 // ============================================================================
 // Memory Arena
 // ============================================================================
 
-NovaArena* kalidous_arena_create(size_t initial_block_size);
-void*      kalidous_arena_alloc(NovaArena* arena, size_t size);
-char*      kalidous_arena_strdup(NovaArena* arena, const char* str);
-void       kalidous_arena_reset(NovaArena* arena);
-void       kalidous_arena_destroy(NovaArena* arena);
+KalidousArena* kalidous_arena_create(size_t initial_block_size);
+void*      kalidous_arena_alloc(KalidousArena* arena, size_t size);
+char*      kalidous_arena_strdup(KalidousArena* arena, const char* str);
+void       kalidous_arena_reset(KalidousArena* arena);
+void       kalidous_arena_destroy(KalidousArena* arena);
 
 // ============================================================================
 // File Utilities
@@ -261,10 +261,10 @@ bool   kalidous_file_exists(const char* path);
 bool   kalidous_file_is_regular(const char* path);
 size_t kalidous_file_size(const char* path);
 bool   kalidous_file_has_extension(const char* path, const char* ext);
-char*  kalidous_load_file_to_arena(NovaArena* arena, const char* path, size_t* out_size);
+char*  kalidous_load_file_to_arena(KalidousArena* arena, const char* path, size_t* out_size);
 
 int           kalidous_run(int argc, const char** argv);
-NovaTokenType kalidous_lookup_keyword(const char* src, size_t len);
+KalidousTokenType kalidous_lookup_keyword(const char* src, size_t len);
 
 // ============================================================================
 // Error Handling
@@ -277,7 +277,7 @@ typedef enum {
     KALIDOUS_ERR_LEX,
     KALIDOUS_ERR_MEMORY,
     KALIDOUS_ERR_INVALID_INPUT
-} NovaError;
+} KalidousError;
 
 // ============================================================================
 // C++ Extensions
@@ -291,8 +291,8 @@ typedef enum {
 namespace KALIDOUS {
 
 class Arena {
-    struct Deleter { void operator()(NovaArena* a) const { kalidous_arena_destroy(a); } };
-    std::unique_ptr<NovaArena, Deleter> handle_;
+    struct Deleter { void operator()(KalidousArena* a) const { kalidous_arena_destroy(a); } };
+    std::unique_ptr<KalidousArena, Deleter> handle_;
 public:
     explicit Arena(size_t initial = 65536)
         : handle_(kalidous_arena_create(initial)) { if (!handle_) throw std::bad_alloc(); }
@@ -303,10 +303,10 @@ public:
         if (p) { memcpy(p, sv.data(), sv.size()); p[sv.size()] = '\0'; }
         return p;
     }
-    NovaArena* get() const { return handle_.get(); }
+    KalidousArena* get() const { return handle_.get(); }
 };
 
-inline NovaTokenStream tokenize(Arena& arena, std::string_view source) {
+inline KalidousTokenStream tokenize(Arena& arena, std::string_view source) {
     return kalidous_tokenize(arena.get(), source.data(), source.size());
 }
 
@@ -318,9 +318,9 @@ inline std::pair<char*, size_t> load_file(Arena& arena, const char* path) {
 }
 
 namespace debug {
-    const char* token_type_name(NovaTokenType t);
-    void print_tokens(NovaTokenStream tokens);
-    void print_ast(const NovaNode* node, int indent = 0);
+    const char* token_type_name(KalidousTokenType t);
+    void print_tokens(KalidousTokenStream tokens);
+    void print_ast(const KalidousNode* node, int indent = 0);
 }
 
 } // namespace KALIDOUS

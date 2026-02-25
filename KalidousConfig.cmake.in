@@ -1,4 +1,4 @@
 @PACKAGE_INIT@
 
 include("${CMAKE_CURRENT_LIST_DIR}/KalidousTargets.cmake")
-check_required_components(Nova)
+check_required_components(Kalidous)
