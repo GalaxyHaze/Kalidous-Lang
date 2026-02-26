@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # 1. Setup Global Variables
-REPO="GalaxyHaze/Nova"
+REPO="GalaxyHaze/Kalidous"
 VERSION=""
-OUTPUT_NAME="nova"
+OUTPUT_NAME="kalidous"
 
 # 2. Determine Version
 if [ -n "$1" ]; then
@@ -28,12 +28,12 @@ ARCH="$(uname -m)"
 FILE_NAME=""
 
 case "$OS" in
-  Linux*)  FILE_NAME="nova-linux-amd64" ;;
-  Darwin*) FILE_NAME="nova-macos-amd64" ;;
+  Linux*)  FILE_NAME="kalidous-linux-amd64" ;;
+  Darwin*) FILE_NAME="kalidous-macos-amd64" ;;
   # Covers Git Bash, MinGW, and MSYS on Windows
   MINGW*|MSYS*|CYGWIN*)
-      FILE_NAME="nova-windows-amd64.exe"
-      OUTPUT_NAME="nova.exe"
+      FILE_NAME="kalidous-windows-amd64.exe"
+      OUTPUT_NAME="kalidous.exe"
       ;;
   *)      echo "OS not supported: $OS"; exit 1 ;;
 esac
@@ -64,13 +64,13 @@ if [[ "$OS" == MINGW* ]] || [[ "$OS" == MSYS* ]] || [[ "$OS" == CYGWIN* ]]; then
 else
     # Linux / macOS
     chmod +x "$OUTPUT_NAME"
-    echo "Installing Nova to /usr/local/bin/..."
-    sudo mv "$OUTPUT_NAME" /usr/local/bin/nova
+    echo "Installing Kalidous to /usr/local/bin/..."
+    sudo mv "$OUTPUT_NAME" /usr/local/bin/kalidous
 
     # Check if it worked
     # shellcheck disable=SC2181
     if [ $? -eq 0 ]; then
-        echo "Installation complete! Run 'nova --help' to get started."
+        echo "Installation complete! Run 'kalidous --help' to get started."
     else
         echo "Installation failed. Please check your sudo permissions."
     fi

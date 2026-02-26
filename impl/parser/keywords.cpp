@@ -1,5 +1,5 @@
 // impl/parser/keywords.cpp
-#include "Nova/nova.h"
+#include "Kalidous/kalidous.h"
 #include <string_view>
 #include <array>
 
@@ -29,101 +29,101 @@ static constexpr uint64_t hash64(const std::string_view sv) {
 // Keyword + operator table
 // ============================================================================
 
-static constexpr auto TokenTable = std::to_array<std::pair<std::string_view, NovaTokenType>>({
+static constexpr auto TokenTable = std::to_array<std::pair<std::string_view, KalidousTokenType>>({
     // --- Tipos primitivos ---------------------------------------------------
-    {"i8",   NOVA_TOKEN_TYPE}, {"i16",  NOVA_TOKEN_TYPE}, {"i32",  NOVA_TOKEN_TYPE},
-    {"i64",  NOVA_TOKEN_TYPE}, {"u8",   NOVA_TOKEN_TYPE}, {"u16",  NOVA_TOKEN_TYPE},
-    {"u32",  NOVA_TOKEN_TYPE}, {"u64",  NOVA_TOKEN_TYPE}, {"f32",  NOVA_TOKEN_TYPE},
-    {"f64",  NOVA_TOKEN_TYPE}, {"bool", NOVA_TOKEN_TYPE}, {"void", NOVA_TOKEN_TYPE},
+    {"i8",   KALIDOUS_TOKEN_TYPE}, {"i16",  KALIDOUS_TOKEN_TYPE}, {"i32",  KALIDOUS_TOKEN_TYPE},
+    {"i64",  KALIDOUS_TOKEN_TYPE}, {"u8",   KALIDOUS_TOKEN_TYPE}, {"u16",  KALIDOUS_TOKEN_TYPE},
+    {"u32",  KALIDOUS_TOKEN_TYPE}, {"u64",  KALIDOUS_TOKEN_TYPE}, {"f32",  KALIDOUS_TOKEN_TYPE},
+    {"f64",  KALIDOUS_TOKEN_TYPE}, {"bool", KALIDOUS_TOKEN_TYPE}, {"void", KALIDOUS_TOKEN_TYPE},
 
     // --- Declarações de tipo ------------------------------------------------
-    {"type",      NOVA_TOKEN_TYPE},
-    {"struct",    NOVA_TOKEN_STRUCT},
-    {"component", NOVA_TOKEN_COMPONENT},
-    {"enum",      NOVA_TOKEN_ENUM},
-    {"union",     NOVA_TOKEN_UNION},
-    {"family",    NOVA_TOKEN_FAMILY},
-    {"entity",    NOVA_TOKEN_ENTITY},
-    {"trait",     NOVA_TOKEN_TRAIT},
-    {"typedef",   NOVA_TOKEN_TYPEDEF},
-    {"implement", NOVA_TOKEN_IMPLEMENT},
+    {"type",      KALIDOUS_TOKEN_TYPE},
+    {"struct",    KALIDOUS_TOKEN_STRUCT},
+    {"component", KALIDOUS_TOKEN_COMPONENT},
+    {"enum",      KALIDOUS_TOKEN_ENUM},
+    {"union",     KALIDOUS_TOKEN_UNION},
+    {"family",    KALIDOUS_TOKEN_FAMILY},
+    {"entity",    KALIDOUS_TOKEN_ENTITY},
+    {"trait",     KALIDOUS_TOKEN_TRAIT},
+    {"typedef",   KALIDOUS_TOKEN_TYPEDEF},
+    {"implement", KALIDOUS_TOKEN_IMPLEMENT},
 
     // --- Bindings / modificadores de ownership ------------------------------
-    {"let",        NOVA_TOKEN_LET},
-    {"var",        NOVA_TOKEN_VAR},
-    {"auto",       NOVA_TOKEN_AUTO},
-    {"const",      NOVA_TOKEN_CONST},
-    {"mut",        NOVA_TOKEN_MUTABLE},   // 'mutable' na ABI, 'mut' no fonte
-    {"global",     NOVA_TOKEN_GLOBAL},
-    {"persistent", NOVA_TOKEN_PERSISTENT},
-    {"local",      NOVA_TOKEN_LOCAL},
-    {"lend",       NOVA_TOKEN_LEND},
-    {"shared",     NOVA_TOKEN_SHARED},
-    {"view",       NOVA_TOKEN_VIEW},
-    {"unique",     NOVA_TOKEN_UNIQUE},
+    {"let",        KALIDOUS_TOKEN_LET},
+    {"var",        KALIDOUS_TOKEN_VAR},
+    {"auto",       KALIDOUS_TOKEN_AUTO},
+    {"const",      KALIDOUS_TOKEN_CONST},
+    {"mut",        KALIDOUS_TOKEN_MUTABLE},   // 'mutable' na ABI, 'mut' no fonte
+    {"global",     KALIDOUS_TOKEN_GLOBAL},
+    {"persistent", KALIDOUS_TOKEN_PERSISTENT},
+    {"local",      KALIDOUS_TOKEN_LOCAL},
+    {"lend",       KALIDOUS_TOKEN_LEND},
+    {"shared",     KALIDOUS_TOKEN_SHARED},
+    {"view",       KALIDOUS_TOKEN_VIEW},
+    {"unique",     KALIDOUS_TOKEN_UNIQUE},
 
     // --- Modificadores de acesso --------------------------------------------
-    {"public",    NOVA_TOKEN_MODIFIER},
-    {"private",   NOVA_TOKEN_MODIFIER},
-    {"protected", NOVA_TOKEN_MODIFIER},
+    {"public",    KALIDOUS_TOKEN_MODIFIER},
+    {"private",   KALIDOUS_TOKEN_MODIFIER},
+    {"protected", KALIDOUS_TOKEN_MODIFIER},
 
     // --- Controle de fluxo --------------------------------------------------
-    {"if",       NOVA_TOKEN_IF},
-    {"else",     NOVA_TOKEN_ELSE},
-    {"for",      NOVA_TOKEN_FOR},
-    {"in",       NOVA_TOKEN_IN},
-    {"switch",   NOVA_TOKEN_SWITCH},
-    {"return",   NOVA_TOKEN_RETURN},
-    {"break",    NOVA_TOKEN_BREAK},
-    {"continue", NOVA_TOKEN_CONTINUE},
-    {"goto",     NOVA_TOKEN_GOTO},
-    {"marker",   NOVA_TOKEN_MARKER},
-    {"scene",    NOVA_TOKEN_SCENE},
-    {"end",      NOVA_TOKEN_END},
+    {"if",       KALIDOUS_TOKEN_IF},
+    {"else",     KALIDOUS_TOKEN_ELSE},
+    {"for",      KALIDOUS_TOKEN_FOR},
+    {"in",       KALIDOUS_TOKEN_IN},
+    {"switch",   KALIDOUS_TOKEN_SWITCH},
+    {"return",   KALIDOUS_TOKEN_RETURN},
+    {"break",    KALIDOUS_TOKEN_BREAK},
+    {"continue", KALIDOUS_TOKEN_CONTINUE},
+    {"goto",     KALIDOUS_TOKEN_GOTO},
+    {"marker",   KALIDOUS_TOKEN_MARKER},
+    {"scene",    KALIDOUS_TOKEN_SCENE},
+    {"end",      KALIDOUS_TOKEN_END},
 
     // --- Concorrência -------------------------------------------------------
-    {"spawn",  NOVA_TOKEN_SPAWN},
-    {"joined", NOVA_TOKEN_JOINED},
-    {"await",  NOVA_TOKEN_AWAIT},
+    {"spawn",  KALIDOUS_TOKEN_SPAWN},
+    {"joined", KALIDOUS_TOKEN_JOINED},
+    {"await",  KALIDOUS_TOKEN_AWAIT},
 
     // --- Tratamento de erros ------------------------------------------------
-    {"try",   NOVA_TOKEN_TRY},
-    {"catch", NOVA_TOKEN_CATCH},
-    {"must",  NOVA_TOKEN_MUST},   // o '!' subsequente é semântico, resolvido pelo Parser
+    {"try",   KALIDOUS_TOKEN_TRY},
+    {"catch", KALIDOUS_TOKEN_CATCH},
+    {"must",  KALIDOUS_TOKEN_MUST},   // o '!' subsequente é semântico, resolvido pelo Parser
 
     // --- Operadores multi-caractere -----------------------------------------
-    {"&&", NOVA_TOKEN_AND},
-    {"||", NOVA_TOKEN_OR},
-    {"==", NOVA_TOKEN_EQUAL},
-    {"!=", NOVA_TOKEN_NOT_EQUAL},
-    {">=", NOVA_TOKEN_GREATER_THAN_OR_EQUAL},
-    {"<=", NOVA_TOKEN_LESS_THAN_OR_EQUAL},
-    {"->", NOVA_TOKEN_ARROW},
-    {"+=", NOVA_TOKEN_PLUS_EQUAL},
-    {"-=", NOVA_TOKEN_MINUS_EQUAL},
-    {"*=", NOVA_TOKEN_MULTIPLY_EQUAL},
-    {"/=", NOVA_TOKEN_DIVIDE_EQUAL},
-    {":=", NOVA_TOKEN_DECLARATION},
-    {"...",NOVA_TOKEN_DOTS},
+    {"&&", KALIDOUS_TOKEN_AND},
+    {"||", KALIDOUS_TOKEN_OR},
+    {"==", KALIDOUS_TOKEN_EQUAL},
+    {"!=", KALIDOUS_TOKEN_NOT_EQUAL},
+    {">=", KALIDOUS_TOKEN_GREATER_THAN_OR_EQUAL},
+    {"<=", KALIDOUS_TOKEN_LESS_THAN_OR_EQUAL},
+    {"->", KALIDOUS_TOKEN_ARROW},
+    {"+=", KALIDOUS_TOKEN_PLUS_EQUAL},
+    {"-=", KALIDOUS_TOKEN_MINUS_EQUAL},
+    {"*=", KALIDOUS_TOKEN_MULTIPLY_EQUAL},
+    {"/=", KALIDOUS_TOKEN_DIVIDE_EQUAL},
+    {":=", KALIDOUS_TOKEN_DECLARATION},
+    {"...",KALIDOUS_TOKEN_DOTS},
 
     // --- Operadores simples -------------------------------------------------
-    {"+", NOVA_TOKEN_PLUS},
-    {"-", NOVA_TOKEN_MINUS},
-    {"*", NOVA_TOKEN_MULTIPLY},   // ponteiro vs aritmético resolvido pelo Parser
-    {"/", NOVA_TOKEN_DIVIDE},
-    {"%", NOVA_TOKEN_MOD},
-    {"=", NOVA_TOKEN_ASSIGNMENT},
-    {"<", NOVA_TOKEN_LESS_THAN},
-    {">", NOVA_TOKEN_GREATER_THAN},
-    {"!", NOVA_TOKEN_BANG},
-    {"?", NOVA_TOKEN_QUESTION},
+    {"+", KALIDOUS_TOKEN_PLUS},
+    {"-", KALIDOUS_TOKEN_MINUS},
+    {"*", KALIDOUS_TOKEN_MULTIPLY},   // ponteiro vs aritmético resolvido pelo Parser
+    {"/", KALIDOUS_TOKEN_DIVIDE},
+    {"%", KALIDOUS_TOKEN_MOD},
+    {"=", KALIDOUS_TOKEN_ASSIGNMENT},
+    {"<", KALIDOUS_TOKEN_LESS_THAN},
+    {">", KALIDOUS_TOKEN_GREATER_THAN},
+    {"!", KALIDOUS_TOKEN_BANG},
+    {"?", KALIDOUS_TOKEN_QUESTION},
 
     // --- Delimitadores ------------------------------------------------------
-    {"(", NOVA_TOKEN_LPAREN},  {")", NOVA_TOKEN_RPAREN},
-    {"{", NOVA_TOKEN_LBRACE},  {"}", NOVA_TOKEN_RBRACE},
-    {"[", NOVA_TOKEN_LBRACKET},{"]", NOVA_TOKEN_RBRACKET},
-    {",", NOVA_TOKEN_COMMA},   {";", NOVA_TOKEN_SEMICOLON},
-    {":", NOVA_TOKEN_COLON},   {".", NOVA_TOKEN_DOT},
+    {"(", KALIDOUS_TOKEN_LPAREN},  {")", KALIDOUS_TOKEN_RPAREN},
+    {"{", KALIDOUS_TOKEN_LBRACE},  {"}", KALIDOUS_TOKEN_RBRACE},
+    {"[", KALIDOUS_TOKEN_LBRACKET},{"]", KALIDOUS_TOKEN_RBRACKET},
+    {",", KALIDOUS_TOKEN_COMMA},   {";", KALIDOUS_TOKEN_SEMICOLON},
+    {":", KALIDOUS_TOKEN_COLON},   {".", KALIDOUS_TOKEN_DOT},
 });
 
 // ============================================================================
@@ -191,8 +191,8 @@ namespace {
             }
         }
 
-        [[nodiscard]] constexpr NovaTokenType lookup(const std::string_view sv) const {
-            if (sv.empty()) return NOVA_TOKEN_IDENTIFIER;
+        [[nodiscard]] constexpr KalidousTokenType lookup(const std::string_view sv) const {
+            if (sv.empty()) return KALIDOUS_TOKEN_IDENTIFIER;
 
             const uint64_t h    = hash64(sv);
             const size_t   b    = h % BucketCount;
@@ -203,10 +203,10 @@ namespace {
                 : (mix64(h ^ seed) % TableSize);
 
             const int16_t id = table[idx];
-            if (id < 0) return NOVA_TOKEN_IDENTIFIER;
+            if (id < 0) return KALIDOUS_TOKEN_IDENTIFIER;
             return (TokenTable[id].first == sv)
                 ? TokenTable[id].second
-                : NOVA_TOKEN_IDENTIFIER;
+                : KALIDOUS_TOKEN_IDENTIFIER;
         }
 
     private:
@@ -226,7 +226,7 @@ namespace {
 // C API
 // ============================================================================
 
-extern "C" NovaTokenType nova_lookup_keyword(const char* str, const size_t len) {
-    if (!str || len == 0) return NOVA_TOKEN_IDENTIFIER;
+extern "C" KalidousTokenType kalidous_lookup_keyword(const char* str, const size_t len) {
+    if (!str || len == 0) return KALIDOUS_TOKEN_IDENTIFIER;
     return g_hasher.lookup(std::string_view(str, len));
 }

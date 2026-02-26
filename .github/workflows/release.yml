@@ -18,11 +18,11 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-            target_name: nova-linux-amd64
+            target_name: kalidous-linux-amd64
           - os: macos-15
-            target_name: nova-macos-amd64
+            target_name: kalidous-macos-amd64
           - os: windows-latest
-            target_name: nova-windows-amd64.exe
+            target_name: kalidous-windows-amd64.exe
 
     steps:
       - uses: actions/checkout@v4
@@ -49,10 +49,10 @@ jobs:
         run: |
           mkdir -p artifacts
           if [ "${{ runner.os }}" == "Windows" ]; then
-            cp build/Nova.exe artifacts/${{ matrix.target_name }}
+            cp build/Kalidous.exe artifacts/${{ matrix.target_name }}
           else
-            chmod +x build/Nova
-            cp build/Nova artifacts/${{ matrix.target_name }}
+            chmod +x build/Kalidous
+            cp build/Kalidous artifacts/${{ matrix.target_name }}
           fi
 
       - name: Upload Release Assets
@@ -83,12 +83,12 @@ jobs:
       - name: Prepare Artifact
         run: |
           mkdir -p artifacts
-          chmod +x build/Nova
-          cp build/Nova artifacts/nova-void-linux-amd64-musl
+          chmod +x build/Kalidous
+          cp build/Kalidous artifacts/kalidous-void-linux-amd64-musl
 
       - name: Upload to Release
         uses: softprops/action-gh-release@v1
         with:
-          files: artifacts/nova-void-linux-amd64-musl
+          files: artifacts/kalidous-void-linux-amd64-musl
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

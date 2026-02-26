@@ -1,6 +1,6 @@
-# Nova: Types rules
+# Kalidous: Types rules
 
-In Nova programming language, we have 6 main data types:
+In Kalidous programming language, we have 6 main data types:
 signed integer: i8, i16, i32, i64, i128, 1256 \
 unsigned integer: u8, u16, u32, u64, u128, u256\
 float: f16, f32, f64, f128, f256\

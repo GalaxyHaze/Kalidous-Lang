@@ -1,5 +1,5 @@
-#include <Nova/nova.h>
+#include <Kalidous/kalidous.h>
 
 int main(const int argc, const char** argv) {
-    return nova_run(argc, argv);
+    return kalidous_run(argc, argv);
 }

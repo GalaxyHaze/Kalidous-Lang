@@ -3,7 +3,7 @@ param(
 )
 
 # 1. Setup Global Variables
- $Repo = "GalaxyHaze/Nova"
+ $Repo = "GalaxyHaze/Kalidous"
  $ApiUrl = "https://api.github.com/repos/$Repo/releases/latest"
 
 # 2. Determine Version
@@ -29,7 +29,7 @@ else {
  $IsWindow = $true
 
 if ($IsWindow) {
-    $FileName = "nova-windows-amd64.exe"
+    $FileName = "kalidous-windows-amd64.exe"
 }
 else {
     # Fallback (shouldn't happen on PS, but good practice)
@@ -40,7 +40,7 @@ else {
 # 4. Setup Download URL and Destination
  $DownloadUrl = "https://github.com/$Repo/releases/download/$Version/$FileName"
 # We download to the temp folder first to avoid permission issues
- $TempPath = "$env:TEMP\nova-installer.exe"
+ $TempPath = "$env:TEMP\kalidous-installer.exe"
 # Final destination (e.g. C:\Users\You\AppData\Local\Microsoft\WindowsApps)
 # Note: Sometimes WindowsApps is write-protected. ProgramData is often safer for tools,
 # but we'll try CurrentUser AppData first.
@@ -59,7 +59,7 @@ catch {
 }
 
 # 6. Install
-Write-Host "Installing Nova to $InstallDir..."
+Write-Host "Installing Kalidous to $InstallDir..."
 
 try {
     # Ensure the directory exists
@@ -68,11 +68,11 @@ try {
     }
 
     # Move the file
-    Move-Item -Path $TempPath -Destination "$InstallDir\nova.exe" -Force
+    Move-Item -Path $TempPath -Destination "$InstallDir\kalidous.exe" -Force
 
     Write-Host "--------------------------------------------------"
     Write-Host "Installation Complete!" -ForegroundColor Green
-    Write-Host "Run 'nova --help' in a NEW terminal window to get started."
+    Write-Host "Run 'kalidous --help' in a NEW terminal window to get started."
     Write-Host "--------------------------------------------------"
 }
 catch {
