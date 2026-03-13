@@ -84,13 +84,15 @@ endif()
 set(CORE_C_SOURCES
         impl/memory/arena_c_functions.c
         impl/memory/file.c
+        impl/memory/utils.h
 )
 
 set(PARSER_CPP_SOURCES
-        impl/parser/tokenizer.cpp
-        impl/parser/keywords.cpp
+        impl/lexer/tokenizer.cpp
+        impl/lexer/keywords.cpp
         impl/ast/parser.cpp
         impl/ast/ast.h
+        impl/lexer/debug.h
 )
 
 # REMOVED parser.cpp from CLI_SOURCES to prevent duplicate compilation

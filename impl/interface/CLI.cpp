@@ -162,7 +162,7 @@ static int cmd_check(const std::string& input_file,
 
 // compile — check + gera IR LLVM ou bytecode (.nbc), sem linkar
 static int cmd_compile(const std::string& input_file, const std::string& output_file,
-                       const std::string& mode_str, bool interpreted, bool verbose,
+                       const std::string& mode_str, const bool interpreted, const bool verbose,
                        const std::vector<std::string>& include_dirs = {}) {
     if (verbose) {
         const char* kind = interpreted ? "bytecode" : "LLVM IR / native object";
@@ -415,7 +415,7 @@ EXAMPLES:
     kalidous run --interpreted main.kalidous
 
 LEARN MORE:
-    Source: https://github.com/GalaxyHaze/Kalidous
+    Source: https://github.com/GalaxyHaze/Kalidous-lang
     Docs:   https://galaxyhaze.github.io/Kalidous-Lang/kalidous-docs.html
 )";
     return 0;
