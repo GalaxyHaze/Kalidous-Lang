@@ -1,294 +1,366 @@
-// kalidous_ast.h - AST node definitions, constructors and visitors
+// kalidous_ast.h — Extended AST node IDs, payloads, constructors, and visitors
+//
+// All IDs below KALIDOUS_NODE_CUSTOM_START (1000) are defined in kalidous.h.
+// Extended nodes live at 1000+ as required by the base header contract.
 #pragma once
 
-#include <Kalidous/kalidous.h>
+#include <kalidous/kalidous.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 // ============================================================================
-// Node IDs estendidos (além dos definidos em kalidous.h)
+// How the KalidousNode union is used per node type
+//
+//  kids.a/b/c  — up to 3 child node pointers
+//  list.ptr    — KalidousNode** or arena-allocated payload struct
+//  list.len    — array length or payload discriminant
+//  ident.str   — interned string (name, label)
+//  ident.len   — string length
+//  number.num  — double (float literals)
+//  boolean     — bool (bool literals)
+//  custom      — uint64_t (packed flags, enum values, token op codes)
+//
+// When a node needs more fields than the union provides (e.g. func_decl needs
+// name + params[] + return_type + body + flags), list.ptr points to an
+// arena-allocated payload struct defined below, and list.len holds the primary
+// count (e.g. param_count).
+// ============================================================================
+
+// ============================================================================
+// Extended node IDs (>= KALIDOUS_NODE_CUSTOM_START = 1000)
 // ============================================================================
 
 enum {
-    // -- Expressões --
-    KALIDOUS_NODE_ARROW_CALL    = 107,  // a -> b(...)   encadeamento
-    KALIDOUS_NODE_CAST          = 108,  // expr as Type
-    KALIDOUS_NODE_OPTIONAL      = 109,  // expr?
-    KALIDOUS_NODE_UNWRAP        = 110,  // expr!  (must unwrap)
-    KALIDOUS_NODE_RANGE         = 111,  // a..b  ou  a...b
-    KALIDOUS_NODE_LAMBDA        = 112,  // |params| -> expr
-    KALIDOUS_NODE_SPAWN_EXPR    = 113,  // spawn expr
+    // -- Expressions ---------------------------------------------------------
+    KALIDOUS_NODE_ARROW_CALL    = 1000, // a->b(...)   receiver + call node
+    KALIDOUS_NODE_CAST          = 1001, // expr as Type
+    KALIDOUS_NODE_OPTIONAL_EXPR = 1002, // expr?
+    KALIDOUS_NODE_UNWRAP        = 1003, // expr!
+    KALIDOUS_NODE_RANGE         = 1004, // a..b  or  a...b
+    KALIDOUS_NODE_LAMBDA        = 1005, // |params| -> expr
+    KALIDOUS_NODE_SPAWN_EXPR    = 1006, // spawn expr
+    KALIDOUS_NODE_RECURSE       = 1007, // recurse(args) → CPS transform
 
-    // -- Literais compostos --
-    KALIDOUS_NODE_ARRAY_LIT     = 150,  // [a, b, c]
-    KALIDOUS_NODE_STRUCT_LIT    = 151,  // Point { x: 1, y: 2 }
-    KALIDOUS_NODE_TUPLE_LIT     = 152,  // (a, b, c)
+    // -- Literals composite --------------------------------------------------
+    KALIDOUS_NODE_ARRAY_LIT     = 1020, // [a, b, c]
+    KALIDOUS_NODE_STRUCT_LIT    = 1021, // Point { x: 1, y: 2 }
+    KALIDOUS_NODE_TUPLE_LIT     = 1022, // (a, b, c)
 
-    // -- Declarações --
-    KALIDOUS_NODE_CONST_DECL    = 203,  // const X = ...
-    KALIDOUS_NODE_STRUCT_DECL   = 204,  // struct Foo { ... }
-    KALIDOUS_NODE_ENUM_DECL     = 205,  // enum Color { Red, Green, Blue }
-    KALIDOUS_NODE_TRAIT_DECL    = 206,  // trait Drawable { ... }
-    KALIDOUS_NODE_IMPL_DECL     = 207,  // implement Drawable for Foo { ... }
-    KALIDOUS_NODE_TYPE_ALIAS    = 208,  // typedef NewName = OldType
-    KALIDOUS_NODE_COMPONENT_DECL= 209,  // component Foo { ... }
-    KALIDOUS_NODE_UNION_DECL    = 210,  // union Bar { ... }
-    KALIDOUS_NODE_FAMILY_DECL   = 211,  // family (sum type / tagged union)
-    KALIDOUS_NODE_ENTITY_DECL   = 212,  // entity (ECS-style)
-    KALIDOUS_NODE_MODULE_DECL   = 213,  // module foo { ... }
-    KALIDOUS_NODE_IMPORT        = 214,  // use foo::bar
+    // -- Declarations --------------------------------------------------------
+    KALIDOUS_NODE_PROGRAM       = 1030, // root — list of top-level decls
+    KALIDOUS_NODE_CONST_DECL    = 1031, // const X = ...
+    KALIDOUS_NODE_STRUCT_DECL   = 1032, // struct Foo { ... }
+    KALIDOUS_NODE_ENUM_DECL     = 1033, // enum Color { ... }
+    KALIDOUS_NODE_TRAIT_DECL    = 1034, // trait Drawable { ... }
+    KALIDOUS_NODE_IMPL_DECL     = 1035, // implement Drawable for Foo { ... }
+    KALIDOUS_NODE_TYPE_ALIAS    = 1036, // using NewName = OldType
+    KALIDOUS_NODE_COMPONENT_DECL= 1037,
+    KALIDOUS_NODE_UNION_DECL    = 1038,
+    KALIDOUS_NODE_FAMILY_DECL   = 1039,
+    KALIDOUS_NODE_ENTITY_DECL   = 1040,
+    KALIDOUS_NODE_MODULE_DECL   = 1041,
+    KALIDOUS_NODE_IMPORT        = 1042, // use foo::bar
 
-    // -- Statements --
-    KALIDOUS_NODE_SWITCH        = 305,  // switch expr { ... }
-    KALIDOUS_NODE_CASE          = 306,  // case pattern: ...
-    KALIDOUS_NODE_BREAK         = 307,
-    KALIDOUS_NODE_CONTINUE      = 308,
-    KALIDOUS_NODE_GOTO          = 309,
-    KALIDOUS_NODE_MARKER        = 310,  // marker label:
-    KALIDOUS_NODE_SCENE         = 311,  // scene { ... }
-    KALIDOUS_NODE_TRY_CATCH     = 312,  // try { } catch e { }
-    KALIDOUS_NODE_SPAWN_STMT    = 313,  // spawn { ... }
-    KALIDOUS_NODE_AWAIT_STMT    = 314,  // await expr
-    KALIDOUS_NODE_JOINED        = 315,  // joined { ... }
+    // -- Statements ----------------------------------------------------------
+    KALIDOUS_NODE_SWITCH        = 1050, // switch expr { ... }
+    KALIDOUS_NODE_CASE          = 1051, // case pattern:
+    KALIDOUS_NODE_BREAK         = 1052, // break [label]
+    KALIDOUS_NODE_CONTINUE      = 1053, // continue [label]
+    KALIDOUS_NODE_GOTO          = 1054, // goto label
+    KALIDOUS_NODE_MARKER        = 1055, // marker label:
+    KALIDOUS_NODE_SCENE         = 1056, // scene { ... }
+    KALIDOUS_NODE_TRY_CATCH     = 1057, // try { } catch e { }
+    KALIDOUS_NODE_SPAWN_STMT    = 1058, // spawn { ... }
+    KALIDOUS_NODE_AWAIT_STMT    = 1059, // await expr
+    KALIDOUS_NODE_YIELD         = 1060, // yield expr  (async fn only)
+    KALIDOUS_NODE_JOINED        = 1061, // joined { ... }
 
-    // -- Tipos --
-    KALIDOUS_NODE_TYPE_OPTIONAL = 402,  // Type?
-    KALIDOUS_NODE_TYPE_RESULT   = 403,  // Type!
-    KALIDOUS_NODE_TYPE_ARRAY    = 404,  // [N]Type  ou  []Type
-    KALIDOUS_NODE_TYPE_TUPLE    = 405,  // (A, B, C)
-    KALIDOUS_NODE_TYPE_POINTER  = 406,  // *Type  (raw)
-    KALIDOUS_NODE_TYPE_UNIQUE   = 407,  // unique Type
-    KALIDOUS_NODE_TYPE_SHARED   = 408,  // shared Type
-    KALIDOUS_NODE_TYPE_VIEW     = 409,  // view Type  (borrow)
-    KALIDOUS_NODE_TYPE_LEND     = 410,  // lend Type  (mut borrow)
-    KALIDOUS_NODE_TYPE_PACK     = 411,  // pack Type  (variadic / slice)
+    // -- Types ---------------------------------------------------------------
+    KALIDOUS_NODE_TYPE_OPTIONAL = 1070, // Type?
+    KALIDOUS_NODE_TYPE_RESULT   = 1071, // Type!
+    KALIDOUS_NODE_TYPE_ARRAY    = 1072, // [N]Type  or  []Type
+    KALIDOUS_NODE_TYPE_TUPLE    = 1073, // (A, B, C)
+    KALIDOUS_NODE_TYPE_POINTER  = 1074, // *Type
+    KALIDOUS_NODE_TYPE_UNIQUE   = 1075, // unique Type
+    KALIDOUS_NODE_TYPE_SHARED   = 1076, // shared Type
+    KALIDOUS_NODE_TYPE_VIEW     = 1077, // view Type
+    KALIDOUS_NODE_TYPE_LEND     = 1078, // lend Type
+    KALIDOUS_NODE_TYPE_PACK     = 1079, // pack Type
 
-    // -- Raiz --
-    KALIDOUS_NODE_PROGRAM       = 500,  // nó raiz — lista de top-level decls
-    KALIDOUS_NODE_FIELD         = 501,  // campo de struct/component/entity
-    KALIDOUS_NODE_ENUM_VARIANT  = 502,  // variante de enum/family
-    KALIDOUS_NODE_MATCH_ARM     = 503,  // braço de switch/match
+    // -- Auxiliary -----------------------------------------------------------
+    KALIDOUS_NODE_FIELD         = 1090, // field of struct/component/entity
+    KALIDOUS_NODE_ENUM_VARIANT  = 1091, // enum/family variant
+    KALIDOUS_NODE_MATCH_ARM     = 1092, // switch/match arm
 };
 
 // ============================================================================
-// Informação de tipo resolvida (preenchida pela sema, NULL antes disso)
+// Enums
 // ============================================================================
 
-typedef struct KalidousType KalidousType;
-struct KalidousType {
-    KalidousNodeId kind;            // KALIDOUS_NODE_TYPE_*
-    const char*    name;            // nome textual (debug)
-    KalidousType*  inner;           // para ponteiros, arrays, optional, etc.
-    size_t         array_size;      // 0 = dinâmico / slice
-    bool           is_const;
-    // TODO: generic params quando houver suporte a generics
-};
+typedef enum KalidousFnKind {
+    KALIDOUS_FN_NORMAL   = 0,   // fn          — synchronous
+    KALIDOUS_FN_ASYNC    = 1,   // async fn    — coroutine; may yield
+    KALIDOUS_FN_NORETURN = 2,   // noreturn fn — uses goto/marker; no return
+    KALIDOUS_FN_FLOWING  = 3,   // flowing fn  — may use goto; has return
+} KalidousFnKind;
+
+typedef enum KalidousBindingKind {
+    KALIDOUS_BINDING_LET        = 0,
+    KALIDOUS_BINDING_VAR        = 1,
+    KALIDOUS_BINDING_CONST      = 2,
+    KALIDOUS_BINDING_AUTO       = 3,
+    KALIDOUS_BINDING_GLOBAL     = 4,
+    KALIDOUS_BINDING_PERSISTENT = 5,
+    KALIDOUS_BINDING_LOCAL      = 6,
+} KalidousBindingKind;
+
+typedef enum KalidousOwnership {
+    KALIDOUS_OWN_DEFAULT = 0,
+    KALIDOUS_OWN_VIEW    = 1,
+    KALIDOUS_OWN_LEND    = 2,
+    KALIDOUS_OWN_UNIQUE  = 3,
+    KALIDOUS_OWN_SHARED  = 4,
+    KALIDOUS_OWN_PACK    = 5,
+} KalidousOwnership;
+
+// Default is private — explicit declaration required to expose
+typedef enum KalidousVisibility {
+    KALIDOUS_VIS_PRIVATE   = 0,
+    KALIDOUS_VIS_PUBLIC    = 1,
+    KALIDOUS_VIS_PROTECTED = 2,
+} KalidousVisibility;
 
 // ============================================================================
-// Nó AST estendido
-// Usa o KalidousNode base mas com payload extra acessível via helpers
+// Arena-allocated payload structs
+// Used when a node needs more fields than the union provides.
+// Accessed via node->data.list.ptr (cast to the appropriate type).
+// node->data.list.len holds the primary count for that payload.
 // ============================================================================
 
-// Payload para declaração de variável
+// KALIDOUS_NODE_FUNC_DECL (201) — list.ptr, list.len = param_count
 typedef struct {
-    const char*    name;
-    size_t         name_len;
-    KalidousNode*  type_node;       // NULL se inferido
-    KalidousNode*  initializer;     // NULL se sem valor inicial
-    bool           is_mutable;
-    bool           is_const;
-    bool           is_global;
-    bool           is_persistent;
-    // TODO: atributos / anotações (#[inline], #[deprecated], ...)
-} KalidousVarDeclData;
+    const char*        name;
+    size_t             name_len;
+    KalidousFnKind     kind;
+    KalidousNode**     params;
+    size_t             param_count;
+    KalidousNode*      return_type;    // NULL = void / inferred
+    KalidousNode*      body;           // NULL = forward declaration
+    KalidousVisibility visibility;
+    bool               is_extern;
+} KalidousFuncPayload;
 
-// Payload para declaração de função
+// KALIDOUS_NODE_VAR_DECL (200) — list.ptr, list.len = 0
 typedef struct {
-    const char*    name;
-    size_t         name_len;
-    KalidousNode** params;          // array de KALIDOUS_NODE_PARAM
-    size_t         param_count;
-    KalidousNode*  return_type;     // NULL = void / inferido
-    KalidousNode*  body;            // NULL = declaração forward
-    bool           is_public;
-    bool           is_extern;
-    // TODO: atributos: #[inline], #[cold], #[no_mangle], #[export]
-    // TODO: generics / type params
-    // TODO: where clauses (constraints de traits)
-} KalidousFuncDeclData;
+    const char*         name;
+    size_t              name_len;
+    KalidousBindingKind binding;
+    KalidousOwnership   ownership;
+    KalidousVisibility  visibility;
+    KalidousNode*       type_node;    // NULL = inferred
+    KalidousNode*       initializer;  // NULL = no initial value
+} KalidousVarPayload;
 
-// Payload para parâmetro de função
+// KALIDOUS_NODE_PARAM (202) — list.ptr, list.len = 0
 typedef struct {
-    const char*    name;
-    size_t         name_len;
-    KalidousNode*  type_node;
-    KalidousNode*  default_value;   // NULL se sem default
-    bool           is_mutable;
-    // TODO: ownership modifier: view, lend, unique, shared, pack
-} KalidousParamData;
+    const char*       name;
+    size_t            name_len;
+    KalidousOwnership ownership;
+    KalidousNode*     type_node;
+    KalidousNode*     default_value; // NULL = no default
+    bool              is_mutable;
+} KalidousParamPayload;
 
-// Payload para operação binária
+// KALIDOUS_NODE_FIELD (1090) — list.ptr, list.len = 0
+// Represents a named field in struct / component / entity
 typedef struct {
-    KalidousTokenType op;           // PLUS, MINUS, EQUAL, etc.
-    KalidousNode*     left;
-    KalidousNode*     right;
-} KalidousBinaryOpData;
+    const char*        name;
+    size_t             name_len;
+    KalidousOwnership  ownership;
+    KalidousVisibility visibility;
+    KalidousNode*      type_node;
+    KalidousNode*      default_value; // NULL = no default
+} KalidousFieldPayload;
 
-// Payload para operação unária
+// KALIDOUS_NODE_STRUCT_DECL (1032) — list.ptr, list.len = field_count
 typedef struct {
-    KalidousTokenType op;           // MINUS (negate), NOT, BANG, QUESTION
-    KalidousNode*     operand;
-    bool              is_postfix;
-} KalidousUnaryOpData;
+    const char*        name;
+    size_t             name_len;
+    KalidousNode**     fields;
+    size_t             field_count;
+    KalidousNode**     methods;
+    size_t             method_count;
+    KalidousVisibility visibility;
+} KalidousStructPayload;
 
-// Payload para chamada de função
+// KALIDOUS_NODE_ENUM_DECL (1033) — list.ptr, list.len = variant_count
 typedef struct {
-    KalidousNode*  callee;          // IDENTIFIER ou MEMBER
-    KalidousNode** args;
-    size_t         arg_count;
-    // TODO: named arguments: foo(x: 1, y: 2)
-    // TODO: trailing lambda: foo { ... }
-} KalidousCallData;
+    const char*        name;
+    size_t             name_len;
+    KalidousNode**     variants;
+    size_t             variant_count;
+    KalidousVisibility visibility;
+} KalidousEnumPayload;
 
-// Payload para literais
-typedef struct {
-    KalidousTokenType kind;         // STRING, NUMBER, FLOAT, HEXADECIMAL, etc.
-    union {
-        double      number;
-        int64_t     integer;
-        uint64_t    uinteger;
-        float       f32;
-        double      f64;
-        struct { const char* ptr; size_t len; } string;
-        bool        boolean;
-    } value;
-} KalidousLiteralData;
-
-// Payload para struct
-typedef struct {
-    const char*    name;
-    size_t         name_len;
-    KalidousNode** fields;          // array de KALIDOUS_NODE_FIELD
-    size_t         field_count;
-    KalidousNode** methods;         // array de KALIDOUS_NODE_FUNC_DECL (inline impl)
-    size_t         method_count;
-    bool           is_public;
-    // TODO: derive list: #[derive(Debug, Clone)]
-    // TODO: generic params
-    // TODO: layout hints: #[packed], #[align(N)]
-} KalidousStructDeclData;
-
-// Payload para enum
-typedef struct {
-    const char*    name;
-    size_t         name_len;
-    KalidousNode** variants;        // array de KALIDOUS_NODE_ENUM_VARIANT
-    size_t         variant_count;
-    bool           is_public;
-    // TODO: backing type (ex: enum Foo: u8 { ... })
-    // TODO: family = tagged union com payload por variante
-} KalidousEnumDeclData;
-
-// Payload para if/else
-typedef struct {
-    KalidousNode*  condition;
-    KalidousNode*  then_branch;
-    KalidousNode*  else_branch;     // NULL, outro IF, ou BLOCK
-} KalidousIfData;
-
-// Payload para for (unifica for e while)
-typedef struct {
-    KalidousNode*  init;            // NULL para while-style
-    KalidousNode*  condition;       // NULL = infinito
-    KalidousNode*  step;            // NULL para while-style
-    KalidousNode*  iterator_var;    // para "for x in collection"
-    KalidousNode*  iterable;        // para "for x in collection"
-    KalidousNode*  body;
-    bool           is_for_in;
-} KalidousForData;
-
-// Payload para switch
+// KALIDOUS_NODE_SWITCH (1050) — list.ptr, list.len = arm_count
 typedef struct {
     KalidousNode*  subject;
-    KalidousNode** arms;            // array de KALIDOUS_NODE_MATCH_ARM
+    KalidousNode** arms;
     size_t         arm_count;
-    KalidousNode*  default_arm;     // NULL se não houver
-    // TODO: exhaustiveness check na sema
-} KalidousSwitchData;
+    KalidousNode*  default_arm;
+} KalidousSwitchPayload;
 
-// Payload para try/catch
+// KALIDOUS_NODE_TRY_CATCH (1057) — list.ptr, list.len = 0
 typedef struct {
-    KalidousNode*  try_block;
-    const char*    catch_var;       // nome da variável de erro
-    size_t         catch_var_len;
-    KalidousNode*  catch_block;
-    // TODO: múltiplos catch por tipo de erro
-    // TODO: finally block
-} KalidousTryCatchData;
+    KalidousNode* try_block;
+    const char*   catch_var;
+    size_t        catch_var_len;
+    KalidousNode* catch_block;
+} KalidousTryCatchPayload;
 
-// Payload para import
+// KALIDOUS_NODE_CALL (104) and KALIDOUS_NODE_RECURSE (1007)
+// list.ptr = KalidousCallPayload*, list.len = arg_count
 typedef struct {
-    const char**   path;            // segmentos: ["std", "io", "File"]
-    size_t         path_len;
-    const char*    alias;           // NULL se sem alias
-    bool           is_wildcard;     // use foo::*
-    // TODO: selective imports: use foo::{A, B, C}
-} KalidousImportData;
+    KalidousNode*  callee;
+    KalidousNode** args;
+    size_t         arg_count;
+} KalidousCallPayload;
+
+// KALIDOUS_NODE_FOR (302) — list.ptr, list.len = 0
+typedef struct {
+    KalidousNode* iterator_var; // for-in only
+    KalidousNode* iterable;     // for-in only
+    KalidousNode* init;         // classic for only
+    KalidousNode* condition;    // NULL = infinite
+    KalidousNode* step;         // classic for only
+    KalidousNode* body;
+    bool          is_for_in;
+} KalidousForPayload;
+
+// KALIDOUS_NODE_IMPORT (1042) — list.ptr, list.len = path_len
+typedef struct {
+    const char**  path;
+    size_t        path_len;
+    const char*   alias;
+    bool          is_wildcard;
+} KalidousImportPayload;
 
 // ============================================================================
-// Construtores de nós (alocam na arena)
+// Literal value — unified variant for all scalar literals
+// Stored via list.ptr (arena-allocated KalidousLiteral payload)
+// ============================================================================
+
+typedef enum KalidousLiteralKind {
+    KALIDOUS_LIT_INT,     // signed decimal integer:  42, -7
+    KALIDOUS_LIT_UINT,    // unsigned (hex/bin/oct):  0xFF, 0b1010, 0o77
+    KALIDOUS_LIT_FLOAT,   // floating point:          3.14, 0.5
+    KALIDOUS_LIT_STRING,  // string literal:          "hello"
+    KALIDOUS_LIT_BOOL,    // boolean literal:         true, false
+} KalidousLiteralKind;
+
+typedef struct {
+    KalidousLiteralKind kind;
+    union {
+        int64_t  i64;
+        uint64_t u64;    // used for HEX, BINARY, OCTAL
+        double   f64;
+        struct { const char* ptr; size_t len; } string;
+        bool     boolean;
+    } value;
+} KalidousLiteral;
+
+// ============================================================================
+// Union layout reference (inline comments in constructors)
+//
+//  NODE             | union slot        | notes
+//  -----------------+-------------------+-------------------------------
+//  LITERAL          | list → KalidousLiteral payload
+//  IDENTIFIER       | ident.str/len     |
+//  BINARY_OP        | kids.a/b          | custom = KalidousTokenType op
+//  UNARY_OP         | kids.a            | custom = op | (is_postfix << 16)
+//  CALL / RECURSE   | list → Payload    | list.len = arg_count
+//  MEMBER (106)     | kids.a/b          | a=object, b=member ident
+//  BLOCK            | list.ptr/len      | ptr=KalidousNode**, len=count
+//  IF               | kids.a/b/c        | a=cond, b=then, c=else
+//  RETURN / YIELD   | kids.a            | value (NULL = void)
+//  AWAIT            | kids.a            | expr
+//  VAR_DECL         | list → Payload    |
+//  FUNC_DECL        | list → Payload    | list.len = param_count
+//  PARAM            | list → Payload    |
+//  STRUCT_DECL      | list → Payload    | list.len = field_count
+//  ENUM_DECL        | list → Payload    | list.len = variant_count
+//  SWITCH           | list → Payload    | list.len = arm_count
+//  TRY_CATCH        | list → Payload    |
+//  FOR              | list → Payload    |
+//  PROGRAM          | list.ptr/len      | ptr=KalidousNode**, len=count
+//  GOTO / MARKER    | ident.str/len     | label name
+//  BREAK / CONTINUE | ident.str/len     | label (NULL = plain break)
+//  SPAWN_STMT/EXPR  | kids.a            | body or expr
+//  ARROW_CALL       | kids.a/b          | a=receiver, b=call node
+//  CAST             | kids.a/b          | a=expr, b=type_node
+//  IMPORT           | list → Payload    | list.len = path_len
+//  ERROR            | ident.str/len     | message
+// ============================================================================
+
+// ============================================================================
+// Constructors
 // ============================================================================
 
 KalidousNode* kalidous_ast_make_program    (KalidousArena* a, KalidousNode** decls, size_t count);
-KalidousNode* kalidous_ast_make_literal    (KalidousArena* a, KalidousSourceLoc loc, KalidousLiteralData lit);
+KalidousNode* kalidous_ast_make_literal    (KalidousArena* a, KalidousSourceLoc loc, KalidousLiteral lit);
 KalidousNode* kalidous_ast_make_identifier (KalidousArena* a, KalidousSourceLoc loc, const char* name, size_t len);
-KalidousNode* kalidous_ast_make_binary_op  (KalidousArena* a, KalidousSourceLoc loc, KalidousBinaryOpData op);
-KalidousNode* kalidous_ast_make_unary_op   (KalidousArena* a, KalidousSourceLoc loc, KalidousUnaryOpData op);
-KalidousNode* kalidous_ast_make_call       (KalidousArena* a, KalidousSourceLoc loc, KalidousCallData call);
-KalidousNode* kalidous_ast_make_var_decl   (KalidousArena* a, KalidousSourceLoc loc, KalidousVarDeclData decl);
-KalidousNode* kalidous_ast_make_func_decl  (KalidousArena* a, KalidousSourceLoc loc, KalidousFuncDeclData decl);
-KalidousNode* kalidous_ast_make_param      (KalidousArena* a, KalidousSourceLoc loc, KalidousParamData param);
+KalidousNode* kalidous_ast_make_field      (KalidousArena* a, KalidousSourceLoc loc, KalidousFieldPayload field);
+KalidousNode* kalidous_ast_make_enum_variant(KalidousArena* a, KalidousSourceLoc loc, const char* name, size_t len, KalidousNode* value);
+KalidousNode* kalidous_ast_make_binary_op  (KalidousArena* a, KalidousSourceLoc loc, KalidousTokenType op, KalidousNode* left, KalidousNode* right);
+KalidousNode* kalidous_ast_make_unary_op   (KalidousArena* a, KalidousSourceLoc loc, KalidousTokenType op, KalidousNode* operand, bool is_postfix);
+KalidousNode* kalidous_ast_make_call       (KalidousArena* a, KalidousSourceLoc loc, KalidousNode* callee, KalidousNode** args, size_t arg_count);
+KalidousNode* kalidous_ast_make_recurse    (KalidousArena* a, KalidousSourceLoc loc, KalidousNode* callee, KalidousNode** args, size_t arg_count);
+KalidousNode* kalidous_ast_make_member     (KalidousArena* a, KalidousSourceLoc loc, KalidousNode* object, KalidousNode* member);
+KalidousNode* kalidous_ast_make_arrow_call (KalidousArena* a, KalidousSourceLoc loc, KalidousNode* receiver, KalidousNode* call);
+KalidousNode* kalidous_ast_make_cast       (KalidousArena* a, KalidousSourceLoc loc, KalidousNode* expr, KalidousNode* type_node);
+KalidousNode* kalidous_ast_make_var_decl   (KalidousArena* a, KalidousSourceLoc loc, KalidousVarPayload decl);
+KalidousNode* kalidous_ast_make_func_decl  (KalidousArena* a, KalidousSourceLoc loc, KalidousFuncPayload decl);
+KalidousNode* kalidous_ast_make_param      (KalidousArena* a, KalidousSourceLoc loc, KalidousParamPayload param);
 KalidousNode* kalidous_ast_make_block      (KalidousArena* a, KalidousSourceLoc loc, KalidousNode** stmts, size_t count);
-KalidousNode* kalidous_ast_make_if         (KalidousArena* a, KalidousSourceLoc loc, KalidousIfData data);
-KalidousNode* kalidous_ast_make_for        (KalidousArena* a, KalidousSourceLoc loc, KalidousForData data);
+KalidousNode* kalidous_ast_make_if         (KalidousArena* a, KalidousSourceLoc loc, KalidousNode* cond, KalidousNode* then_br, KalidousNode* else_br);
+KalidousNode* kalidous_ast_make_for        (KalidousArena* a, KalidousSourceLoc loc, KalidousForPayload data);
 KalidousNode* kalidous_ast_make_return     (KalidousArena* a, KalidousSourceLoc loc, KalidousNode* value);
-KalidousNode* kalidous_ast_make_struct     (KalidousArena* a, KalidousSourceLoc loc, KalidousStructDeclData decl);
-KalidousNode* kalidous_ast_make_enum       (KalidousArena* a, KalidousSourceLoc loc, KalidousEnumDeclData decl);
-KalidousNode* kalidous_ast_make_switch     (KalidousArena* a, KalidousSourceLoc loc, KalidousSwitchData data);
-KalidousNode* kalidous_ast_make_try_catch  (KalidousArena* a, KalidousSourceLoc loc, KalidousTryCatchData data);
-KalidousNode* kalidous_ast_make_import     (KalidousArena* a, KalidousSourceLoc loc, KalidousImportData data);
+KalidousNode* kalidous_ast_make_yield      (KalidousArena* a, KalidousSourceLoc loc, KalidousNode* value);
+KalidousNode* kalidous_ast_make_await      (KalidousArena* a, KalidousSourceLoc loc, KalidousNode* expr);
+KalidousNode* kalidous_ast_make_struct     (KalidousArena* a, KalidousSourceLoc loc, KalidousStructPayload decl);
+KalidousNode* kalidous_ast_make_enum       (KalidousArena* a, KalidousSourceLoc loc, KalidousEnumPayload decl);
+KalidousNode* kalidous_ast_make_switch     (KalidousArena* a, KalidousSourceLoc loc, KalidousSwitchPayload data);
+KalidousNode* kalidous_ast_make_try_catch  (KalidousArena* a, KalidousSourceLoc loc, KalidousTryCatchPayload data);
+KalidousNode* kalidous_ast_make_import     (KalidousArena* a, KalidousSourceLoc loc, KalidousImportPayload data);
+KalidousNode* kalidous_ast_make_goto       (KalidousArena* a, KalidousSourceLoc loc, const char* label, size_t len);
+KalidousNode* kalidous_ast_make_marker     (KalidousArena* a, KalidousSourceLoc loc, const char* label, size_t len);
+KalidousNode* kalidous_ast_make_break      (KalidousArena* a, KalidousSourceLoc loc, const char* label, size_t len);
+KalidousNode* kalidous_ast_make_continue   (KalidousArena* a, KalidousSourceLoc loc, const char* label, size_t len);
+KalidousNode* kalidous_ast_make_spawn      (KalidousArena* a, KalidousSourceLoc loc, KalidousNode* body, bool is_block);
 KalidousNode* kalidous_ast_make_error      (KalidousArena* a, KalidousSourceLoc loc, const char* msg);
 
 // ============================================================================
 // Visitor / Walker
 // ============================================================================
 
-// Retorna false para parar o traversal
 typedef bool (*KalidousASTVisitorFn)(KalidousNode* node, void* userdata);
 
-void kalidous_ast_walk(KalidousNode* root, KalidousASTVisitorFn pre, KalidousASTVisitorFn post, void* userdata);
+void kalidous_ast_walk(KalidousNode* root,
+                       KalidousASTVisitorFn pre,
+                       KalidousASTVisitorFn post,
+                       void* userdata);
 
 // ============================================================================
 // Debug
 // ============================================================================
 
-void kalidous_ast_print(const KalidousNode* node, int indent);
-const char* kalidous_ast_node_name(KalidousNodeId id);
-
-// ============================================================================
-// TODO - Futuros
-// ============================================================================
-
-// TODO: kalidous_ast_clone(arena, node)  — deep copy de um nó
-// TODO: kalidous_ast_fold_constants(arena, node) — constant folding no AST
-// TODO: kalidous_ast_resolve_types(arena, node, sema_ctx) — anotação de tipos
-// TODO: kalidous_ast_serialize(node, buf)   — serialização para cache/LSP
-// TODO: kalidous_ast_deserialize(arena, buf) — deserialização
-// TODO: span tracking melhorado (start + end, não só start)
-// TODO: comment nodes para preservar doc-comments no AST (para 'docs')
-// TODO: macro / comptime nodes quando o sistema de macros for definido
+void        kalidous_ast_print            (const KalidousNode* node, int indent);
+const char* kalidous_ast_node_name        (KalidousNodeId id);
+const char* kalidous_ast_fn_kind_name     (KalidousFnKind kind);
+const char* kalidous_ast_literal_kind_name(KalidousLiteralKind kind);
+const char* kalidous_ast_visibility_name  (KalidousVisibility vis);
 
 #ifdef __cplusplus
 }

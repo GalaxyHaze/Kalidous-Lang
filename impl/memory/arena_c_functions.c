@@ -1,5 +1,5 @@
 // src/arena.c
-#include <Kalidous/kalidous.h>
+#include <kalidous/kalidous.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -65,23 +65,19 @@ char* kalidous_arena_strdup(KalidousArena* arena, const char* str) {
     return copy;
 }
 
-char* kalidous_arena_str(KalidousArena* arena, const char* str, const size_t len)
-{
+char* kalidous_arena_str(KalidousArena* arena, const char* str, const size_t len) {
     if (!str) return NULL;
-    void* copy = kalidous_arena_alloc(arena, len + 1);
-    if (copy) memcpy(copy, str, len + 1);
+    char* copy = kalidous_arena_alloc(arena, len + 1);
+    if (!copy) return NULL;
+    memcpy(copy, str, len);
+    copy[len] = '\0';
     return copy;
 }
 
 void kalidous_arena_reset(KalidousArena* arena) {
     if (!arena) return;
-    KalidousArenaBlock* block = arena->head;
-    while (block) {
-        KalidousArenaBlock* next = block->next;
-        free(block);
-        block = next;
-    }
-    arena->head = NULL;
+    for (KalidousArenaBlock* b = arena->head; b; b = b->next)
+        b->offset = 0;
 }
 
 void kalidous_arena_destroy(KalidousArena* arena) {

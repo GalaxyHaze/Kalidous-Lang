@@ -1,5 +1,6 @@
 // impl/parser/tokenizer.cpp
-#include "Kalidous/kalidous.h"
+#include "kalidous/kalidous.h"
+#include "../memory/utils.h"
 #include <string_view>
 #include <vector>
 #include <cstring>
@@ -15,100 +16,19 @@
 namespace kalidous::detail {
 
 struct LexError {
-    const char*   msg;
+    const char*      msg;
     KalidousSourceLoc info;
 };
 
-// ── Arena List Implementation ─────────────────────────────────────────────────
-// Grows dynamically in pages/chunks within the arena
+// Tipo específico para o Tokenizer
+using TokenList = ArenaList<KalidousToken>;
 
-struct TokenPage {
-    size_t              count;
-    size_t              capacity;
-    KalidousToken*      data;
-    TokenPage*          next;
-};
 
-struct TokenList {
-    TokenPage*  head;
-    TokenPage*  tail;
-    size_t      page_capacity; // How many tokens per page
-    size_t      total_tokens;  // Total count across all pages
-};
+// ============================================================================
+// Helpers
+// ============================================================================
 
-static void token_list_init(TokenList* list, const KalidousArena* arena, size_t init_cap) {
-    list->head = nullptr;
-    list->tail = nullptr;
-    list->total_tokens = 0;
-    list->page_capacity = init_cap;
-    (void)arena; // Unused for now, but kept for consistency
-}
-
-static void token_list_push(TokenList* list, KalidousArena* arena, const KalidousToken& token) {
-    // If no page or current page is full, allocate a new one
-    if (!list->tail || list->tail->count >= list->tail->capacity) {
-        auto* new_page = static_cast<TokenPage*>(kalidous_arena_alloc(arena, sizeof(TokenPage)));
-        if (!new_page) return; // OOM
-
-        // Exponential growth strategy for page size
-        size_t next_cap = list->page_capacity;
-        if (list->tail) next_cap = list->tail->capacity * 2;
-
-        new_page->data = static_cast<KalidousToken*>(kalidous_arena_alloc(arena, sizeof(KalidousToken) * next_cap));
-        if (!new_page->data) return; // OOM
-
-        new_page->count = 0;
-        new_page->capacity = next_cap;
-        new_page->next = nullptr;
-
-        if (list->tail) {
-            list->tail->next = new_page;
-            list->tail = new_page;
-        } else {
-            list->head = new_page;
-            list->tail = new_page;
-        }
-    }
-
-    // Add token to current tail page
-    list->tail->data[list->tail->count++] = token;
-    list->total_tokens++;
-}
-
-// Flattens the linked list of pages into a single contiguous array in the arena
-static KalidousToken* token_list_flatten(const TokenList* list, KalidousArena* arena, size_t* out_count) {
-    if (list->total_tokens == 0) {
-        *out_count = 0;
-        // Allocate a dummy END token so the stream is never null if empty
-        auto* dummy = static_cast<KalidousToken*>(kalidous_arena_alloc(arena, sizeof(KalidousToken)));
-        if(dummy) {
-            dummy->type = KALIDOUS_TOKEN_END;
-            dummy->lexeme = {nullptr, 0};
-            dummy->loc = {0, 1};
-        }
-        return dummy;
-    }
-
-    const size_t total_size = sizeof(KalidousToken) * list->total_tokens;
-    auto* buf = static_cast<KalidousToken*>(kalidous_arena_alloc(arena, total_size));
-    if (!buf) return nullptr;
-
-    KalidousToken* cursor = buf;
-    TokenPage* page = list->head;
-
-    while (page) {
-        std::memcpy(cursor, page->data, sizeof(KalidousToken) * page->count);
-        cursor += page->count;
-        page = page->next;
-    }
-
-    *out_count = list->total_tokens;
-    return buf;
-}
-
-// ── Helpers ─────────────────────────────────────────────────────────────────
-
-static void uint_to_str(char* buf, size_t buf_size, uint64_t value, size_t* out_len) {
+static void uint_to_str(char* buf, const size_t buf_size, uint64_t value, size_t* out_len) {
     if (buf_size == 0) return;
     if (value == 0) { buf[0] = '0'; buf[1] = '\0'; *out_len = 1; return; }
     char temp[21];
@@ -124,7 +44,7 @@ static void uint_to_str(char* buf, size_t buf_size, uint64_t value, size_t* out_
     *out_len = out_len_val;
 }
 
-static const char* make_error_msg(KalidousArena* arena, const char* prefix, uint64_t line) {
+static const char* make_error_msg(KalidousArena* arena, const char* prefix, const uint64_t line) {
     char stack_buf[128];
     size_t pos = 0;
     for (const char* p = prefix; *p && pos < sizeof(stack_buf) - 22;)
@@ -140,7 +60,7 @@ static const char* make_error_msg(KalidousArena* arena, const char* prefix, uint
 }
 
 static KalidousToken make_token(KalidousArena* arena, KalidousTokenType type,
-                            std::string_view lexeme, KalidousSourceLoc info) {
+                                std::string_view lexeme, KalidousSourceLoc info) {
     auto* buf = static_cast<char*>(kalidous_arena_alloc(arena, lexeme.size()));
     if (buf && !lexeme.empty())
         std::memcpy(buf, lexeme.data(), lexeme.size());
@@ -236,7 +156,7 @@ static void addMsgError(std::vector<LexError>& error_list, KalidousArena* arena,
                         const char* msg, const KalidousSourceLoc info) {
     if (error_list.size() >= MAX_ERRORS) return;
 
-    const size_t len = strlen(msg); // Only used for error messages, rare path
+    const size_t len = strlen(msg);
     char* copy = static_cast<char*>(kalidous_arena_alloc(arena, len + 1));
     if (copy) std::memcpy(copy, msg, len + 1);
     error_list.push_back({ copy, info });
@@ -255,7 +175,7 @@ static void processIdentifier(const char*& current, const char* end,
     }
     const std::string_view lexeme(start, current - start);
     const KalidousTokenType type = kalidous_lookup_keyword(start, current - start);
-    token_list_push(&tokens, arena, make_token(arena, type, lexeme, startInfo));
+    tokens.push(arena, make_token(arena, type, lexeme, startInfo));
 }
 
 static void processString(const char*& current, const char* end,
@@ -268,8 +188,8 @@ static void processString(const char*& current, const char* end,
     while (current < end) {
         if (*current == '"') {
             ++current; ++info.index;
-            token_list_push(&tokens, arena, make_token(arena, KALIDOUS_TOKEN_STRING,
-                                        std::string_view(start, current - start), startInfo));
+            tokens.push(arena, make_token(arena, KALIDOUS_TOKEN_STRING,
+                                          std::string_view(start, current - start), startInfo));
             return;
         }
 
@@ -279,8 +199,9 @@ static void processString(const char*& current, const char* end,
 
             if (current >= end) {
                 addMsgError(error_list, arena,
-                    "Unterminated escape sequence at end of file", escapeLoc);
-                goto terminate_string;
+                            "Unterminated escape sequence at end of file", escapeLoc);
+                // Fall through to emit error token below
+                break;
             }
 
             if (!isValidEscape(*current)) {
@@ -291,7 +212,6 @@ static void processString(const char*& current, const char* end,
                 if (pos < sizeof(msg_buf) - 1) msg_buf[pos++] = *current;
                 if (pos < sizeof(msg_buf) - 1) msg_buf[pos++] = '\'';
                 msg_buf[pos] = '\0';
-
                 error_list.push_back({
                     make_error_msg(arena, msg_buf, escapeLoc.line),
                     escapeLoc
@@ -305,26 +225,27 @@ static void processString(const char*& current, const char* end,
         ++current; ++info.index;
     }
 
-terminate_string:
+    // Only reached on unterminated string (EOF without closing '"')
     error_list.push_back({
         make_error_msg(arena, "Unterminated string literal starting at line ", startInfo.line),
         startInfo
     });
-    token_list_push(&tokens, arena, make_token(arena, KALIDOUS_TOKEN_STRING,
-                                std::string_view(start, current - start), startInfo));
+    tokens.push(arena, make_token(arena, KALIDOUS_TOKEN_STRING,
+                                  std::string_view(start, current - start), startInfo));
 }
 
 static void processNumber(const char*& current, const char* end,
                           TokenList& tokens, std::vector<LexError>& error_list,
                           KalidousSourceLoc& info, KalidousArena* arena) {
-    const char*           start     = current;
-    const KalidousSourceLoc   startInfo = info;
+    const char*            start     = current;
+    const KalidousSourceLoc startInfo = info;
 
     enum class Base { Decimal, Hex, Binary, Octal } base = Base::Decimal;
 
-    // Detect Base Prefix
+    // ── Detect base prefix ────────────────────────────────────────────────────
     if (*current == '0' && current + 1 < end) {
         const char next = static_cast<char>(toLower(static_cast<unsigned char>(*(current + 1))));
+
         if (next == 'x') {
             base = Base::Hex;
             current += 2; info.index += 2;
@@ -333,8 +254,8 @@ static void processNumber(const char*& current, const char* end,
                     make_error_msg(arena, "Hex literal '0x' has no digits at line ", startInfo.line),
                     startInfo
                 });
-                token_list_push(&tokens, arena, make_token(arena, KALIDOUS_TOKEN_HEXADECIMAL,
-                                            std::string_view(start, current - start), startInfo));
+                tokens.push(arena, make_token(arena, KALIDOUS_TOKEN_HEXADECIMAL,
+                                              std::string_view(start, current - start), startInfo));
                 return;
             }
         } else if (next == 'b') {
@@ -345,8 +266,8 @@ static void processNumber(const char*& current, const char* end,
                     make_error_msg(arena, "Binary literal '0b' has no digits at line ", startInfo.line),
                     startInfo
                 });
-                token_list_push(&tokens, arena, make_token(arena, KALIDOUS_TOKEN_BINARY,
-                                            std::string_view(start, current - start), startInfo));
+                tokens.push(arena, make_token(arena, KALIDOUS_TOKEN_BINARY,
+                                              std::string_view(start, current - start), startInfo));
                 return;
             }
         } else if (next == 'o') {
@@ -357,21 +278,20 @@ static void processNumber(const char*& current, const char* end,
                     make_error_msg(arena, "Octal literal '0o' has no digits at line ", startInfo.line),
                     startInfo
                 });
-                token_list_push(&tokens, arena, make_token(arena, KALIDOUS_TOKEN_OCTAL,
-                                            std::string_view(start, current - start), startInfo));
+                tokens.push(arena, make_token(arena, KALIDOUS_TOKEN_OCTAL,
+                                              std::string_view(start, current - start), startInfo));
                 return;
             }
         }
     }
 
-    bool isFloat = false;
-    bool prev_is_separator = false; // Track separators
-    bool has_digit = false;
+    bool isFloat           = false;
+    bool prev_is_separator = false;
 
     while (current < end) {
         const auto c = static_cast<unsigned char>(*current);
 
-        if (c == '\'') { // Changed from _ to '
+        if (c == '\'') {
             if (prev_is_separator) {
                 error_list.push_back({
                     make_error_msg(arena, "Consecutive separators in numeric literal at line ", info.line),
@@ -387,29 +307,25 @@ static void processNumber(const char*& current, const char* end,
             case Base::Hex:
                 if (!isHexDigit(c)) goto done;
                 break;
+
             case Base::Binary:
                 if (c != '0' && c != '1') goto done;
                 break;
+
             case Base::Octal:
-                if (c >= '0' && c <= '7') {
-                    if (current + 1 < end) {
-                        const unsigned char next = static_cast<unsigned char>(*(current + 1));
-                        if (next == '8' || next == '9') {
-                            KalidousSourceLoc errLoc = info;
-                            errLoc.index += 1;
-                            ++current; ++info.index;
-                            error_list.push_back({
-                                make_error_msg(arena, "Invalid digit '8' or '9' in octal literal at line ", errLoc.line),
-                                errLoc
-                            });
-                            ++current; ++info.index;
-                            goto done;
-                        }
+                if (c < '0' || c > '7') {
+                    // FIX: detect 8/9 as invalid octal digit (single advance, single error)
+                    if (c == '8' || c == '9') {
+                        error_list.push_back({
+                            make_error_msg(arena, "Invalid digit in octal literal at line ", info.line),
+                            info
+                        });
+                        ++current; ++info.index;
                     }
-                } else {
                     goto done;
                 }
                 break;
+
             case Base::Decimal:
                 if (c == '.') {
                     if (isFloat) goto done;
@@ -422,7 +338,6 @@ static void processNumber(const char*& current, const char* end,
                 break;
         }
 
-        if (c != '\'') has_digit = true;
         prev_is_separator = false;
         ++current; ++info.index;
     }
@@ -435,9 +350,10 @@ done:
         });
     }
 
+    // Detect invalid suffix (e.g. 123abc)
     if (current < end && (isAlpha(static_cast<unsigned char>(*current)) || *current == '_')) {
-        const char* suffixStart = current;
-        const KalidousSourceLoc suffixLoc = info;
+        const char*            suffixStart = current;
+        const KalidousSourceLoc suffixLoc   = info;
 
         while (current < end && (isAlphaNum(static_cast<unsigned char>(*current)) || *current == '_')) {
             ++current; ++info.index;
@@ -445,11 +361,9 @@ done:
 
         char msg_buf[160];
         size_t pos = 0;
-        const char* pfx = "Invalid suffix '";
-        for (const char* p = pfx; *p && pos < sizeof(msg_buf) - 1;) msg_buf[pos++] = *p++;
+        for (const char* p = "Invalid suffix '"; *p && pos < sizeof(msg_buf) - 1;) msg_buf[pos++] = *p++;
         for (const char* p = suffixStart; p < current && pos < sizeof(msg_buf) - 1;) msg_buf[pos++] = *p++;
-        const char* sfx = "' on numeric literal at line ";
-        for (const char* p = sfx; *p && pos < sizeof(msg_buf) - 1;) msg_buf[pos++] = *p++;
+        for (const char* p = "' on numeric literal at line "; *p && pos < sizeof(msg_buf) - 1;) msg_buf[pos++] = *p++;
         msg_buf[pos] = '\0';
 
         error_list.push_back({
@@ -460,14 +374,14 @@ done:
 
     KalidousTokenType type = KALIDOUS_TOKEN_NUMBER;
     switch (base) {
-        case Base::Hex:     type = KALIDOUS_TOKEN_HEXADECIMAL; break;
-        case Base::Binary:  type = KALIDOUS_TOKEN_BINARY;      break;
-        case Base::Octal:   type = KALIDOUS_TOKEN_OCTAL;       break;
-        case Base::Decimal: type = isFloat ? KALIDOUS_TOKEN_FLOAT : KALIDOUS_TOKEN_NUMBER; break;
+        case Base::Hex:     type = KALIDOUS_TOKEN_HEXADECIMAL;                              break;
+        case Base::Binary:  type = KALIDOUS_TOKEN_BINARY;                                   break;
+        case Base::Octal:   type = KALIDOUS_TOKEN_OCTAL;                                    break;
+        case Base::Decimal: type = isFloat ? KALIDOUS_TOKEN_FLOAT : KALIDOUS_TOKEN_NUMBER;  break;
     }
 
-    token_list_push(&tokens, arena, make_token(arena, type,
-                                std::string_view(start, current - start), startInfo));
+    tokens.push(arena, make_token(arena, type,
+                                  std::string_view(start, current - start), startInfo));
 }
 
 static bool punctuation(const char*& current, const char* end,
@@ -475,26 +389,28 @@ static bool punctuation(const char*& current, const char* end,
                         KalidousSourceLoc& info, KalidousArena* arena) {
     const char c = *current;
 
+    // Single-character tokens — no lookahead needed
     switch (c) {
-        // Optimized single-char operators
         case '(': case ')': case '{': case '}': case '[': case ']':
         case ';': case ',': case ':': case '?': case '@': case '#':
         case '~':
-            token_list_push(&tokens, arena, make_token(arena, kalidous_lookup_keyword(&c, 1),
-                                        std::string_view(&c, 1), info));
+            tokens.push(arena, make_token(arena, kalidous_lookup_keyword(&c, 1),
+                                          std::string_view(&c, 1), info));
             ++current; ++info.index;
             return true;
 
-        // Potential multi-char operators
         case '+': case '-': case '*': case '/': case '%': case '^':
         case '&': case '|': case '=': case '!': case '<': case '>':
         case '.':
             break;
+
         default:
             return false;
     }
 
-    // Multi-character check
+    // FIX: capture loc *before* advancing so the stored position is correct
+    const KalidousSourceLoc startInfo = info;
+
     for (const int len : {3, 2, 1}) {
         if (current + len > end) continue;
         const auto t = kalidous_lookup_keyword(current, static_cast<size_t>(len));
@@ -502,7 +418,7 @@ static bool punctuation(const char*& current, const char* end,
             const std::string_view view(current, static_cast<size_t>(len));
             current    += len;
             info.index += static_cast<size_t>(len);
-            token_list_push(&tokens, arena, make_token(arena, t, view, info));
+            tokens.push(arena, make_token(arena, t, view, startInfo)); // use startInfo, not info
             return true;
         }
     }
@@ -513,8 +429,7 @@ static bool punctuation(const char*& current, const char* end,
 
 static void tokenize(std::string_view src, KalidousArena* arena,
                      TokenList& tokens, std::vector<LexError>& error_list) {
-
-    token_list_init(&tokens, arena, 64); // Start with space for 64 tokens per page
+    tokens.init(arena, 64);
 
     KalidousSourceLoc info{0, 1};
     const char* current = src.data();
@@ -554,39 +469,137 @@ static void tokenize(std::string_view src, KalidousArena* arena,
             continue;
 
         addCharError(error_list, "Unknown character ", *current, info, arena);
-        token_list_push(&tokens, arena, make_token(arena, KALIDOUS_TOKEN_UNKNOWN,
-                                    std::string_view(current, 1), info));
+        tokens.push(arena, make_token(arena, KALIDOUS_TOKEN_UNKNOWN,
+                                      std::string_view(current, 1), info));
         ++current; ++info.index;
 
         if (error_list.size() >= MAX_ERRORS) break;
     }
 
-    token_list_push(&tokens, arena, make_token(arena, KALIDOUS_TOKEN_END, std::string_view{}, info));
+    tokens.push(arena, make_token(arena, KALIDOUS_TOKEN_END, std::string_view{}, info));
 }
 
 } // namespace kalidous::detail
 
-// ── C API ─────────────────────────────────────────────────────────────────────
+
+// ============================================================================
+// C API
+// ============================================================================
 
 KalidousTokenStream kalidous_tokenize(KalidousArena* arena, const char* source, const size_t source_len) {
     if (!arena || !source) return {nullptr, 0};
 
     std::vector<kalidous::detail::LexError> error_list;
-    kalidous::detail::TokenList tokens{};
+    kalidous::detail::TokenList tokens;
 
     kalidous::detail::tokenize(std::string_view(source, source_len), arena, tokens, error_list);
 
     if (!error_list.empty()) {
-        for (const auto&[msg, info] : error_list)
-            std::cerr << "Lexical error (line " << info.line
-                      << ", col " << info.index << "): " << msg << '\n';
+        for (const auto& err : error_list)
+            std::cerr << "Lexical error (line " << err.info.line
+                      << ", col " << err.info.index << "): " << err.msg << '\n';
         return {nullptr, 0};
     }
 
     size_t count = 0;
-    KalidousToken* flat_data = kalidous::detail::token_list_flatten(&tokens, arena, &count);
+    KalidousToken* flat_data = tokens.flatten(arena, &count);
 
     return {flat_data, count};
+}
+
+
+// ============================================================================
+// Debug
+// ============================================================================
+
+static const char* token_type_name(KalidousTokenType type) {
+    switch (type) {
+        case KALIDOUS_TOKEN_IDENTIFIER:   return "IDENTIFIER";
+        case KALIDOUS_TOKEN_STRING:       return "STRING";
+        case KALIDOUS_TOKEN_NUMBER:       return "NUMBER";
+        case KALIDOUS_TOKEN_FLOAT:        return "FLOAT";
+        case KALIDOUS_TOKEN_HEXADECIMAL:  return "HEX";
+        case KALIDOUS_TOKEN_BINARY:       return "BINARY";
+        case KALIDOUS_TOKEN_OCTAL:        return "OCTAL";
+        case KALIDOUS_TOKEN_UNKNOWN:      return "UNKNOWN";
+        case KALIDOUS_TOKEN_END:          return "END";
+        default:                          return "KEYWORD/OP";
+    }
+}
+
+void kalidous_debug_tokens(KalidousArena* arena, const char* source, const size_t source_len) {
+    if (!arena || !source) {
+        std::cerr << "[kalidous_debug_tokens] null arena or source\n";
+        return;
+    }
+
+    std::vector<kalidous::detail::LexError> error_list;
+    kalidous::detail::TokenList tokens;
+    kalidous::detail::tokenize(std::string_view(source, source_len), arena, tokens, error_list);
+
+    size_t count = 0;
+    KalidousToken* flat = tokens.flatten(arena, &count);
+
+    // ── Header ───────────────────────────────────────────────────────────────
+    std::cerr << "\n╔══════════════════════════════════════════════════════════╗\n";
+    std::cerr <<   "║            Kalidous Tokenizer — Debug Dump              ║\n";
+    std::cerr <<   "╠═══╦══════╦══════╦══════════════╦════════════════════════╣\n";
+    std::cerr <<   "║ # ║ Line ║ Col  ║ Type         ║ Lexeme                 ║\n";
+    std::cerr <<   "╠═══╩══════╩══════╩══════════════╩════════════════════════╣\n";
+
+    // ── Rows ─────────────────────────────────────────────────────────────────
+    for (size_t i = 0; i < count; ++i) {
+        const KalidousToken& tok = flat[i];
+
+        // Truncate long lexemes for display
+        char lexeme_buf[25];
+        size_t lex_len = tok.lexeme.len < sizeof(lexeme_buf) - 1
+                       ? tok.lexeme.len
+                       : sizeof(lexeme_buf) - 4;
+        std::memcpy(lexeme_buf, tok.lexeme.data, lex_len);
+        if (lex_len < tok.lexeme.len) {
+            lexeme_buf[lex_len++] = '.';
+            lexeme_buf[lex_len++] = '.';
+            lexeme_buf[lex_len++] = '.';
+        }
+        lexeme_buf[lex_len] = '\0';
+
+        // Replace control characters for safe display
+        for (size_t j = 0; j < lex_len; ++j)
+            if (static_cast<unsigned char>(lexeme_buf[j]) < 0x20) lexeme_buf[j] = '?';
+
+        const char* type_name = token_type_name(tok.type);
+
+        std::cerr << "║ "
+                  << i
+                  << " \t║ "
+                  << tok.loc.line
+                  << " \t║ "
+                  << tok.loc.index
+                  << " \t║ "
+                  << type_name
+                  << " \t║ "
+                  << lexeme_buf
+                  << "\n";
+    }
+
+    // ── Footer ───────────────────────────────────────────────────────────────
+    std::cerr << "╚══════════════════════════════════════════════════════════╝\n";
+    std::cerr << "  Total tokens : " << count << "\n";
+
+    // ── Errors ───────────────────────────────────────────────────────────────
+    if (!error_list.empty()) {
+        std::cerr << "\n  Lexical errors (" << error_list.size() << "):\n";
+        for (size_t i = 0; i < error_list.size(); ++i) {
+            const auto& err = error_list[i];
+            std::cerr << "  [" << i << "] line " << err.info.line
+                      << ", col " << err.info.index
+                      << " → " << err.msg << "\n";
+        }
+    } else {
+        std::cerr << "  No lexical errors.\n";
+    }
+    std::cerr << '\n';
 }
 
 #undef KALIDOUS_NEWLINE

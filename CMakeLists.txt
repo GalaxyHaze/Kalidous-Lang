@@ -51,12 +51,12 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(tomlplusplus)
 
 # --- KalidousABI: Provides the 'Kalidous' INTERFACE target ---
-FetchContent_Declare(KalidousABI
-        GIT_REPOSITORY https://github.com/GalaxyHaze/Kalidous-Lang.git
-        GIT_TAG        master
-        GIT_SHALLOW    TRUE
-)
-FetchContent_MakeAvailable(KalidousABI)
+#FetchContent_Declare(KalidousABI
+#        GIT_REPOSITORY https://github.com/GalaxyHaze/Kalidous-Lang.git
+#        GIT_TAG        master
+#        GIT_SHALLOW    TRUE
+#)
+#FetchContent_MakeAvailable(KalidousABI)
 
 #find_package(LLVM REQUIRED CONFIG)
 #message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
@@ -91,36 +91,40 @@ set(PARSER_CPP_SOURCES
         impl/parser/keywords.cpp
         impl/ast/parser.cpp
         impl/ast/ast.h
+        impl/ast/ast.cpp
+        impl/ast/parser.h
 )
 
 # REMOVED parser.cpp from CLI_SOURCES to prevent duplicate compilation
 set(CLI_SOURCES
         impl/interface/CLI.cpp
+        impl/memory/utils.h
+        impl/utils/debug.h
+        include/kalidous/kalidous.h
 )
 
-# =============================================================================
+# ───────────────────────────────────────────────
 # Targets
-# =============================================================================
+# ───────────────────────────────────────────────
 
-# Core C library (implements parts of Kalidous ABI)
 add_library(KalidousCore STATIC ${CORE_C_SOURCES})
-target_include_directories(KalidousCore PUBLIC
+target_include_directories(KalidousCore
+        PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+        $<INSTALL_INTERFACE:include>
 )
-# Link against Kalidous ABI → gets kalidous.h + C++17 requirement
-target_link_libraries(KalidousCore PUBLIC Kalidous::Kalidous)
-
-# Apply version definition specifically to targets that need it, or globally if preferred
 target_compile_definitions(KalidousCore PRIVATE KALIDOUS_VERSION="v0.0-alpha")
-
 target_link_libraries(KalidousCore PUBLIC tomlplusplus::tomlplusplus)
 
-# Parser library
+# ────────
 add_library(KalidousParse STATIC ${PARSER_CPP_SOURCES})
+target_include_directories(KalidousParse
+        PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+)
 target_link_libraries(KalidousParse
         PUBLIC
-        KalidousCore          # Brings in Kalidous::Kalidous transitively
-        #LLVM       # Using modern CMake target for LLVM is safer
+        KalidousCore
         unordered_dense::unordered_dense
 )
 target_compile_definitions(KalidousParse PRIVATE KALIDOUS_VERSION="v0.0-alpha")
@@ -132,22 +136,21 @@ set_target_properties(KalidousParse PROPERTIES
         VISIBILITY_INLINES_HIDDEN ON
 )
 
-# Executable
-add_executable(kalidous main.cpp ${CLI_SOURCES})
+# ────────
+add_executable(kalidous main.cpp ${CLI_SOURCES})          # ← fixed name
+
+target_include_directories(kalidous PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+
 target_link_libraries(kalidous
         PRIVATE
         KalidousParse
         CLI11::CLI11
-        # No need to link LLVM or unordered_dense here directly;
-        # KalidousParse brings them in transitively if they are PUBLIC,
-        # but since they are PRIVATE in KalidousParse, we only need KalidousParse logic.
 )
 target_compile_definitions(kalidous PRIVATE KALIDOUS_VERSION="v0.0-alpha" KALIDOUS_EXECUTABLE)
 
-# =============================================================================
-# Install (Optional)
-# =============================================================================
-include(GNUInstallDirs)
+# ───────────────────────────────────────────────
+# Install
+# ───────────────────────────────────────────────
 install(TARGETS kalidous KalidousParse KalidousCore
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}

@@ -1,0 +1,25 @@
+
+enum Color{
+    blue,
+    red,
+    green,
+    black,
+    gray
+}
+
+struct Point{
+    x: u32;
+    y: u32;
+}
+
+fn adicionar( num1: long, num2: long ): long{
+    return num1 + num2;
+}
+
+public fn main( agrc: u32, argv: string ){
+
+    let num1: u32 = 50;
+    {
+        let num2: u32 = 24;
+    }
+}

@@ -1,10 +1,10 @@
 // impl/parser/keywords.cpp
-#include "Kalidous/kalidous.h"
+#include "kalidous/kalidous.h"
 #include <string_view>
 #include <array>
 
 // ============================================================================
-// Hash functions
+// Hash primitives
 // ============================================================================
 
 static constexpr uint64_t mix64(uint64_t x) {
@@ -16,7 +16,7 @@ static constexpr uint64_t mix64(uint64_t x) {
     return x;
 }
 
-static constexpr uint64_t hash64(const std::string_view sv) {
+static constexpr uint64_t hash64(std::string_view sv) {
     uint64_t h = 0xcbf29ce484222325ULL;
     for (const unsigned char c : sv) {
         h ^= c;
@@ -30,11 +30,23 @@ static constexpr uint64_t hash64(const std::string_view sv) {
 // ============================================================================
 
 static constexpr auto TokenTable = std::to_array<std::pair<std::string_view, KalidousTokenType>>({
-    // --- Tipos primitivos ---------------------------------------------------
-    {"i8",   KALIDOUS_TOKEN_TYPE}, {"i16",  KALIDOUS_TOKEN_TYPE}, {"i32",  KALIDOUS_TOKEN_TYPE},
-    {"i64",  KALIDOUS_TOKEN_TYPE}, {"u8",   KALIDOUS_TOKEN_TYPE}, {"u16",  KALIDOUS_TOKEN_TYPE},
-    {"u32",  KALIDOUS_TOKEN_TYPE}, {"u64",  KALIDOUS_TOKEN_TYPE}, {"f32",  KALIDOUS_TOKEN_TYPE},
-    {"f64",  KALIDOUS_TOKEN_TYPE}, {"bool", KALIDOUS_TOKEN_TYPE}, {"void", KALIDOUS_TOKEN_TYPE},
+
+    // --- Inteiros com sinal -------------------------------------------------
+    {"i8",   KALIDOUS_TOKEN_TYPE}, {"i16",  KALIDOUS_TOKEN_TYPE},
+    {"i32",  KALIDOUS_TOKEN_TYPE}, {"i64",  KALIDOUS_TOKEN_TYPE},
+    {"i128", KALIDOUS_TOKEN_TYPE}, {"i256", KALIDOUS_TOKEN_TYPE},
+
+    // --- Inteiros sem sinal -------------------------------------------------
+    {"u8",   KALIDOUS_TOKEN_TYPE}, {"u16",  KALIDOUS_TOKEN_TYPE},
+    {"u32",  KALIDOUS_TOKEN_TYPE}, {"u64",  KALIDOUS_TOKEN_TYPE},
+    {"u128", KALIDOUS_TOKEN_TYPE}, {"u256", KALIDOUS_TOKEN_TYPE},
+
+    // --- Ponto flutuante ----------------------------------------------------
+    {"f32",  KALIDOUS_TOKEN_TYPE}, {"f64",  KALIDOUS_TOKEN_TYPE},
+    {"f128", KALIDOUS_TOKEN_TYPE},
+
+    // --- Primitivos gerais --------------------------------------------------
+    {"bool", KALIDOUS_TOKEN_TYPE}, {"void", KALIDOUS_TOKEN_TYPE},
 
     // --- Declarações de tipo ------------------------------------------------
     {"type",      KALIDOUS_TOKEN_TYPE},
@@ -45,15 +57,16 @@ static constexpr auto TokenTable = std::to_array<std::pair<std::string_view, Kal
     {"family",    KALIDOUS_TOKEN_FAMILY},
     {"entity",    KALIDOUS_TOKEN_ENTITY},
     {"trait",     KALIDOUS_TOKEN_TRAIT},
-    {"typedef",   KALIDOUS_TOKEN_TYPEDEF},
+    {"using",     KALIDOUS_TOKEN_TYPEDEF},
     {"implement", KALIDOUS_TOKEN_IMPLEMENT},
+    {"fn", KALIDOUS_TOKEN_FN},
 
     // --- Bindings / modificadores de ownership ------------------------------
     {"let",        KALIDOUS_TOKEN_LET},
     {"var",        KALIDOUS_TOKEN_VAR},
     {"auto",       KALIDOUS_TOKEN_AUTO},
     {"const",      KALIDOUS_TOKEN_CONST},
-    {"mut",        KALIDOUS_TOKEN_MUTABLE},   // 'mutable' na ABI, 'mut' no fonte
+    {"mut",        KALIDOUS_TOKEN_MUTABLE},
     {"global",     KALIDOUS_TOKEN_GLOBAL},
     {"persistent", KALIDOUS_TOKEN_PERSISTENT},
     {"local",      KALIDOUS_TOKEN_LOCAL},
@@ -82,34 +95,33 @@ static constexpr auto TokenTable = std::to_array<std::pair<std::string_view, Kal
     {"end",      KALIDOUS_TOKEN_END},
 
     // --- Concorrência -------------------------------------------------------
-    {"spawn",  KALIDOUS_TOKEN_SPAWN},
-    {"joined", KALIDOUS_TOKEN_JOINED},
-    {"await",  KALIDOUS_TOKEN_AWAIT},
+    {"spawn", KALIDOUS_TOKEN_SPAWN},
+    {"await", KALIDOUS_TOKEN_AWAIT},
 
     // --- Tratamento de erros ------------------------------------------------
     {"try",   KALIDOUS_TOKEN_TRY},
     {"catch", KALIDOUS_TOKEN_CATCH},
-    {"must",  KALIDOUS_TOKEN_MUST},   // o '!' subsequente é semântico, resolvido pelo Parser
+    {"must",  KALIDOUS_TOKEN_MUST},
 
     // --- Operadores multi-caractere -----------------------------------------
-    {"&&", KALIDOUS_TOKEN_AND},
-    {"||", KALIDOUS_TOKEN_OR},
-    {"==", KALIDOUS_TOKEN_EQUAL},
-    {"!=", KALIDOUS_TOKEN_NOT_EQUAL},
-    {">=", KALIDOUS_TOKEN_GREATER_THAN_OR_EQUAL},
-    {"<=", KALIDOUS_TOKEN_LESS_THAN_OR_EQUAL},
-    {"->", KALIDOUS_TOKEN_ARROW},
-    {"+=", KALIDOUS_TOKEN_PLUS_EQUAL},
-    {"-=", KALIDOUS_TOKEN_MINUS_EQUAL},
-    {"*=", KALIDOUS_TOKEN_MULTIPLY_EQUAL},
-    {"/=", KALIDOUS_TOKEN_DIVIDE_EQUAL},
-    {":=", KALIDOUS_TOKEN_DECLARATION},
-    {"...",KALIDOUS_TOKEN_DOTS},
+    {"and", KALIDOUS_TOKEN_AND},
+    {"or",  KALIDOUS_TOKEN_OR},
+    {"not", KALIDOUS_TOKEN_NOT_EQUAL},
+    {"==",  KALIDOUS_TOKEN_EQUAL},
+    {">=",  KALIDOUS_TOKEN_GREATER_THAN_OR_EQUAL},
+    {"<=",  KALIDOUS_TOKEN_LESS_THAN_OR_EQUAL},
+    {"->",  KALIDOUS_TOKEN_ARROW},
+    {"+=",  KALIDOUS_TOKEN_PLUS_EQUAL},
+    {"-=",  KALIDOUS_TOKEN_MINUS_EQUAL},
+    {"*=",  KALIDOUS_TOKEN_MULTIPLY_EQUAL},
+    {"/=",  KALIDOUS_TOKEN_DIVIDE_EQUAL},
+    {":=",  KALIDOUS_TOKEN_DECLARATION},
+    {"...", KALIDOUS_TOKEN_DOTS},
 
     // --- Operadores simples -------------------------------------------------
     {"+", KALIDOUS_TOKEN_PLUS},
     {"-", KALIDOUS_TOKEN_MINUS},
-    {"*", KALIDOUS_TOKEN_MULTIPLY},   // ponteiro vs aritmético resolvido pelo Parser
+    {"*", KALIDOUS_TOKEN_MULTIPLY},
     {"/", KALIDOUS_TOKEN_DIVIDE},
     {"%", KALIDOUS_TOKEN_MOD},
     {"=", KALIDOUS_TOKEN_ASSIGNMENT},
@@ -119,108 +131,100 @@ static constexpr auto TokenTable = std::to_array<std::pair<std::string_view, Kal
     {"?", KALIDOUS_TOKEN_QUESTION},
 
     // --- Delimitadores ------------------------------------------------------
-    {"(", KALIDOUS_TOKEN_LPAREN},  {")", KALIDOUS_TOKEN_RPAREN},
-    {"{", KALIDOUS_TOKEN_LBRACE},  {"}", KALIDOUS_TOKEN_RBRACE},
-    {"[", KALIDOUS_TOKEN_LBRACKET},{"]", KALIDOUS_TOKEN_RBRACKET},
-    {",", KALIDOUS_TOKEN_COMMA},   {";", KALIDOUS_TOKEN_SEMICOLON},
-    {":", KALIDOUS_TOKEN_COLON},   {".", KALIDOUS_TOKEN_DOT},
+    {"(", KALIDOUS_TOKEN_LPAREN},   {")", KALIDOUS_TOKEN_RPAREN},
+    {"{", KALIDOUS_TOKEN_LBRACE},   {"}", KALIDOUS_TOKEN_RBRACE},
+    {"[", KALIDOUS_TOKEN_LBRACKET}, {"]", KALIDOUS_TOKEN_RBRACKET},
+    {",", KALIDOUS_TOKEN_COMMA},    {";", KALIDOUS_TOKEN_SEMICOLON},
+    {":", KALIDOUS_TOKEN_COLON},    {".", KALIDOUS_TOKEN_DOT},
 });
 
 // ============================================================================
-// Perfect hash (compile-time)
+// Perfect hash (compile-time, dois níveis)
+//
+// Nível 1 : bucket = hash(str) % BucketCount  →  seleciona um seed
+// Nível 2 : slot   = mix64(hash(str) ^ seed) % TableSize
+//
+// Lookup usa SEMPRE o caminho com seed — sem bifurcação por tamanho de bucket.
+// Isso elimina o antigo scan O(N) de countsForBucket() em tempo de execução.
 // ============================================================================
 
-constexpr size_t N           = TokenTable.size();
-constexpr size_t BucketCount = 128;  // aumentado pra acomodar tabela maior
-constexpr size_t TableSize   = 256;
+static constexpr size_t N           = TokenTable.size();
+static constexpr size_t BucketCount = 128;
+static constexpr size_t TableSize   = 256;
 
 namespace {
-    struct PerfectHash {
-        std::array<int16_t, TableSize> table{};
-        std::array<uint8_t, BucketCount> bucketSeed{};
 
-        constexpr PerfectHash() {
-            table.fill(-1);
-            bucketSeed.fill(0);
+struct PerfectHash {
+    std::array<int16_t, TableSize>   table{};
+    std::array<uint8_t, BucketCount> bucketSeed{};
 
-            std::array<size_t, N> bucket{};
-            for (size_t i = 0; i < N; ++i)
-                bucket[i] = hash64(TokenTable[i].first) % BucketCount;
+    constexpr PerfectHash() {
+        table.fill(-1);
+        bucketSeed.fill(0);
 
-            std::array<size_t, BucketCount> counts{};
-            std::array<std::array<uint16_t, 16>, BucketCount> items{};
-            for (size_t i = 0; i < N; ++i) {
-                size_t b = bucket[i];
-                items[b][counts[b]++] = static_cast<uint16_t>(i);
-            }
+        // Agrupar entradas por bucket
+        std::array<uint8_t,                     BucketCount> counts{};
+        std::array<std::array<uint16_t, 16>,    BucketCount> items{};
 
-            for (size_t b = 0; b < BucketCount; ++b) {
-                if (counts[b] <= 1) {
-                    if (counts[b] == 1) {
-                        size_t i   = items[b][0];
-                        size_t idx = hash64(TokenTable[i].first) % TableSize;
-                        table[idx] = static_cast<int16_t>(i);
+        for (size_t i = 0; i < N; ++i) {
+            const size_t b = hash64(TokenTable[i].first) % BucketCount;
+            items[b][counts[b]++] = static_cast<uint16_t>(i);
+        }
+
+        // Resolver cada bucket: encontrar seed sem colisão
+        for (size_t b = 0; b < BucketCount; ++b) {
+            if (counts[b] == 0) continue;
+
+            for (uint8_t seed = 0; seed < 255; ++seed) {
+                bool ok = true;
+                std::array<size_t, 16> slots{};
+
+                for (size_t k = 0; k < counts[b]; ++k) {
+                    const size_t i    = items[b][k];
+                    const size_t slot = mix64(hash64(TokenTable[i].first) ^ seed) % TableSize;
+
+                    // Colisão intra-bucket
+                    for (size_t j = 0; j < k; ++j) {
+                        if (slots[j] == slot) { ok = false; break; }
                     }
-                    continue;
+                    if (!ok) break;
+
+                    // Colisão cross-bucket (slots já ocupados)
+                    if (table[slot] != -1) { ok = false; break; }
+
+                    slots[k] = slot;
                 }
 
-                for (uint8_t seed = 0; seed < 255; ++seed) {
-                    bool collision = false;
-                    std::array<size_t, 16> used{};
+                if (ok) {
+                    bucketSeed[b] = seed;
                     for (size_t k = 0; k < counts[b]; ++k) {
-                        size_t i   = items[b][k];
-                        size_t idx = mix64(hash64(TokenTable[i].first) ^ seed) % TableSize;
-                        for (size_t j = 0; j < k; ++j) {
-                            if (used[j] == idx) { collision = true; break; }
-                        }
-                        if (collision) break;
-                        // verifica também contra entradas já fixadas de outros buckets
-                        if (table[idx] != -1) { collision = true; break; }
-                        used[k] = idx;
+                        const size_t i    = items[b][k];
+                        const size_t slot = mix64(hash64(TokenTable[i].first) ^ seed) % TableSize;
+                        table[slot]       = static_cast<int16_t>(i);
                     }
-                    if (!collision) {
-                        bucketSeed[b] = seed;
-                        for (size_t k = 0; k < counts[b]; ++k) {
-                            size_t i   = items[b][k];
-                            size_t idx = mix64(hash64(TokenTable[i].first) ^ seed) % TableSize;
-                            table[idx] = static_cast<int16_t>(i);
-                        }
-                        break;
-                    }
+                    break;
                 }
             }
         }
+    }
 
-        [[nodiscard]] constexpr KalidousTokenType lookup(const std::string_view sv) const {
-            if (sv.empty()) return KALIDOUS_TOKEN_IDENTIFIER;
+    [[nodiscard]] constexpr KalidousTokenType lookup(std::string_view sv) const {
+        if (sv.empty()) return KALIDOUS_TOKEN_IDENTIFIER;
 
-            const uint64_t h    = hash64(sv);
-            const size_t   b    = h % BucketCount;
-            const uint8_t  seed = bucketSeed[b];
+        const uint64_t h   = hash64(sv);
+        const size_t   b   = h % BucketCount;
+        const size_t   idx = mix64(h ^ bucketSeed[b]) % TableSize;
+        const int16_t  id  = table[idx];
 
-            const size_t idx = (countsForBucket(b) <= 1)
-                ? (h % TableSize)
-                : (mix64(h ^ seed) % TableSize);
+        if (id < 0) return KALIDOUS_TOKEN_IDENTIFIER;
+        return (TokenTable[id].first == sv) ? TokenTable[id].second
+                                            : KALIDOUS_TOKEN_IDENTIFIER;
+    }
+};
 
-            const int16_t id = table[idx];
-            if (id < 0) return KALIDOUS_TOKEN_IDENTIFIER;
-            return (TokenTable[id].first == sv)
-                ? TokenTable[id].second
-                : KALIDOUS_TOKEN_IDENTIFIER;
-        }
+constexpr auto g_hasher = PerfectHash{};
 
-    private:
-        static constexpr size_t countsForBucket(size_t b) {
-            size_t c = 0;
-            for (size_t i = 0; i < N; ++i)
-                if ((hash64(TokenTable[i].first) % BucketCount) == b)
-                    ++c;
-            return c;
-        }
-    };
-
-    constexpr auto g_hasher = PerfectHash{};
-}
+} // anonymous namespace
 
 // ============================================================================
 // C API
