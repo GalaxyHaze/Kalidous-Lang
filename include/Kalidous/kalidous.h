@@ -1,10 +1,9 @@
 // kalidous.h - Unified header for Kalidous programming language core
 #pragma once
 
-#include <stddef.h>
-#include <stdint.h>
-#include <stdbool.h>
-#include <string.h>
+#include <cstddef>
+#include <cstdint>
+#include <cstring>
 
 #ifdef __cplusplus
 extern "C" {
@@ -171,7 +170,7 @@ typedef enum {
     // Tokens especiais / controle
     // ------------------------------------------------------------------------
     KALIDOUS_TOKEN_END,
-    KALIDOUS_TOKEN_UNKNOWN
+    KALIDOUS_TOKEN_UNKNOWN, KALIDOUS_TOKEN_RECURSE, KALIDOUS_TOKEN_YIELD, KALIDOUS_TOKEN_ASYNC, KALIDOUS_TOKEN_FN
 } KalidousTokenType;
 
 typedef struct {
@@ -241,7 +240,7 @@ struct KalidousNode {
 
 KalidousNode* kalidous_parse(KalidousArena* arena, KalidousTokenStream tokens);
 static inline KalidousNodeId kalidous_node_type(const KalidousNode* node) {
-        return node ? node->type : (KalidousNodeId)KALIDOUS_NODE_ERROR;
+        return node ? node->type : static_cast<KalidousNodeId>(KALIDOUS_NODE_ERROR);
 }
 
 // ============================================================================
@@ -264,8 +263,9 @@ size_t kalidous_file_size(const char* path);
 bool   kalidous_file_has_extension(const char* path, const char* ext);
 char*  kalidous_load_file_to_arena(KalidousArena* arena, const char* path, size_t* out_size);
 
-int           kalidous_run(int argc, const char** argv);
+int           kalidous_run(int argc, const char* const argv[]);
 KalidousTokenType kalidous_lookup_keyword(const char* src, size_t len);
+char* kalidous_arena_str  (KalidousArena* arena, const char* str, size_t len);
 
 // ============================================================================
 // Error Handling
@@ -297,21 +297,21 @@ class Arena {
 public:
     explicit Arena(size_t initial = 65536)
         : handle_(kalidous_arena_create(initial)) { if (!handle_) throw std::bad_alloc(); }
-    void* alloc(size_t size) const { return kalidous_arena_alloc(handle_.get(), size); }
+    [[nodiscard]] void* alloc(size_t size) const { return kalidous_arena_alloc(handle_.get(), size); }
     char* strdup(const char* s) const { return kalidous_arena_strdup(handle_.get(), s); }
-    char* strdup(std::string_view sv) const {
+    [[nodiscard]] char* strdup(std::string_view sv) const {
         char* p = static_cast<char*>(alloc(sv.size() + 1));
         if (p) { memcpy(p, sv.data(), sv.size()); p[sv.size()] = '\0'; }
         return p;
     }
-    KalidousArena* get() const { return handle_.get(); }
+    [[nodiscard]] KalidousArena* get() const { return handle_.get(); }
 };
 
-inline KalidousTokenStream tokenize(Arena& arena, std::string_view source) {
+inline KalidousTokenStream tokenize(const Arena& arena, std::string_view source) {
     return kalidous_tokenize(arena.get(), source.data(), source.size());
 }
 
-inline std::pair<char*, size_t> load_file(Arena& arena, const char* path) {
+inline std::pair<char*, size_t> load_file(const Arena& arena, const char* path) {
     size_t size = 0;
     char* data = kalidous_load_file_to_arena(arena.get(), path, &size);
     if (!data) throw std::runtime_error("Failed to load file: " + std::string(path));
