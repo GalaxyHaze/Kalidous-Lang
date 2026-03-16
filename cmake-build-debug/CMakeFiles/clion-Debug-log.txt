@@ -11,6 +11,6 @@ CMake Deprecation Warning at cmake-build-debug/_deps/cli11-src/CMakeLists.txt:1 
 
 -- 💡 Build Summary
 
--- Configuring done (0.9s)
--- Generating done (0.0s)
+-- Configuring done (0.6s)
+-- Generating done (0.1s)
 -- Build files have been written to: /home/diogo/CLionProjects/Kalidous-Implementation/cmake-build-debug
