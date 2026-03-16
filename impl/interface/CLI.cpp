@@ -6,10 +6,10 @@
 #include <CLI/CLI.hpp>
 #include <kalidous/kalidous.h>
 #include <iostream>
-#include "../utils/debug.h"
-#include "../ast/ast.h"
 #include <string>
 #include <vector>
+#include "../utils/debug.h"
+#include "../ast/ast.h"
 
 static const char* kalidous_version = KALIDOUS_VERSION;
 
@@ -103,10 +103,13 @@ static bool try_load_project(KalidousProject& proj) {
 // ============================================================================
 
 // Tokeniza 'src_path' numa arena nova.
-// Preenche 'out_stream' e retorna a arena (o chamador é responsável por destruí-la).
-// Retorna nullptr em caso de erro; a arena é destruída internamente nesse caso.
+// Preenche 'out_stream', 'out_source' e 'out_source_len' — o source fica na
+// arena para ser reutilizado pelo parser sem second load.
+// Retorna a arena (o chamador destrói); nullptr em caso de erro.
 static KalidousArena* tokenize_file(const std::string& src_path,
                                     KalidousTokenStream& out_stream,
+                                    const char** out_source,
+                                    size_t* out_source_len,
                                     bool verbose) {
     KalidousArena* arena = kalidous_arena_create(64 * 1024);
     if (!arena) { print_error("Failed to create memory arena"); return nullptr; }
@@ -127,6 +130,10 @@ static KalidousArena* tokenize_file(const std::string& src_path,
 
     if (verbose)
         print_info("Tokenized " + std::to_string(out_stream.len) + " tokens from " + src_path);
+
+    // Return source pointer — already in arena, no extra allocation needed
+    if (out_source)     *out_source     = source;
+    if (out_source_len) *out_source_len = file_size;
 
     return arena;
 }
@@ -152,19 +159,23 @@ static int cmd_check(const std::string& input_file,
     if (verbose) print_info("Checking '" + src + "' in " + mode_str + " mode...");
 
     KalidousTokenStream stream{};
-    KalidousArena* arena = tokenize_file(src, stream, verbose);
+    const char* source   = nullptr;
+    size_t      src_size = 0;
+    KalidousArena* arena = tokenize_file(src, stream, &source, &src_size, verbose);
     if (!arena) return 1;
 
-    // Debug: token dump (always shown during check for now)
     kalidous_debug_tokens(stream.data, stream.len);
 
-    KalidousNode* ast = kalidous_parse(arena, stream);
+    KalidousNode* ast = kalidous_parse_with_source(arena,
+                                                    source, src_size,
+                                                    src.c_str(), stream);
 
     // Debug: AST dump
     if (ast) {
         fprintf(stderr, "\n── AST ──────────────────────────────────────────\n");
         kalidous_ast_print(ast, 0);
         fprintf(stderr, "─────────────────────────────────────────────────\n\n");
+        fflush(stderr); // ensure debug output appears before stdout
     } else {
         print_error("Parse failed — null AST");
         kalidous_arena_destroy(arena);
@@ -192,7 +203,9 @@ static int cmd_compile(const std::string& input_file,
     }
 
     KalidousTokenStream stream{};
-    KalidousArena* arena = tokenize_file(input_file, stream, verbose);
+    const char* source   = nullptr;
+    size_t      src_size = 0;
+    KalidousArena* arena = tokenize_file(input_file, stream, &source, &src_size, verbose);
     if (!arena) return 1;
 
     // TODO: kalidous_parse(arena, stream)  → AST

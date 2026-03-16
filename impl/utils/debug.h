@@ -2,13 +2,12 @@
 #pragma once
 #include "kalidous/kalidous.h"
 #include <cstdio>
-#include <cstring>
 
 // ============================================================================
 // Nome de cada token
 // ============================================================================
 
-inline const char* kalidous_token_type_name(const KalidousTokenType type) {
+inline const char* kalidous_token_type_name(KalidousTokenType type) {
     switch (type) {
         // -- Literais e identificadores ---------------------------------------
         case KALIDOUS_TOKEN_STRING:                 return "STRING";
@@ -122,6 +121,7 @@ inline const char* kalidous_token_type_name(const KalidousTokenType type) {
         case KALIDOUS_TOKEN_ASYNC:                  return "ASYNC";
         case KALIDOUS_TOKEN_RECURSE:                return "RECURSE";
         case KALIDOUS_TOKEN_YIELD:                  return "YIELD";
+        case KALIDOUS_TOKEN_ENTRY:                  return "ENTRY";
 
         // -- Controle interno -------------------------------------------------
         case KALIDOUS_TOKEN_END:                    return "END";
@@ -142,7 +142,8 @@ static const char* token_category(KalidousTokenType type) {
         case KALIDOUS_TOKEN_FN:
         case KALIDOUS_TOKEN_ASYNC:
         case KALIDOUS_TOKEN_RECURSE:
-        case KALIDOUS_TOKEN_YIELD:     return "function";
+        case KALIDOUS_TOKEN_YIELD:
+        case KALIDOUS_TOKEN_ENTRY:     return "function";
         default: break;
     }
     if (type <= KALIDOUS_TOKEN_IDENTIFIER)             return "literal";

@@ -1,25 +1,40 @@
+public:
 
-enum Color{
-    blue,
-    red,
-    green,
-    black,
-    gray
+enum Color {
+    blue = 0,
+    red = 1,
+    green = 2,
+    black = 3,
+    gray = 4
 }
 
 struct Point{
+    public:
     x: u32;
     y: u32;
 }
 
-fn adicionar( num1: long, num2: long ): long{
-    return num1 + num2;
+
+
+noreturn fn add( num1: lend long, num2: long ){
+    marker sample(x: u32){
+
+    }
+
+   if true
+        entry goto sample(5);
+   else
+        goto scene level1;
+
 }
 
-public fn main( agrc: u32, argv: string ){
+
+fn main( agrc: u32, argv: string ){
 
     let num1: u32 = 50;
     {
         let num2: u32 = 24;
     }
+
+
 }

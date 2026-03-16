@@ -171,7 +171,9 @@ typedef enum {
     // Tokens especiais / controle
     // ------------------------------------------------------------------------
     KALIDOUS_TOKEN_END,
-    KALIDOUS_TOKEN_UNKNOWN, KALIDOUS_TOKEN_RECURSE, KALIDOUS_TOKEN_YIELD, KALIDOUS_TOKEN_ASYNC, KALIDOUS_TOKEN_FN
+    KALIDOUS_TOKEN_UNKNOWN, KALIDOUS_TOKEN_RECURSE,
+    KALIDOUS_TOKEN_YIELD, KALIDOUS_TOKEN_ASYNC, KALIDOUS_TOKEN_FN,
+    KALIDOUS_TOKEN_FLOWING, KALIDOUS_TOKEN_ENTRY, KALIDOUS_TOKEN_NORETURN
 } KalidousTokenType;
 
 typedef struct {
@@ -240,6 +242,12 @@ struct KalidousNode {
 };
 
 KalidousNode* kalidous_parse(KalidousArena* arena, KalidousTokenStream tokens);
+
+KalidousNode* kalidous_parse_with_source(KalidousArena* arena,const char*        source,
+size_t             source_len, const char*        filename,
+                                              KalidousTokenStream tokens);
+
+
 static inline KalidousNodeId kalidous_node_type(const KalidousNode* node) {
         return node ? node->type : (KalidousNodeId)KALIDOUS_NODE_ERROR;
 }

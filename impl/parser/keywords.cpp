@@ -74,6 +74,11 @@ static constexpr auto TokenTable = std::to_array<std::pair<std::string_view, Kal
     {"shared",     KALIDOUS_TOKEN_SHARED},
     {"view",       KALIDOUS_TOKEN_VIEW},
     {"unique",     KALIDOUS_TOKEN_UNIQUE},
+    {"yield", KALIDOUS_TOKEN_YIELD},
+    {"async", KALIDOUS_TOKEN_ASYNC},
+    /*{"flowing", KALIDOUS_TOKEN_FLOWING},*/
+    {"entry", KALIDOUS_TOKEN_ENTRY},
+    {"noreturn", KALIDOUS_TOKEN_NORETURN},
 
     // --- Modificadores de acesso --------------------------------------------
     {"public",    KALIDOUS_TOKEN_MODIFIER},

@@ -68,14 +68,15 @@ enum {
     KALIDOUS_NODE_CASE          = 1051, // case pattern:
     KALIDOUS_NODE_BREAK         = 1052, // break [label]
     KALIDOUS_NODE_CONTINUE      = 1053, // continue [label]
-    KALIDOUS_NODE_GOTO          = 1054, // goto label
-    KALIDOUS_NODE_MARKER        = 1055, // marker label:
-    KALIDOUS_NODE_SCENE         = 1056, // scene { ... }
-    KALIDOUS_NODE_TRY_CATCH     = 1057, // try { } catch e { }
-    KALIDOUS_NODE_SPAWN_STMT    = 1058, // spawn { ... }
-    KALIDOUS_NODE_AWAIT_STMT    = 1059, // await expr
-    KALIDOUS_NODE_YIELD         = 1060, // yield expr  (async fn only)
-    KALIDOUS_NODE_JOINED        = 1061, // joined { ... }
+    KALIDOUS_NODE_GOTO          = 1054, // goto label  /  goto scene
+    KALIDOUS_NODE_MARKER        = 1055, // marker name(params) { body }
+    KALIDOUS_NODE_ENTRY         = 1056, // entry [name(params)] { body }
+    KALIDOUS_NODE_SCENE         = 1057, // scene { ... }
+    KALIDOUS_NODE_TRY_CATCH     = 1058, // try { } catch e { }
+    KALIDOUS_NODE_SPAWN_STMT    = 1059, // spawn { ... }
+    KALIDOUS_NODE_AWAIT_STMT    = 1060, // await expr
+    KALIDOUS_NODE_YIELD         = 1061, // yield expr  (async fn only)
+    KALIDOUS_NODE_JOINED        = 1062, // joined { ... }
 
     // -- Types ---------------------------------------------------------------
     KALIDOUS_NODE_TYPE_OPTIONAL = 1070, // Type?
@@ -220,8 +221,23 @@ typedef struct {
     KalidousNode* catch_block;
 } KalidousTryCatchPayload;
 
-// KALIDOUS_NODE_CALL (104) and KALIDOUS_NODE_RECURSE (1007)
-// list.ptr = KalidousCallPayload*, list.len = arg_count
+// KALIDOUS_NODE_ENUM_VARIANT (1091)
+// list → KalidousEnumVariantPayload (avoids union collision between ident and kids)
+typedef struct {
+    const char*   name;
+    size_t        name_len;
+    KalidousNode* value;    // NULL = no explicit value
+} KalidousEnumVariantPayload;
+
+// KALIDOUS_NODE_GOTO (1054)
+// list → KalidousGotoPayload
+typedef struct {
+    const char*    target;      // label name, or "scene" for goto scene
+    size_t         target_len;
+    KalidousNode** args;        // NULL if no arguments
+    size_t         arg_count;
+    bool           is_scene;    // true = goto scene
+} KalidousGotoPayload;
 typedef struct {
     KalidousNode*  callee;
     KalidousNode** args;
@@ -246,6 +262,18 @@ typedef struct {
     const char*   alias;
     bool          is_wildcard;
 } KalidousImportPayload;
+
+// KALIDOUS_NODE_MARKER (1055) — named jump target with body
+// KALIDOUS_NODE_ENTRY  (1056) — entry point (name is NULL for anonymous)
+// list → KalidousMarkerPayload, list.len = param_count
+// Only valid inside noreturn fn or flowing fn.
+typedef struct {
+    const char*    name;         // NULL = anonymous (entry only)
+    size_t         name_len;
+    KalidousNode** params;       // optional parameters
+    size_t         param_count;
+    KalidousNode*  body;
+} KalidousMarkerPayload;
 
 // ============================================================================
 // Literal value — unified variant for all scalar literals
@@ -295,8 +323,10 @@ typedef struct {
 //  TRY_CATCH        | list → Payload    |
 //  FOR              | list → Payload    |
 //  PROGRAM          | list.ptr/len      | ptr=KalidousNode**, len=count
-//  GOTO / MARKER    | ident.str/len     | label name
-//  BREAK / CONTINUE | ident.str/len     | label (NULL = plain break)
+//  GOTO             | list → KalidousGotoPayload  | target name + optional args
+//  MARKER / ENTRY   | list → KalidousMarkerPayload |
+//  BREAK / CONTINUE | ident.str/len               | label (NULL = plain break)
+//  ENUM_VARIANT     | list → KalidousEnumVariantPayload | name + optional value
 //  SPAWN_STMT/EXPR  | kids.a            | body or expr
 //  ARROW_CALL       | kids.a/b          | a=receiver, b=call node
 //  CAST             | kids.a/b          | a=expr, b=type_node
@@ -312,7 +342,7 @@ KalidousNode* kalidous_ast_make_program    (KalidousArena* a, KalidousNode** dec
 KalidousNode* kalidous_ast_make_literal    (KalidousArena* a, KalidousSourceLoc loc, KalidousLiteral lit);
 KalidousNode* kalidous_ast_make_identifier (KalidousArena* a, KalidousSourceLoc loc, const char* name, size_t len);
 KalidousNode* kalidous_ast_make_field      (KalidousArena* a, KalidousSourceLoc loc, KalidousFieldPayload field);
-KalidousNode* kalidous_ast_make_enum_variant(KalidousArena* a, KalidousSourceLoc loc, const char* name, size_t len, KalidousNode* value);
+//KalidousNode* kalidous_ast_make_enum_variant(KalidousArena* a, KalidousSourceLoc loc, const char* name, size_t len, KalidousNode* value);
 KalidousNode* kalidous_ast_make_binary_op  (KalidousArena* a, KalidousSourceLoc loc, KalidousTokenType op, KalidousNode* left, KalidousNode* right);
 KalidousNode* kalidous_ast_make_unary_op   (KalidousArena* a, KalidousSourceLoc loc, KalidousTokenType op, KalidousNode* operand, bool is_postfix);
 KalidousNode* kalidous_ast_make_call       (KalidousArena* a, KalidousSourceLoc loc, KalidousNode* callee, KalidousNode** args, size_t arg_count);
@@ -333,9 +363,11 @@ KalidousNode* kalidous_ast_make_struct     (KalidousArena* a, KalidousSourceLoc 
 KalidousNode* kalidous_ast_make_enum       (KalidousArena* a, KalidousSourceLoc loc, KalidousEnumPayload decl);
 KalidousNode* kalidous_ast_make_switch     (KalidousArena* a, KalidousSourceLoc loc, KalidousSwitchPayload data);
 KalidousNode* kalidous_ast_make_try_catch  (KalidousArena* a, KalidousSourceLoc loc, KalidousTryCatchPayload data);
-KalidousNode* kalidous_ast_make_import     (KalidousArena* a, KalidousSourceLoc loc, KalidousImportPayload data);
-KalidousNode* kalidous_ast_make_goto       (KalidousArena* a, KalidousSourceLoc loc, const char* label, size_t len);
-KalidousNode* kalidous_ast_make_marker     (KalidousArena* a, KalidousSourceLoc loc, const char* label, size_t len);
+KalidousNode* kalidous_ast_make_import       (KalidousArena* a, KalidousSourceLoc loc, KalidousImportPayload data);
+KalidousNode* kalidous_ast_make_goto         (KalidousArena* a, KalidousSourceLoc loc, KalidousGotoPayload data);
+KalidousNode* kalidous_ast_make_marker       (KalidousArena* a, KalidousSourceLoc loc, KalidousMarkerPayload data);
+KalidousNode* kalidous_ast_make_entry        (KalidousArena* a, KalidousSourceLoc loc, KalidousMarkerPayload data);
+KalidousNode* kalidous_ast_make_enum_variant (KalidousArena* a, KalidousSourceLoc loc, const KalidousEnumVariantPayload &data);
 KalidousNode* kalidous_ast_make_break      (KalidousArena* a, KalidousSourceLoc loc, const char* label, size_t len);
 KalidousNode* kalidous_ast_make_continue   (KalidousArena* a, KalidousSourceLoc loc, const char* label, size_t len);
 KalidousNode* kalidous_ast_make_spawn      (KalidousArena* a, KalidousSourceLoc loc, KalidousNode* body, bool is_block);

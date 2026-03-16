@@ -332,21 +332,43 @@ KalidousNode* kalidous_ast_make_import(KalidousArena* a, KalidousSourceLoc loc,
 }
 
 // ident.str/len = label name
+// list → KalidousGotoPayload
 KalidousNode* kalidous_ast_make_goto(KalidousArena* a, KalidousSourceLoc loc,
-                                     const char* label, size_t len) {
+                                     KalidousGotoPayload data) {
     KalidousNode* n = alloc_node(a, KALIDOUS_NODE_GOTO, loc);
     if (!n) return nullptr;
-    n->data.ident.str = kalidous_arena_strdup(a, label);
-    n->data.ident.len = len;
+    auto* p = alloc_payload<KalidousGotoPayload>(a, n);
+    if (!p) return n;
+    *p          = data;
+    p->target   = data.target ? kalidous_arena_str(a, data.target, data.target_len)
+                               : nullptr;
+    n->data.list.len = data.arg_count;
     return n;
 }
 
+// list → KalidousMarkerPayload, list.len = param_count
 KalidousNode* kalidous_ast_make_marker(KalidousArena* a, KalidousSourceLoc loc,
-                                       const char* label, size_t len) {
+                                       KalidousMarkerPayload data) {
     KalidousNode* n = alloc_node(a, KALIDOUS_NODE_MARKER, loc);
     if (!n) return nullptr;
-    n->data.ident.str = kalidous_arena_strdup(a, label);
-    n->data.ident.len = len;
+    auto* p = alloc_payload<KalidousMarkerPayload>(a, n);
+    if (!p) return n;
+    *p           = data;
+    p->name      = data.name ? kalidous_arena_str(a, data.name, data.name_len) : nullptr;
+    n->data.list.len = data.param_count;
+    return n;
+}
+
+// Identical layout to marker but different node id — anonymous when name = NULL
+KalidousNode* kalidous_ast_make_entry(KalidousArena* a, KalidousSourceLoc loc,
+                                      KalidousMarkerPayload data) {
+    KalidousNode* n = alloc_node(a, KALIDOUS_NODE_ENTRY, loc);
+    if (!n) return nullptr;
+    auto* p = alloc_payload<KalidousMarkerPayload>(a, n);
+    if (!p) return n;
+    *p           = data;
+    p->name      = data.name ? kalidous_arena_str(a, data.name, data.name_len) : nullptr;
+    n->data.list.len = data.param_count;
     return n;
 }
 
@@ -547,15 +569,41 @@ static void walk_children(KalidousNode* n,
             break;
         }
 
+        // list → KalidousGotoPayload (args are optional)
+        case KALIDOUS_NODE_GOTO: {
+            auto* p = static_cast<KalidousGotoPayload*>(n->data.list.ptr);
+            if (!p) break;
+            walk_node_list(p->args, p->arg_count, pre, post, ud);
+            break;
+        }
+
+        // list → KalidousEnumVariantPayload
+        case KALIDOUS_NODE_ENUM_VARIANT: {
+            auto* p = static_cast<KalidousEnumVariantPayload*>(n->data.list.ptr);
+            if (!p) break;
+            kalidous_ast_walk(p->value, pre, post, ud);
+            break;
+        }
+
         // Leaf nodes — no children
         case KALIDOUS_NODE_LITERAL:
         case KALIDOUS_NODE_IDENTIFIER:
-        case KALIDOUS_NODE_GOTO:
-        case KALIDOUS_NODE_MARKER:
         case KALIDOUS_NODE_BREAK:
         case KALIDOUS_NODE_CONTINUE:
         case KALIDOUS_NODE_IMPORT:
         case KALIDOUS_NODE_ERROR:
+            break;
+
+        // list → KalidousMarkerPayload
+        case KALIDOUS_NODE_MARKER:
+        case KALIDOUS_NODE_ENTRY: {
+            auto* p = static_cast<KalidousMarkerPayload*>(n->data.list.ptr);
+            if (!p) break;
+            walk_node_list(p->params, p->param_count, pre, post, ud);
+            kalidous_ast_walk(p->body, pre, post, ud);
+            break;
+        }
+
         default:
             break;
     }
@@ -598,6 +646,7 @@ const char* kalidous_ast_node_name(KalidousNodeId id) {
         case KALIDOUS_NODE_CONTINUE:       return "continue";
         case KALIDOUS_NODE_GOTO:           return "goto";
         case KALIDOUS_NODE_MARKER:         return "marker";
+        case KALIDOUS_NODE_ENTRY:          return "entry";
         case KALIDOUS_NODE_TRY_CATCH:      return "try_catch";
         case KALIDOUS_NODE_SPAWN_STMT:     return "spawn_stmt";
         case KALIDOUS_NODE_AWAIT_STMT:     return "await";
@@ -623,15 +672,16 @@ KalidousNode* kalidous_ast_make_field(KalidousArena* a, KalidousSourceLoc loc,
     return n;
 }
 
-// ident.str/len = variant name, kids.a = optional value expression
-KalidousNode* kalidous_ast_make_enum_variant(KalidousArena* a, KalidousSourceLoc loc,
-                                             const char* name, size_t len,
-                                             KalidousNode* value) {
+// list → KalidousEnumVariantPayload
+// Uses payload to avoid union collision (ident.str and kids.a both at offset 0)
+KalidousNode* kalidous_ast_make_enum_variant(KalidousArena* a, const KalidousSourceLoc loc,
+                                             const KalidousEnumVariantPayload &data) {
     KalidousNode* n = alloc_node(a, KALIDOUS_NODE_ENUM_VARIANT, loc);
     if (!n) return nullptr;
-    n->data.ident.str = kalidous_arena_str(a, name, len);
-    n->data.ident.len = len;
-    n->data.kids.a    = value; // NULL if no explicit value
+    auto* p = alloc_payload<KalidousEnumVariantPayload>(a, n);
+    if (!p) return n;
+    *p       = data;
+    p->name  = kalidous_arena_str(a, data.name, data.name_len);
     return n;
 }
 
@@ -753,22 +803,56 @@ void kalidous_ast_print(const KalidousNode* node, int indent) {
         }
 
         case KALIDOUS_NODE_IF:
-            kalidous_ast_print(node->data.kids.a, indent + 1); // condition
-            kalidous_ast_print(node->data.kids.b, indent + 1); // then
-            if (node->data.kids.c)
-                kalidous_ast_print(node->data.kids.c, indent + 1); // else
-            break;
-
-        case KALIDOUS_NODE_GOTO:
-        case KALIDOUS_NODE_MARKER:
-        case KALIDOUS_NODE_BREAK:
-        case KALIDOUS_NODE_CONTINUE:
-            if (node->data.ident.str) {
-                print_indent(indent + 1);
-                fprintf(stderr, "label: %.*s\n",
-                        (int)node->data.ident.len, node->data.ident.str);
+            print_indent(indent + 1); fprintf(stderr, "condition:\n");
+            if (node->data.kids.a) kalidous_ast_print(node->data.kids.a, indent + 2);
+            print_indent(indent + 1); fprintf(stderr, "then:\n");
+            if (node->data.kids.b) kalidous_ast_print(node->data.kids.b, indent + 2);
+            if (node->data.kids.c) {
+                print_indent(indent + 1); fprintf(stderr, "else:\n");
+                kalidous_ast_print(node->data.kids.c, indent + 2);
             }
             break;
+
+        case KALIDOUS_NODE_GOTO: {
+            auto* p = static_cast<const KalidousGotoPayload*>(node->data.list.ptr);
+            if (!p) break;
+            print_indent(indent + 1);
+            if (p->is_scene)
+                fprintf(stderr, "target: scene (special)");
+            else
+                fprintf(stderr, "target: %.*s", (int)p->target_len, p->target);
+            if (p->arg_count)
+                fprintf(stderr, "  args: %zu", p->arg_count);
+            fprintf(stderr, "\n");
+            for (size_t i = 0; i < p->arg_count; ++i)
+                kalidous_ast_print(p->args[i], indent + 2);
+            break;
+        }
+
+        case KALIDOUS_NODE_ENUM_VARIANT: {
+            auto* p = static_cast<const KalidousEnumVariantPayload*>(node->data.list.ptr);
+            if (!p) break;
+            print_indent(indent + 1);
+            fprintf(stderr, "name: %.*s\n", (int)p->name_len, p->name);
+            if (p->value) kalidous_ast_print(p->value, indent + 2);
+            break;
+        }
+
+        case KALIDOUS_NODE_MARKER:
+        case KALIDOUS_NODE_ENTRY: {
+            auto* p = static_cast<const KalidousMarkerPayload*>(node->data.list.ptr);
+            if (!p) break;
+            print_indent(indent + 1);
+            if (p->name)
+                fprintf(stderr, "name: %.*s  params: %zu\n",
+                        (int)p->name_len, p->name, p->param_count);
+            else
+                fprintf(stderr, "(anonymous)  params: %zu\n", p->param_count);
+            for (size_t i = 0; i < p->param_count; ++i)
+                kalidous_ast_print(p->params[i], indent + 2);
+            kalidous_ast_print(p->body, indent + 2);
+            break;
+        }
 
         case KALIDOUS_NODE_STRUCT_DECL: {
             auto* p = static_cast<const KalidousStructPayload*>(node->data.list.ptr);
@@ -779,6 +863,18 @@ void kalidous_ast_print(const KalidousNode* node, int indent) {
                     p->field_count, p->method_count);
             for (size_t i = 0; i < p->field_count;  ++i) kalidous_ast_print(p->fields[i],  indent + 2);
             for (size_t i = 0; i < p->method_count; ++i) kalidous_ast_print(p->methods[i], indent + 2);
+            break;
+        }
+
+        case KALIDOUS_NODE_ENUM_DECL: {
+            auto* p = static_cast<const KalidousEnumPayload*>(node->data.list.ptr);
+            if (!p) break;
+            print_indent(indent + 1);
+            fprintf(stderr, "name: %s  vis: %s  variants: %zu\n",
+                    p->name, kalidous_ast_visibility_name(p->visibility),
+                    p->variant_count);
+            for (size_t i = 0; i < p->variant_count; ++i)
+                kalidous_ast_print(p->variants[i], indent + 2);
             break;
         }
 
@@ -794,13 +890,6 @@ void kalidous_ast_print(const KalidousNode* node, int indent) {
             if (p->default_value) kalidous_ast_print(p->default_value, indent + 2);
             break;
         }
-
-        case KALIDOUS_NODE_ENUM_VARIANT:
-            print_indent(indent + 1);
-            fprintf(stderr, "name: %.*s\n",
-                    (int)node->data.ident.len, node->data.ident.str);
-            if (node->data.kids.a) kalidous_ast_print(node->data.kids.a, indent + 2);
-            break;
 
         case KALIDOUS_NODE_STRUCT_LIT:
         case KALIDOUS_NODE_ARRAY_LIT: {

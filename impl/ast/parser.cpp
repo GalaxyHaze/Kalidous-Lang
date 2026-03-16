@@ -1,13 +1,22 @@
 // impl/parser/kalidous_parser.cpp — Recursive descent parser for Kalidous
 #include "parser.h"
 #include "../memory/utils.h"
+#include "../utils/debug.h"
+#include <cstring>
+#include <cstdio>
 
 // ============================================================================
 // Parser init
 // ============================================================================
 
-void parser_init(Parser* p, KalidousArena* arena, KalidousTokenStream tokens) {
+void parser_init(Parser* p, KalidousArena* arena,
+                 const char* source, size_t source_len,
+                 const char* filename,
+                 KalidousTokenStream tokens) {
     p->arena              = arena;
+    p->source             = source;
+    p->source_len         = source_len;
+    p->filename           = filename ? filename : "<input>";
     p->tokens             = tokens.data;
     p->count              = tokens.len;
     p->pos                = 0;
@@ -15,11 +24,188 @@ void parser_init(Parser* p, KalidousArena* arena, KalidousTokenStream tokens) {
     p->fn_kind            = KALIDOUS_FN_NORMAL;
     p->inside_fn          = false;
     p->current_visibility = KALIDOUS_VIS_PRIVATE;
+    p->diags              = { nullptr, 0, 0 };
 }
 
 // ============================================================================
-// Token navigation
+// Diagnostics
 // ============================================================================
+
+// Find the start and end of line `line_num` (1-based) within source.
+// Returns false if the line number is out of range.
+static bool find_source_line(const char* source, size_t source_len,
+                              size_t line_num,
+                              const char** out_start, size_t* out_len) {
+    const char* p   = source;
+    const char* end = source + source_len;
+    size_t      cur = 1;
+
+    while (p < end && cur < line_num) {
+        if (*p++ == '\n') cur++;
+    }
+    if (cur != line_num) return false;
+
+    const char* line_start = p;
+    while (p < end && *p != '\n') p++;
+
+    *out_start = line_start;
+    *out_len   = (size_t)(p - line_start);
+    return true;
+}
+
+static const char* severity_label(KalidousDiagSeverity s) {
+    switch (s) {
+        case KALIDOUS_DIAG_ERROR:   return "error";
+        case KALIDOUS_DIAG_WARNING: return "warning";
+        case KALIDOUS_DIAG_NOTE:    return "note";
+        default:                    return "info";
+    }
+}
+
+void kalidous_diag_print_all(const KalidousDiagList* diags,
+                              const char* source, size_t source_len,
+                              const char* filename) {
+    if (!diags || diags->count == 0) return;
+
+    for (size_t i = 0; i < diags->count; ++i) {
+        const KalidousDiagnostic* d = &diags->items[i];
+
+        // ── Header: file:line:col: severity: message ─────────────────────────
+        fprintf(stderr, "%s:%zu:%zu: %s: %s\n",
+                filename ? filename : "<input>",
+                d->loc.line, d->loc.index,
+                severity_label(d->severity),
+                d->message);
+
+        // ── Source line ───────────────────────────────────────────────────────
+        if (source && source_len > 0) {
+            const char* line_ptr = nullptr;
+            size_t      line_len = 0;
+            if (find_source_line(source, source_len, d->loc.line,
+                                 &line_ptr, &line_len)) {
+                fprintf(stderr, "  %.*s\n", (int)line_len, line_ptr);
+
+                // ── Caret ─────────────────────────────────────────────────────
+                fprintf(stderr, "  ");
+                // col is 0-based in KalidousSourceLoc
+                const size_t col = d->loc.index;
+                for (size_t c = 0; c < col && c < line_len; ++c)
+                    fputc(line_ptr[c] == '\t' ? '\t' : ' ', stderr);
+                fprintf(stderr, "^\n");
+            }
+        }
+    }
+
+    // ── Summary ───────────────────────────────────────────────────────────────
+    size_t errors = 0, warnings = 0;
+    for (size_t i = 0; i < diags->count; ++i) {
+        if (diags->items[i].severity == KALIDOUS_DIAG_ERROR)   errors++;
+        if (diags->items[i].severity == KALIDOUS_DIAG_WARNING) warnings++;
+    }
+    if (errors > 0 || warnings > 0) {
+        fprintf(stderr, "\n%s: ", filename ? filename : "<input>");
+        if (errors)   fprintf(stderr, "%zu error(s)",   errors);
+        if (errors && warnings) fprintf(stderr, ", ");
+        if (warnings) fprintf(stderr, "%zu warning(s)", warnings);
+        fprintf(stderr, "\n\n");
+    }
+}
+
+// ── Internal emit ────────────────────────────────────────────────────────────
+
+static void parser_emit(Parser* p, KalidousSourceLoc loc,
+                         KalidousDiagSeverity severity, const char* msg) {
+    // Grow the diagnostic array if needed (arena-allocated, no free)
+    if (p->diags.count >= p->diags.capacity) {
+        const size_t new_cap = p->diags.capacity == 0 ? 8 : p->diags.capacity * 2;
+        auto* buf = static_cast<KalidousDiagnostic*>(
+            kalidous_arena_alloc(p->arena, new_cap * sizeof(KalidousDiagnostic)));
+        if (!buf) return;
+        if (p->diags.items)
+            memcpy(buf, p->diags.items, p->diags.count * sizeof(KalidousDiagnostic));
+        p->diags.items    = buf;
+        p->diags.capacity = new_cap;
+    }
+
+    KalidousDiagnostic d;
+    d.message  = kalidous_arena_strdup(p->arena, msg);
+    d.loc      = loc;
+    d.severity = severity;
+    p->diags.items[p->diags.count++] = d;
+
+    if (severity == KALIDOUS_DIAG_ERROR) p->had_error = true;
+}
+
+void parser_error  (Parser* p, KalidousSourceLoc loc, const char* msg) {
+    parser_emit(p, loc, KALIDOUS_DIAG_ERROR, msg);
+}
+void parser_warning(Parser* p, KalidousSourceLoc loc, const char* msg) {
+    parser_emit(p, loc, KALIDOUS_DIAG_WARNING, msg);
+}
+void parser_note   (Parser* p, KalidousSourceLoc loc, const char* msg) {
+    parser_emit(p, loc, KALIDOUS_DIAG_NOTE, msg);
+}
+
+
+// ============================================================================
+// Error recovery — panic mode
+// ============================================================================
+
+// Returns true if the current token is a safe point to resume parsing.
+// Called after emitting an error to skip past the broken tokens.
+static bool is_sync_point(const Parser* p) {
+    switch (parser_peek(p)->type) {
+        // Statement boundaries
+        case KALIDOUS_TOKEN_SEMICOLON:
+        // Block boundaries
+        case KALIDOUS_TOKEN_LBRACE:
+        case KALIDOUS_TOKEN_RBRACE:
+        // Top-level declarations
+        case KALIDOUS_TOKEN_FN:
+        case KALIDOUS_TOKEN_ASYNC:
+        case KALIDOUS_TOKEN_STRUCT:
+        case KALIDOUS_TOKEN_ENUM:
+        case KALIDOUS_TOKEN_TRAIT:
+        case KALIDOUS_TOKEN_IMPLEMENT:
+        case KALIDOUS_TOKEN_COMPONENT:
+        case KALIDOUS_TOKEN_UNION:
+        case KALIDOUS_TOKEN_FAMILY:
+        case KALIDOUS_TOKEN_ENTITY:
+        case KALIDOUS_TOKEN_MODIFIER:
+        // Statement keywords
+        case KALIDOUS_TOKEN_IF:
+        case KALIDOUS_TOKEN_FOR:
+        case KALIDOUS_TOKEN_RETURN:
+        case KALIDOUS_TOKEN_YIELD:
+        case KALIDOUS_TOKEN_GOTO:
+        case KALIDOUS_TOKEN_MARKER:
+        case KALIDOUS_TOKEN_ENTRY:
+        case KALIDOUS_TOKEN_LET:
+        case KALIDOUS_TOKEN_VAR:
+        case KALIDOUS_TOKEN_CONST:
+        // Always stop at EOF
+        case KALIDOUS_TOKEN_END:
+            return true;
+        default:
+            return false;
+    }
+}
+
+// Advance past broken tokens until a sync point is found.
+// Does NOT consume the sync token itself — the caller's loop will handle it.
+static void parser_synchronize(Parser* p) {
+    while (!parser_is_at_end(p)) {
+        // If the token we just consumed was ';', the next token is a clean start
+        if (parser_peek(p)->type == KALIDOUS_TOKEN_SEMICOLON) {
+            parser_advance(p); // consume the ';'
+            return;
+        }
+        if (is_sync_point(p)) return;
+        parser_advance(p);
+    }
+}
+
+
 
 const KalidousToken* parser_peek(const Parser* p) {
     if (p->pos < p->count) return &p->tokens[p->pos];
@@ -52,13 +238,21 @@ bool parser_match(Parser* p, KalidousTokenType type) {
 const KalidousToken* parser_expect(Parser* p, KalidousTokenType type, const char* msg) {
     if (parser_check(p, type)) return parser_advance(p);
     const KalidousToken* t = parser_peek(p);
-    fprintf(stderr, "[parse error] line %zu, col %zu: %s (got '%.*s' — %s)\n",
-        t->loc.line, t->loc.index,
-        msg,
-        (int)t->lexeme.len, t->lexeme.data,
-        kalidous_token_type_name(t->type));
-    p->had_error = true;
-    // TODO: error recovery — skip to synchronization point
+
+    // Build: "expected X (got 'lexeme' — TOKEN_TYPE)"
+    char buf[256];
+    if (t->lexeme.data && t->lexeme.len > 0) {
+        snprintf(buf, sizeof(buf), "%s (got '%.*s' — %s)",
+                 msg,
+                 (int)t->lexeme.len, t->lexeme.data,
+                 kalidous_token_type_name(t->type));
+    } else {
+        snprintf(buf, sizeof(buf), "%s (got %s)",
+                 msg, kalidous_token_type_name(t->type));
+    }
+
+    parser_error(p, t->loc, buf);
+    parser_synchronize(p); // skip past the broken tokens
     return t;
 }
 
@@ -150,6 +344,26 @@ static KalidousLiteral make_lit_string(const char* data, size_t len) {
 // Types
 // ============================================================================
 
+// Parse a block or single-statement body — braces are optional for one-liners.
+//   if cond { stmt }   → block
+//   if cond stmt;      → synthetic block with one child
+// Guards against null statement from error recovery.
+static KalidousNode* parse_body(Parser* p) {
+    if (parser_check(p, KALIDOUS_TOKEN_LBRACE))
+        return parser_parse_block(p);
+
+    const KalidousSourceLoc loc  = parser_peek(p)->loc;
+    KalidousNode*           stmt = parser_parse_statement(p);
+
+    // Guard: error recovery can produce nullptr — wrap only if valid
+    if (!stmt) return kalidous_ast_make_block(p->arena, loc, nullptr, 0);
+
+    KalidousNode** arr = static_cast<KalidousNode**>(
+        kalidous_arena_alloc(p->arena, sizeof(KalidousNode*)));
+    if (arr) *arr = stmt;
+    return kalidous_ast_make_block(p->arena, loc, arr, arr ? 1 : 0);
+}
+
 KalidousNode* parser_parse_type(Parser* p) {
     const KalidousSourceLoc loc = parser_peek(p)->loc;
 
@@ -189,8 +403,7 @@ KalidousNode* parser_parse_type(Parser* p) {
         return base;
     }
 
-    fprintf(stderr, "[parse error] line %zu: expected type\n", loc.line);
-    p->had_error = true;
+    parser_error(p, loc, "expected type");
     return kalidous_ast_make_error(p->arena, loc, "expected type");
 }
 
@@ -266,11 +479,8 @@ static KalidousNode* parse_nud(Parser* p) {
         }
 
         case KALIDOUS_TOKEN_RECURSE: {
-            if (!p->inside_fn) {
-                fprintf(stderr, "[parse error] line %zu: 'recurse' outside function\n",
-                        loc.line);
-                p->had_error = true;
-            }
+            if (!p->inside_fn)
+                parser_error(p, loc, "'recurse' outside function");
             KalidousNode* self_ref = kalidous_ast_make_identifier(p->arena, loc,
                                          t->lexeme.data, t->lexeme.len);
             parser_expect(p, KALIDOUS_TOKEN_LPAREN, "expected '(' after recurse");
@@ -322,11 +532,13 @@ static KalidousNode* parse_nud(Parser* p) {
             return kalidous_ast_make_spawn(p->arena, loc, expr, false);
         }
 
-        default:
-            fprintf(stderr, "[parse error] line %zu: unexpected token in expression (type %d)\n",
-                    loc.line, static_cast<int>(t->type));
-            p->had_error = true;
-            return kalidous_ast_make_error(p->arena, loc, "unexpected token in expression");
+        default: {
+            char buf[128];
+            snprintf(buf, sizeof(buf), "unexpected token '%.*s' in expression",
+                     (int)t->lexeme.len, t->lexeme.data);
+            parser_error(p, loc, buf);
+            return kalidous_ast_make_error(p->arena, loc, buf);
+        }
     }
 }
 
@@ -419,12 +631,12 @@ static KalidousNode* parse_if(Parser* p) {
     const KalidousSourceLoc loc = parser_peek(p)->loc;
     parser_advance(p);
     KalidousNode* cond    = parser_parse_expression(p);
-    KalidousNode* then_br = parser_parse_block(p);
+    KalidousNode* then_br = parse_body(p);
     KalidousNode* else_br = nullptr;
     if (parser_match(p, KALIDOUS_TOKEN_ELSE)) {
         else_br = parser_check(p, KALIDOUS_TOKEN_IF)
             ? parse_if(p)
-            : parser_parse_block(p);
+            : parse_body(p);
     }
     return kalidous_ast_make_if(p->arena, loc, cond, then_br, else_br);
 }
@@ -434,19 +646,33 @@ static KalidousNode* parse_for(Parser* p) {
     parser_advance(p);
     KalidousForPayload data = {};
 
+    // Detect for-in: either bare or parenthesised
+    //   for x in col { }
+    //   for (x in col) { }
+    bool paren_for_in = false;
+    if (parser_check(p, KALIDOUS_TOKEN_LPAREN) &&
+        parser_peek_ahead(p, 1)->type == KALIDOUS_TOKEN_IDENTIFIER &&
+        parser_peek_ahead(p, 2)->type == KALIDOUS_TOKEN_IN) {
+        parser_advance(p); // consume '('
+        paren_for_in = true;
+    }
+
     if (parser_check(p, KALIDOUS_TOKEN_IDENTIFIER) &&
         parser_peek_ahead(p, 1)->type == KALIDOUS_TOKEN_IN) {
         data.is_for_in    = true;
         data.iterator_var = parser_parse_expression(p);
-        parser_advance(p);
+        parser_advance(p); // consume 'in'
         data.iterable     = parser_parse_expression(p);
-        data.body         = parser_parse_block(p);
+        if (paren_for_in)
+            parser_expect(p, KALIDOUS_TOKEN_RPAREN, "expected ')' after for-in");
+        data.body = parse_body(p);
         return kalidous_ast_make_for(p->arena, loc, data);
     }
-    // TODO: for init; cond; step { }
+
+    // TODO: for init; cond; step { }  — classic C-style
     data.is_for_in = false;
     data.condition = parser_parse_expression(p);
-    data.body      = parser_parse_block(p);
+    data.body      = parse_body(p);
     return kalidous_ast_make_for(p->arena, loc, data);
 }
 
@@ -488,11 +714,8 @@ static KalidousNode* parse_try_catch(Parser* p) {
 static KalidousNode* parse_return(Parser* p) {
     const KalidousSourceLoc loc = parser_peek(p)->loc;
     parser_advance(p);
-    if (p->inside_fn && p->fn_kind == KALIDOUS_FN_NORETURN) {
-        fprintf(stderr, "[parse error] line %zu: 'return' not allowed in noreturn fn\n",
-                loc.line);
-        p->had_error = true;
-    }
+    if (p->inside_fn && p->fn_kind == KALIDOUS_FN_NORETURN)
+        parser_error(p, loc, "'return' not allowed in noreturn fn");
     KalidousNode* value = nullptr;
     if (!parser_check(p, KALIDOUS_TOKEN_SEMICOLON) && !parser_is_at_end(p))
         value = parser_parse_expression(p);
@@ -503,11 +726,8 @@ static KalidousNode* parse_return(Parser* p) {
 static KalidousNode* parse_yield(Parser* p) {
     const KalidousSourceLoc loc = parser_peek(p)->loc;
     parser_advance(p);
-    if (!p->inside_fn || p->fn_kind != KALIDOUS_FN_ASYNC) {
-        fprintf(stderr, "[parse error] line %zu: 'yield' only allowed in async fn\n",
-                loc.line);
-        p->had_error = true;
-    }
+    if (!p->inside_fn || p->fn_kind != KALIDOUS_FN_ASYNC)
+        parser_error(p, loc, "'yield' only allowed in async fn");
     KalidousNode* value = nullptr;
     if (!parser_check(p, KALIDOUS_TOKEN_SEMICOLON) && !parser_is_at_end(p))
         value = parser_parse_expression(p);
@@ -568,34 +788,109 @@ KalidousNode* parser_parse_statement(Parser* p) {
         }
         case KALIDOUS_TOKEN_GOTO: {
             parser_advance(p);
-            if (p->inside_fn && p->fn_kind == KALIDOUS_FN_NORMAL) {
-                fprintf(stderr,
-                    "[parse error] line %zu: 'goto' not allowed in normal fn\n", loc.line);
-                p->had_error = true;
+            if (p->inside_fn && p->fn_kind == KALIDOUS_FN_NORMAL)
+                parser_error(p, loc, "'goto' not allowed in normal fn (use flowing fn or noreturn fn)");
+            if (p->inside_fn && p->fn_kind == KALIDOUS_FN_ASYNC)
+                parser_error(p, loc, "'goto' not allowed in async fn");
+
+            // goto scene [name] — special jump to scene block
+            if (parser_match(p, KALIDOUS_TOKEN_SCENE)) {
+                // optional scene label: goto scene level1;
+                const char* scene_label     = nullptr;
+                size_t      scene_label_len = 0;
+                if (parser_check(p, KALIDOUS_TOKEN_IDENTIFIER)) {
+                    const KalidousToken* t = parser_advance(p);
+                    scene_label     = t->lexeme.data;
+                    scene_label_len = t->lexeme.len;
+                }
+                parser_expect(p, KALIDOUS_TOKEN_SEMICOLON, "expected ';' after goto scene");
+                const KalidousGotoPayload data = {
+                    scene_label, scene_label_len, nullptr, 0, true
+                };
+                return kalidous_ast_make_goto(p->arena, loc, data);
             }
-            if (p->inside_fn && p->fn_kind == KALIDOUS_FN_ASYNC) {
-                fprintf(stderr,
-                    "[parse error] line %zu: 'goto' not allowed in async fn\n", loc.line);
-                p->had_error = true;
-            }
+
+            // goto label [(args)] ;
             const KalidousToken* label = parser_expect(p, KALIDOUS_TOKEN_IDENTIFIER,
                                                        "expected label after goto");
+            // Optional arguments: goto sample(42, x);
+            ArenaList<KalidousNode*> args_b;
+            args_b.init(p->arena, 4);
+            if (parser_match(p, KALIDOUS_TOKEN_LPAREN)) {
+                while (!parser_check(p, KALIDOUS_TOKEN_RPAREN) && !parser_is_at_end(p)) {
+                    args_b.push(p->arena, parser_parse_expression(p));
+                    if (!parser_match(p, KALIDOUS_TOKEN_COMMA)) break;
+                }
+                parser_expect(p, KALIDOUS_TOKEN_RPAREN, "expected ')' after goto arguments");
+            }
             parser_expect(p, KALIDOUS_TOKEN_SEMICOLON, "expected ';' after goto");
-            return kalidous_ast_make_goto(p->arena, loc,
-                                          label->lexeme.data, label->lexeme.len);
+            size_t         arg_count = 0;
+            KalidousNode** args      = args_b.flatten(p->arena, &arg_count);
+            const KalidousGotoPayload data = {
+                label->lexeme.data, label->lexeme.len, args, arg_count, false
+            };
+            return kalidous_ast_make_goto(p->arena, loc, data);
         }
+
         case KALIDOUS_TOKEN_MARKER: {
             parser_advance(p);
-            if (p->inside_fn && p->fn_kind == KALIDOUS_FN_NORMAL) {
-                fprintf(stderr,
-                    "[parse error] line %zu: 'marker' not allowed in normal fn\n", loc.line);
-                p->had_error = true;
+            if (p->inside_fn && p->fn_kind == KALIDOUS_FN_NORMAL)
+                parser_error(p, loc, "'marker' not allowed in normal fn");
+            if (p->inside_fn && p->fn_kind == KALIDOUS_FN_ASYNC)
+                parser_error(p, loc, "'marker' not allowed in async fn");
+
+            const KalidousToken* name = parser_expect(p, KALIDOUS_TOKEN_IDENTIFIER,
+                                                      "expected marker name");
+            ArenaList<KalidousNode*> params_b;
+            params_b.init(p->arena, 4);
+            if (parser_match(p, KALIDOUS_TOKEN_LPAREN)) {
+                while (!parser_check(p, KALIDOUS_TOKEN_RPAREN) && !parser_is_at_end(p)) {
+                    params_b.push(p->arena, parse_param(p));
+                    if (!parser_match(p, KALIDOUS_TOKEN_COMMA)) break;
+                }
+                parser_expect(p, KALIDOUS_TOKEN_RPAREN, "expected ')' after marker params");
             }
-            const KalidousToken* label = parser_expect(p, KALIDOUS_TOKEN_IDENTIFIER,
-                                                       "expected label after marker");
-            parser_expect(p, KALIDOUS_TOKEN_COLON, "expected ':' after marker label");
-            return kalidous_ast_make_marker(p->arena, loc,
-                                            label->lexeme.data, label->lexeme.len);
+            size_t         param_count = 0;
+            KalidousNode** params      = params_b.flatten(p->arena, &param_count);
+            KalidousNode*  body        = parse_body(p);
+            const KalidousMarkerPayload data = {
+                name->lexeme.data, name->lexeme.len, params, param_count, body
+            };
+            return kalidous_ast_make_marker(p->arena, loc, data);
+        }
+
+        // entry [name(params)] body
+        // Anonymous = no name; entry main(...) is the special named form.
+        case KALIDOUS_TOKEN_ENTRY: {
+            parser_advance(p);
+            if (p->inside_fn && p->fn_kind == KALIDOUS_FN_NORMAL)
+                parser_error(p, loc, "'entry' not allowed in normal fn");
+            if (p->inside_fn && p->fn_kind == KALIDOUS_FN_ASYNC)
+                parser_error(p, loc, "'entry' not allowed in async fn");
+
+            const char* ename     = nullptr;
+            size_t      ename_len = 0;
+            if (parser_check(p, KALIDOUS_TOKEN_IDENTIFIER)) {
+                const KalidousToken* t = parser_advance(p);
+                ename     = t->lexeme.data;
+                ename_len = t->lexeme.len;
+            }
+            ArenaList<KalidousNode*> params_b;
+            params_b.init(p->arena, 4);
+            if (ename && parser_match(p, KALIDOUS_TOKEN_LPAREN)) {
+                while (!parser_check(p, KALIDOUS_TOKEN_RPAREN) && !parser_is_at_end(p)) {
+                    params_b.push(p->arena, parse_param(p));
+                    if (!parser_match(p, KALIDOUS_TOKEN_COMMA)) break;
+                }
+                parser_expect(p, KALIDOUS_TOKEN_RPAREN, "expected ')' after entry params");
+            }
+            size_t         param_count = 0;
+            KalidousNode** params      = params_b.flatten(p->arena, &param_count);
+            KalidousNode*  body        = parse_body(p);
+            const KalidousMarkerPayload data = {
+                ename, ename_len, params, param_count, body
+            };
+            return kalidous_ast_make_entry(p->arena, loc, data);
         }
         case KALIDOUS_TOKEN_SPAWN: {
             parser_advance(p);
@@ -687,11 +982,13 @@ static KalidousNode* parse_enum_variant(Parser* p) {
     if (parser_match(p, KALIDOUS_TOKEN_ASSIGNMENT))
         value = parser_parse_expression(p);
     // TODO: payload variants for family: Red { r: u8, g: u8, b: u8 }
-    return kalidous_ast_make_enum_variant(p->arena, loc,
-                                          name->lexeme.data, name->lexeme.len, value);
+    const KalidousEnumVariantPayload data = {
+        name->lexeme.data, name->lexeme.len, value
+    };
+    return kalidous_ast_make_enum_variant(p->arena, loc, data);
 }
 
-static KalidousNode* parse_param(Parser* p) {
+KalidousNode* parse_param(Parser* p) {
     const KalidousSourceLoc loc = parser_peek(p)->loc;
     KalidousOwnership own        = KALIDOUS_OWN_DEFAULT;
     bool              is_mutable = false;
@@ -748,11 +1045,35 @@ static KalidousNode* parse_struct_decl(Parser* p, KalidousVisibility struct_vis)
             parser_advance(p);
         }
 
-        // Inline method
+        // Inline method — all fn kinds supported
         if (parser_check(p, KALIDOUS_TOKEN_FN)) {
             const KalidousSourceLoc fn_loc = parser_peek(p)->loc;
             parser_advance(p);
             methods_b.push(p->arena, parse_func_body(p, KALIDOUS_FN_NORMAL,
+                                                     fn_loc, item_vis));
+            continue;
+        }
+        if (parser_check(p, KALIDOUS_TOKEN_ASYNC)) {
+            const KalidousSourceLoc fn_loc = parser_peek(p)->loc;
+            parser_advance(p);
+            parser_expect(p, KALIDOUS_TOKEN_FN, "expected 'fn' after 'async'");
+            methods_b.push(p->arena, parse_func_body(p, KALIDOUS_FN_ASYNC,
+                                                     fn_loc, item_vis));
+            continue;
+        }
+        if (parser_check(p, KALIDOUS_TOKEN_FN)) {
+            const KalidousSourceLoc fn_loc = parser_peek(p)->loc;
+            parser_advance(p);
+            parser_expect(p, KALIDOUS_TOKEN_FN, "expected 'fn' after 'noreturn'");
+            methods_b.push(p->arena, parse_func_body(p, KALIDOUS_FN_NORETURN,
+                                                     fn_loc, item_vis));
+            continue;
+        }
+        if (check_kw(p, "flowing")) {
+            const KalidousSourceLoc fn_loc = parser_peek(p)->loc;
+            parser_advance(p);
+            parser_expect(p, KALIDOUS_TOKEN_FN, "expected 'fn' after 'flowing'");
+            methods_b.push(p->arena, parse_func_body(p, KALIDOUS_FN_FLOWING,
                                                      fn_loc, item_vis));
             continue;
         }
@@ -781,9 +1102,7 @@ static KalidousNode* parse_struct_decl(Parser* p, KalidousVisibility struct_vis)
             continue;
         }
 
-        fprintf(stderr, "[parse error] line %zu: unexpected token in struct body\n",
-                parser_peek(p)->loc.line);
-        p->had_error = true;
+        parser_error(p, parser_peek(p)->loc, "unexpected token in struct body");
         parser_advance(p);
     }
     parser_expect(p, KALIDOUS_TOKEN_RBRACE, "expected '}'");
@@ -841,9 +1160,13 @@ static KalidousNode* parse_func_body(Parser* p, KalidousFnKind kind,
     }
     parser_expect(p, KALIDOUS_TOKEN_RPAREN, "expected ')' after parameters");
 
+    // Return type: both -> and : accepted
     KalidousNode* return_type = nullptr;
-    if (kind != KALIDOUS_FN_NORETURN && parser_match(p, KALIDOUS_TOKEN_COLON))
-        return_type = parser_parse_type(p);
+    if (kind != KALIDOUS_FN_NORETURN) {
+        if (parser_match(p, KALIDOUS_TOKEN_ARROW) ||
+            parser_match(p, KALIDOUS_TOKEN_COLON))
+            return_type = parser_parse_type(p);
+    }
 
     const KalidousFnKind outer_kind   = p->fn_kind;
     const bool           outer_inside = p->inside_fn;
@@ -851,8 +1174,8 @@ static KalidousNode* parse_func_body(Parser* p, KalidousFnKind kind,
     p->inside_fn = true;
 
     KalidousNode* body = nullptr;
-    if (parser_check(p, KALIDOUS_TOKEN_LBRACE))
-        body = parser_parse_block(p);
+    if (!parser_check(p, KALIDOUS_TOKEN_SEMICOLON))
+        body = parse_body(p);
     else
         parser_expect(p, KALIDOUS_TOKEN_SEMICOLON, "expected ';' for forward declaration");
 
@@ -917,9 +1240,33 @@ KalidousNode* parser_parse_declaration(Parser* p) {
         return parse_func_body(p, KALIDOUS_FN_FLOWING, loc, vis);
     }
 
-    fprintf(stderr, "[parse error] line %zu: unexpected token at top level (type %d)\n",
-            parser_peek(p)->loc.line, static_cast<int>(t));
-    p->had_error = true;
+    // Top-level marker — no fn kind restriction (sema validates call sites)
+    if (t == KALIDOUS_TOKEN_MARKER) {
+        parser_advance(p);
+        const KalidousToken* name = parser_expect(p, KALIDOUS_TOKEN_IDENTIFIER,
+                                                  "expected marker name");
+        ArenaList<KalidousNode*> params_b;
+        params_b.init(p->arena, 4);
+        if (parser_match(p, KALIDOUS_TOKEN_LPAREN)) {
+            while (!parser_check(p, KALIDOUS_TOKEN_RPAREN) && !parser_is_at_end(p)) {
+                params_b.push(p->arena, parse_param(p));
+                if (!parser_match(p, KALIDOUS_TOKEN_COMMA)) break;
+            }
+            parser_expect(p, KALIDOUS_TOKEN_RPAREN, "expected ')' after marker params");
+        }
+        size_t         param_count = 0;
+        KalidousNode** params      = params_b.flatten(p->arena, &param_count);
+        KalidousNode*  body        = parse_body(p);
+        const KalidousMarkerPayload data = {
+            name->lexeme.data, name->lexeme.len, params, param_count, body
+        };
+        return kalidous_ast_make_marker(p->arena, loc, data);
+    }
+
+    char buf[128];
+    snprintf(buf, sizeof(buf), "unexpected token '%.*s' at top level",
+             (int)parser_peek(p)->lexeme.len, parser_peek(p)->lexeme.data);
+    parser_error(p, parser_peek(p)->loc, buf);
     KalidousNode* expr = parser_parse_expression(p);
     parser_match(p, KALIDOUS_TOKEN_SEMICOLON);
     return expr;
@@ -930,18 +1277,41 @@ KalidousNode* parser_parse_declaration(Parser* p) {
 // ============================================================================
 
 KalidousNode* kalidous_parse(KalidousArena* arena, KalidousTokenStream tokens) {
+    // Source is not available here — use kalidous_parse_with_source for diagnostics
     Parser p;
-    parser_init(&p, arena, tokens);
+    parser_init(&p, arena, nullptr, 0, nullptr, tokens);
 
     ArenaList<KalidousNode*> decls_b;
     decls_b.init(arena, 16);
-
     while (!parser_is_at_end(&p)) {
         KalidousNode* decl = parser_parse_declaration(&p);
-        if (decl) decls_b.push(arena, decl); // nullptr = group visibility modifier, skip
+        if (decl) decls_b.push(arena, decl);
     }
 
-    // TODO: error recovery — accumulate errors instead of stopping at first
+    // Fallback: print diagnostics without source context
+    kalidous_diag_print_all(&p.diags, nullptr, 0, "<input>");
+
+    size_t         count = 0;
+    KalidousNode** decls = decls_b.flatten(arena, &count);
+    return kalidous_ast_make_program(arena, decls, count);
+}
+
+// Extended entry point — preferred; provides source lines in error output
+KalidousNode* kalidous_parse_with_source(KalidousArena* arena,
+                                          const char* source, size_t source_len,
+                                          const char* filename,
+                                          KalidousTokenStream tokens) {
+    Parser p;
+    parser_init(&p, arena, source, source_len, filename, tokens);
+
+    ArenaList<KalidousNode*> decls_b;
+    decls_b.init(arena, 16);
+    while (!parser_is_at_end(&p)) {
+        KalidousNode* decl = parser_parse_declaration(&p);
+        if (decl) decls_b.push(arena, decl);
+    }
+
+    kalidous_diag_print_all(&p.diags, source, source_len, filename);
 
     size_t         count = 0;
     KalidousNode** decls = decls_b.flatten(arena, &count);
