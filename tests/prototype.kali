@@ -32,30 +32,35 @@ struct Point{
     }
 
     fn move(self: Point, vec: Vector){
-        self.x += vec.x;
-        self.y += vec.y;
+        self.x += vec->x();
+        self.y += vec->y();
     }
 
 }
 
 private:
 
-noreturn fn add( num1: lend long, num2: long ){
-    marker sample(x: u32){
+async fn add( num1: lend long, num2: long ){
+    /*marker sample(x: u32){
 
     }
 
    if true
         entry goto sample(5);
-   else
+   else*/
         goto scene level1;
 
 }
 
+marker main(argc: u32, argv: string){
+    println("-Hello world");
+}
+
+let test = 5;
 
 fn main( agrc: u32, argv: string ){
 
-    let num1: [] *u32 = 50;
+    let num1 = {1,2,3,4,5};
     {
         let num2: u32 = 24;
     }

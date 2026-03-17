@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="BackendCodeEditorMiscSettings">
-    <option name="/Default/Environment/Hierarchy/GeneratedFilesCacheKey/Timestamp/@EntryValue" value="20" type="long" />
+    <option name="/Default/Environment/Hierarchy/GeneratedFilesCacheKey/Timestamp/@EntryValue" value="12" type="long" />
     <option name="/Default/Housekeeping/FeatureSuggestion/FeatureSuggestionManager/DisabledSuggesters/=SwitchToGoToActionSuggester/@EntryIndexedValue" value="true" type="bool" />
     <option name="/Default/Housekeeping/GlobalSettingsUpgraded/IsUpgraded/@EntryValue" value="true" type="bool" />
     <option name="/Default/RiderDebugger/RiderRestoreDecompile/RestoreDecompileSetting/@EntryValue" value="false" type="bool" />
@@ -21,9 +21,9 @@
   <component name="CMakeRunConfigurationManager">
     <generated>
       <config projectName="Kalidous" targetName="CLI11" />
-      <config projectName="Kalidous" targetName="kalidous" />
-      <config projectName="Kalidous" targetName="KalidousCore" />
       <config projectName="Kalidous" targetName="KalidousParse" />
+      <config projectName="Kalidous" targetName="KalidousCore" />
+      <config projectName="Kalidous" targetName="kalidous" />
     </generated>
   </component>
   <component name="CMakeSettings">
@@ -34,193 +34,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d080124f-2444-4f78-93fb-8b99318eaf32" name="Changes" comment=".ignore">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/Kalidous-Implementation.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Kalidous-Implementation.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/editor.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/editor.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/.cmake/api/v1/query/cache-v2" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/.cmake/api/v1/query/cmakeFiles-v1" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/.cmake/api/v1/query/codemodel-v2" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/.cmake/api/v1/query/toolchains-v1" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/.cmake/api/v1/reply/cache-v2-c2da4f39e8024b5f4fb4.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/.cmake/api/v1/reply/cmakeFiles-v1-0597e0f44198bf12359e.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/.cmake/api/v1/reply/directory-_deps.cli11-build-Debug-8d3d54b086996c269f46.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/.cmake/api/v1/reply/directory-_deps.cli11-build.fuzz-Debug-771cb836e2b46b22784c.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/.cmake/api/v1/reply/directory-_deps.cli11-build.src-Debug-8d75eed2c5c80e3e3f73.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/.cmake/api/v1/reply/directory-_deps.tomlplusplus-build-Debug-d18df94d7a1716402217.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/.cmake/api/v1/reply/directory-_deps.unordered_dense-build-Debug-0538df48508dfb2c0d5f.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/.cmake/api/v1/reply/target-CLI11-Debug-81974b6f187c8a30a319.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/.cmake/api/v1/reply/toolchains-v1-3e0860cbe4109aeca080.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/.ninja_deps" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/.ninja_log" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeCache.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/4.1.2/CMakeCCompiler.cmake" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/4.1.2/CMakeCXXCompiler.cmake" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/4.1.2/CMakeDetermineCompilerABI_C.bin" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/4.1.2/CMakeDetermineCompilerABI_CXX.bin" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/4.1.2/CMakeSystem.cmake" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/4.1.2/CompilerIdC/CMakeCCompilerId.c" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/4.1.2/CompilerIdC/a.out" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/4.1.2/CompilerIdCXX/CMakeCXXCompilerId.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/4.1.2/CompilerIdCXX/a.out" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/CMakeConfigureLog.yaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/InstallScripts.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/KalidousCore.dir/impl/memory/arena_c_functions.c.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/KalidousCore.dir/impl/memory/file.c.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/KalidousParse.dir/impl/ast/ast.cpp.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/KalidousParse.dir/impl/ast/parser.cpp.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/KalidousParse.dir/impl/parser/keywords.cpp.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/KalidousParse.dir/impl/parser/parser.cpp.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/KalidousParse.dir/impl/parser/tokenizer.cpp.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/TargetDirectories.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/clion-Debug-log.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/clion-environment.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/cmake.check_cache" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/kalidous.dir/impl/interface/CLI.cpp.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/kalidous.dir/main.cpp.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/rules.ninja" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/Testing/Temporary/LastTest.log" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/cli11-build/cmake_install.cmake" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/cli11-build/fuzz/cmake_install.cmake" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/cli11-build/src/cmake_install.cmake" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/cli11-src" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/cli11-subbuild/.ninja_log" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/cli11-subbuild/CMakeCache.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/cli11-subbuild/CMakeFiles/4.1.2/CMakeSystem.cmake" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/cli11-subbuild/CMakeFiles/CMakeConfigureLog.yaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/cli11-subbuild/CMakeFiles/InstallScripts.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/cli11-subbuild/CMakeFiles/TargetDirectories.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/cli11-subbuild/CMakeFiles/cli11-populate-complete" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/cli11-subbuild/CMakeFiles/cli11-populate.dir/Labels.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/cli11-subbuild/CMakeFiles/cli11-populate.dir/Labels.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/cli11-subbuild/CMakeFiles/cmake.check_cache" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/cli11-subbuild/CMakeFiles/rules.ninja" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/cli11-subbuild/CMakeLists.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/cli11-subbuild/build.ninja" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/cli11-subbuild/cli11-populate-prefix/src/cli11-populate-stamp/cli11-populate-build" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/cli11-subbuild/cli11-populate-prefix/src/cli11-populate-stamp/cli11-populate-configure" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/cli11-subbuild/cli11-populate-prefix/src/cli11-populate-stamp/cli11-populate-done" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/cli11-subbuild/cli11-populate-prefix/src/cli11-populate-stamp/cli11-populate-download" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/cli11-subbuild/cli11-populate-prefix/src/cli11-populate-stamp/cli11-populate-gitclone-lastrun.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/cli11-subbuild/cli11-populate-prefix/src/cli11-populate-stamp/cli11-populate-gitinfo.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/cli11-subbuild/cli11-populate-prefix/src/cli11-populate-stamp/cli11-populate-install" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/cli11-subbuild/cli11-populate-prefix/src/cli11-populate-stamp/cli11-populate-mkdir" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/cli11-subbuild/cli11-populate-prefix/src/cli11-populate-stamp/cli11-populate-patch" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/cli11-subbuild/cli11-populate-prefix/src/cli11-populate-stamp/cli11-populate-patch-info.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/cli11-subbuild/cli11-populate-prefix/src/cli11-populate-stamp/cli11-populate-test" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/cli11-subbuild/cli11-populate-prefix/src/cli11-populate-stamp/cli11-populate-update-info.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/cli11-subbuild/cli11-populate-prefix/tmp/cli11-populate-cfgcmd.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/cli11-subbuild/cli11-populate-prefix/tmp/cli11-populate-gitclone.cmake" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/cli11-subbuild/cli11-populate-prefix/tmp/cli11-populate-gitupdate.cmake" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/cli11-subbuild/cli11-populate-prefix/tmp/cli11-populate-mkdirs.cmake" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/cli11-subbuild/cmake_install.cmake" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/kalidousabi-build/CMakeFiles/Export/ed5716da273dc8dfd5798c9ff3a58688/KalidousTargets.cmake" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/kalidousabi-build/KalidousConfig.cmake" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/kalidousabi-build/KalidousConfigVersion.cmake" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/kalidousabi-build/cmake_install.cmake" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/kalidousabi-src" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/kalidousabi-subbuild/.ninja_log" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/kalidousabi-subbuild/CMakeCache.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/kalidousabi-subbuild/CMakeFiles/4.1.2/CMakeSystem.cmake" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/kalidousabi-subbuild/CMakeFiles/CMakeConfigureLog.yaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/kalidousabi-subbuild/CMakeFiles/InstallScripts.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/kalidousabi-subbuild/CMakeFiles/TargetDirectories.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/kalidousabi-subbuild/CMakeFiles/cmake.check_cache" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/kalidousabi-subbuild/CMakeFiles/kalidousabi-populate-complete" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/kalidousabi-subbuild/CMakeFiles/kalidousabi-populate.dir/Labels.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/kalidousabi-subbuild/CMakeFiles/kalidousabi-populate.dir/Labels.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/kalidousabi-subbuild/CMakeFiles/rules.ninja" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/kalidousabi-subbuild/CMakeLists.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/kalidousabi-subbuild/build.ninja" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/kalidousabi-subbuild/cmake_install.cmake" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/kalidousabi-subbuild/kalidousabi-populate-prefix/src/kalidousabi-populate-stamp/kalidousabi-populate-build" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/kalidousabi-subbuild/kalidousabi-populate-prefix/src/kalidousabi-populate-stamp/kalidousabi-populate-configure" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/kalidousabi-subbuild/kalidousabi-populate-prefix/src/kalidousabi-populate-stamp/kalidousabi-populate-done" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/kalidousabi-subbuild/kalidousabi-populate-prefix/src/kalidousabi-populate-stamp/kalidousabi-populate-download" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/kalidousabi-subbuild/kalidousabi-populate-prefix/src/kalidousabi-populate-stamp/kalidousabi-populate-gitclone-lastrun.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/kalidousabi-subbuild/kalidousabi-populate-prefix/src/kalidousabi-populate-stamp/kalidousabi-populate-gitinfo.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/kalidousabi-subbuild/kalidousabi-populate-prefix/src/kalidousabi-populate-stamp/kalidousabi-populate-install" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/kalidousabi-subbuild/kalidousabi-populate-prefix/src/kalidousabi-populate-stamp/kalidousabi-populate-mkdir" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/kalidousabi-subbuild/kalidousabi-populate-prefix/src/kalidousabi-populate-stamp/kalidousabi-populate-patch" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/kalidousabi-subbuild/kalidousabi-populate-prefix/src/kalidousabi-populate-stamp/kalidousabi-populate-patch-info.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/kalidousabi-subbuild/kalidousabi-populate-prefix/src/kalidousabi-populate-stamp/kalidousabi-populate-test" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/kalidousabi-subbuild/kalidousabi-populate-prefix/src/kalidousabi-populate-stamp/kalidousabi-populate-update-info.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/kalidousabi-subbuild/kalidousabi-populate-prefix/tmp/kalidousabi-populate-cfgcmd.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/kalidousabi-subbuild/kalidousabi-populate-prefix/tmp/kalidousabi-populate-gitclone.cmake" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/kalidousabi-subbuild/kalidousabi-populate-prefix/tmp/kalidousabi-populate-gitupdate.cmake" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/kalidousabi-subbuild/kalidousabi-populate-prefix/tmp/kalidousabi-populate-mkdirs.cmake" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/tomlplusplus-build/cmake_install.cmake" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/tomlplusplus-src" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/tomlplusplus-subbuild/.ninja_log" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/tomlplusplus-subbuild/CMakeCache.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/tomlplusplus-subbuild/CMakeFiles/4.1.2/CMakeSystem.cmake" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/tomlplusplus-subbuild/CMakeFiles/CMakeConfigureLog.yaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/tomlplusplus-subbuild/CMakeFiles/InstallScripts.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/tomlplusplus-subbuild/CMakeFiles/TargetDirectories.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/tomlplusplus-subbuild/CMakeFiles/cmake.check_cache" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/tomlplusplus-subbuild/CMakeFiles/rules.ninja" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/tomlplusplus-subbuild/CMakeFiles/tomlplusplus-populate-complete" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/tomlplusplus-subbuild/CMakeFiles/tomlplusplus-populate.dir/Labels.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/tomlplusplus-subbuild/CMakeFiles/tomlplusplus-populate.dir/Labels.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/tomlplusplus-subbuild/CMakeLists.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/tomlplusplus-subbuild/build.ninja" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/tomlplusplus-subbuild/cmake_install.cmake" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/tomlplusplus-subbuild/tomlplusplus-populate-prefix/src/tomlplusplus-populate-stamp/tomlplusplus-populate-build" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/tomlplusplus-subbuild/tomlplusplus-populate-prefix/src/tomlplusplus-populate-stamp/tomlplusplus-populate-configure" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/tomlplusplus-subbuild/tomlplusplus-populate-prefix/src/tomlplusplus-populate-stamp/tomlplusplus-populate-done" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/tomlplusplus-subbuild/tomlplusplus-populate-prefix/src/tomlplusplus-populate-stamp/tomlplusplus-populate-download" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/tomlplusplus-subbuild/tomlplusplus-populate-prefix/src/tomlplusplus-populate-stamp/tomlplusplus-populate-gitclone-lastrun.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/tomlplusplus-subbuild/tomlplusplus-populate-prefix/src/tomlplusplus-populate-stamp/tomlplusplus-populate-gitinfo.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/tomlplusplus-subbuild/tomlplusplus-populate-prefix/src/tomlplusplus-populate-stamp/tomlplusplus-populate-install" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/tomlplusplus-subbuild/tomlplusplus-populate-prefix/src/tomlplusplus-populate-stamp/tomlplusplus-populate-mkdir" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/tomlplusplus-subbuild/tomlplusplus-populate-prefix/src/tomlplusplus-populate-stamp/tomlplusplus-populate-patch" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/tomlplusplus-subbuild/tomlplusplus-populate-prefix/src/tomlplusplus-populate-stamp/tomlplusplus-populate-patch-info.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/tomlplusplus-subbuild/tomlplusplus-populate-prefix/src/tomlplusplus-populate-stamp/tomlplusplus-populate-test" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/tomlplusplus-subbuild/tomlplusplus-populate-prefix/src/tomlplusplus-populate-stamp/tomlplusplus-populate-update-info.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/tomlplusplus-subbuild/tomlplusplus-populate-prefix/tmp/tomlplusplus-populate-cfgcmd.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/tomlplusplus-subbuild/tomlplusplus-populate-prefix/tmp/tomlplusplus-populate-gitclone.cmake" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/tomlplusplus-subbuild/tomlplusplus-populate-prefix/tmp/tomlplusplus-populate-gitupdate.cmake" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/tomlplusplus-subbuild/tomlplusplus-populate-prefix/tmp/tomlplusplus-populate-mkdirs.cmake" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/unordered_dense-build/cmake_install.cmake" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/unordered_dense-src" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/unordered_dense-subbuild/.ninja_log" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/unordered_dense-subbuild/CMakeCache.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/unordered_dense-subbuild/CMakeFiles/4.1.2/CMakeSystem.cmake" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/unordered_dense-subbuild/CMakeFiles/CMakeConfigureLog.yaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/unordered_dense-subbuild/CMakeFiles/InstallScripts.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/unordered_dense-subbuild/CMakeFiles/TargetDirectories.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/unordered_dense-subbuild/CMakeFiles/cmake.check_cache" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/unordered_dense-subbuild/CMakeFiles/rules.ninja" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/unordered_dense-subbuild/CMakeFiles/unordered_dense-populate-complete" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/unordered_dense-subbuild/CMakeFiles/unordered_dense-populate.dir/Labels.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/unordered_dense-subbuild/CMakeFiles/unordered_dense-populate.dir/Labels.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/unordered_dense-subbuild/CMakeLists.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/unordered_dense-subbuild/build.ninja" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/unordered_dense-subbuild/cmake_install.cmake" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/unordered_dense-subbuild/unordered_dense-populate-prefix/src/unordered_dense-populate-stamp/unordered_dense-populate-build" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/unordered_dense-subbuild/unordered_dense-populate-prefix/src/unordered_dense-populate-stamp/unordered_dense-populate-configure" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/unordered_dense-subbuild/unordered_dense-populate-prefix/src/unordered_dense-populate-stamp/unordered_dense-populate-done" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/unordered_dense-subbuild/unordered_dense-populate-prefix/src/unordered_dense-populate-stamp/unordered_dense-populate-download" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/unordered_dense-subbuild/unordered_dense-populate-prefix/src/unordered_dense-populate-stamp/unordered_dense-populate-gitclone-lastrun.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/unordered_dense-subbuild/unordered_dense-populate-prefix/src/unordered_dense-populate-stamp/unordered_dense-populate-gitinfo.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/unordered_dense-subbuild/unordered_dense-populate-prefix/src/unordered_dense-populate-stamp/unordered_dense-populate-install" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/unordered_dense-subbuild/unordered_dense-populate-prefix/src/unordered_dense-populate-stamp/unordered_dense-populate-mkdir" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/unordered_dense-subbuild/unordered_dense-populate-prefix/src/unordered_dense-populate-stamp/unordered_dense-populate-patch" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/unordered_dense-subbuild/unordered_dense-populate-prefix/src/unordered_dense-populate-stamp/unordered_dense-populate-patch-info.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/unordered_dense-subbuild/unordered_dense-populate-prefix/src/unordered_dense-populate-stamp/unordered_dense-populate-test" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/unordered_dense-subbuild/unordered_dense-populate-prefix/src/unordered_dense-populate-stamp/unordered_dense-populate-update-info.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/unordered_dense-subbuild/unordered_dense-populate-prefix/tmp/unordered_dense-populate-cfgcmd.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/unordered_dense-subbuild/unordered_dense-populate-prefix/tmp/unordered_dense-populate-gitclone.cmake" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/unordered_dense-subbuild/unordered_dense-populate-prefix/tmp/unordered_dense-populate-gitupdate.cmake" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/_deps/unordered_dense-subbuild/unordered_dense-populate-prefix/tmp/unordered_dense-populate-mkdirs.cmake" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/bin/kalidous" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/build.ninja" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/cmake_install.cmake" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/compile_commands.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/lib/libKalidousCore.a" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/lib/libKalidousParse.a" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/impl/ast/ast.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/impl/ast/ast.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/impl/ast/parser.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/impl/ast/parser.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/impl/parser/keywords.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/impl/parser/keywords.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/impl/utils/debug.h" beforeDir="false" afterPath="$PROJECT_DIR$/impl/utils/debug.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/include/kalidous/kalidous.h" beforeDir="false" afterPath="$PROJECT_DIR$/include/kalidous/kalidous.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/impl/ast/parser.h" beforeDir="false" afterPath="$PROJECT_DIR$/impl/ast/parser.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/impl/interface/CLI.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/impl/interface/CLI.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tests/prototype.kali" beforeDir="false" afterPath="$PROJECT_DIR$/tests/prototype.kali" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -236,18 +57,22 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
     <option name="ROOT_SYNC" value="DONT_SYNC" />
   </component>
-  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
-  "lastFilter": {
-    "state": "OPEN",
-    "assignee": "GalaxyHaze"
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;GalaxyHaze&quot;
   }
-}]]></component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/GalaxyHaze/Kalidous-Implementation.git",
-    "accountId": "780da64c-3602-4eb0-8256-dedc90a12900"
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/GalaxyHaze/Kalidous-Implementation.git&quot;,
+    &quot;accountId&quot;: &quot;085281a7-3a8b-4f2f-a92b-59ed124a184b&quot;
   }
-}]]></component>
+}</component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+  </component>
   <component name="MacroExpansionManager">
     <option name="directoryName" value="bWTyexzf" />
   </component>
@@ -284,7 +109,9 @@
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "cf.first.check.clang-format": "false",
     "cidr.known.project.marker": "true",
+    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
     "git-widget-placeholder": "master",
+    "junie.onboarding.icon.badge.shown": "true",
     "last_opened_file_path": "/home/diogo/CLionProjects/Kalidous-Implementation/tests",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
@@ -295,6 +122,7 @@
     "org.rust.first.attach.projects": "true",
     "run.code.analysis.last.selected.profile": "pProject Default",
     "settings.editor.selected.configurable": "terminal",
+    "to.speed.mode.migration.done": "true",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
@@ -309,11 +137,6 @@
     </key>
   </component>
   <component name="RunManager" selected="CMake Application.kalidous">
-    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
-      <method v="2">
-        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
-      </method>
-    </configuration>
     <configuration name="CLI11" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Kalidous" TARGET_NAME="CLI11" CONFIG_NAME="Debug">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -363,6 +186,8 @@
       <workItem from="1773662697590" duration="1378000" />
       <workItem from="1773671480039" duration="4000" />
       <workItem from="1773671468683" duration="4067000" />
+      <workItem from="1773746556382" duration="101000" />
+      <workItem from="1773746667266" duration="3267000" />
     </task>
     <task id="LOCAL-00001" summary="Migration: to Kalidous-Lang">
       <option name="closed" value="true" />
@@ -420,5 +245,16 @@
     <MESSAGE value="Open-source" />
     <MESSAGE value=".ignore" />
     <option name="LAST_COMMIT_MESSAGE" value=".ignore" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/impl/ast/parser.cpp</url>
+          <line>200</line>
+          <option name="timeStamp" value="2" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>
