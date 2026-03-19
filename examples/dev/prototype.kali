@@ -1,7 +1,9 @@
+//import
+
 public:
 
-enum Color {
-    blue = 0,
+enum Color{
+    blue = 0x0,
     red = 1,
     green = 2,
     black = 3,
@@ -14,9 +16,9 @@ struct Point{
     y: u32;
 }
 
+const CONSTANT = 0xdeadbeef;
 
-
-noreturn fn add( num1: lend long, num2: long ){
+flowing fn add( num1: lend long, num2: long ){
     marker sample(x: u32){
 
     }
@@ -32,10 +34,13 @@ noreturn fn add( num1: lend long, num2: long ){
        y: u32;
    }
     union Number{
-        u8 i,
+        u8,
         u16,
         f32,
         char
+    }
+    fn add(){
+        return infinity;
     }
 }
 

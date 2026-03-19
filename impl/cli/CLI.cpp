@@ -7,32 +7,33 @@
 #include <kalidous/kalidous.h>
 #include <iostream>
 #include <string>
+#include <thread>
 #include <vector>
 #include "../lexer/debug.h"
 #include "../ast/ast.h"
 
-static const char* kalidous_version = KALIDOUS_VERSION;
+static const char *kalidous_version = KALIDOUS_VERSION;
 
 // ============================================================================
 // Output helpers
 // ============================================================================
 
-static void print_error(const std::string& msg) {
+static void print_error(const std::string &msg) {
     std::cerr << "[error] " << msg << "\n";
 }
 
-static void print_info(const std::string& msg) {
+static void print_info(const std::string &msg) {
     std::cout << "[*] " << msg << "\n";
 }
 
-static void print_success(const std::string& action, const std::string& target) {
+static void print_success(const std::string &action, const std::string &target) {
     std::cout << "[ok] " << action << ": " << target << "\n";
 }
 
-static void print_not_implemented(const std::string& command) {
+static void print_not_implemented(const std::string &command) {
     std::cerr << "\n[!] Command '" << command << "' is not implemented yet.\n"
-              << "    This feature will be available in a future version of Kalidous.\n"
-              << "    Track progress at: https://github.com/GalaxyHaze/Kalidous\n\n";
+            << "    This feature will be available in a future version of Kalidous.\n"
+            << "    Track progress at: https://github.com/GalaxyHaze/Kalidous\n\n";
 }
 
 // ============================================================================
@@ -41,27 +42,27 @@ static void print_not_implemented(const std::string& command) {
 
 struct KalidousProject {
     // -- Identidade --
-    std::string name        = "project";
-    std::string version     = "0.1.0";
+    std::string name = "project";
+    std::string version = "0.1.0";
     std::string description;
     std::string authors;
     std::string license;
     std::string homepage;
 
     // -- Compilação --
-    std::string entry        = "src/main.kalidous";
-    std::string output       = "bin/project";
-    std::string mode         = "debug";
+    std::string entry = "src/main.kalidous";
+    std::string output = "bin/project";
+    std::string mode = "debug";
     std::string target_triple;
-    std::string edition      = "2024";
+    std::string edition = "2024";
 
     // -- Diretórios --
-    std::string src_dir      = "src";
-    std::string bin_dir      = "bin";
-    std::string lib_dir      = "lib";
-    std::string docs_dir     = "docs";
-    std::string test_dir     = "tests";
-    std::string cache_dir    = ".kalidous_cache";
+    std::string src_dir = "src";
+    std::string bin_dir = "bin";
+    std::string lib_dir = "lib";
+    std::string docs_dir = "docs";
+    std::string test_dir = "examples";
+    std::string cache_dir = ".kalidous_cache";
 
     // -- Includes & Links --
     std::vector<std::string> include_dirs;
@@ -71,20 +72,20 @@ struct KalidousProject {
 
     // -- Features & Dependências --
     std::vector<std::string> features;
-    std::vector<std::string> dependencies;  // TODO: formato "libname@1.0" a definir
+    std::vector<std::string> dependencies; // TODO: formato "libname@1.0" a definir
 
     // -- Comportamento --
-    bool emit_ir     = false;
-    bool emit_asm    = false;
+    bool emit_ir = false;
+    bool emit_asm = false;
     bool strip_debug = false;
-    bool lto         = false;
-    int  opt_level   = 0;    // 0–3, mapeado para LLVM opt passes
-    int  debug_level = 2;    // 0–3, mapeado para DWARF debug info
+    bool lto = false;
+    int opt_level = 0; // 0–3, mapeado para LLVM opt passes
+    int debug_level = 2; // 0–3, mapeado para DWARF debug info
 };
 
 // Retorna false se KalidousProject.toml não existir ou falhar ao ler.
 // Preenche 'proj' com defaults enquanto o parser TOML não está implementado.
-static bool try_load_project(KalidousProject& proj) {
+static bool try_load_project(KalidousProject &proj) {
     if (!kalidous_file_exists("KalidousProject.toml")) return false;
 
     // TODO: integrar toml++ (https://github.com/marzer/tomlplusplus)
@@ -106,16 +107,19 @@ static bool try_load_project(KalidousProject& proj) {
 // Preenche 'out_stream', 'out_source' e 'out_source_len' — o source fica na
 // arena para ser reutilizado pelo parser sem second load.
 // Retorna a arena (o chamador destrói); nullptr em caso de erro.
-static KalidousArena* tokenize_file(const std::string& src_path,
-                                    KalidousTokenStream& out_stream,
-                                    const char** out_source,
-                                    size_t* out_source_len,
+static KalidousArena *tokenize_file(const std::string &src_path,
+                                    KalidousTokenStream &out_stream,
+                                    const char **out_source,
+                                    size_t *out_source_len,
                                     bool verbose) {
-    KalidousArena* arena = kalidous_arena_create(64 * 1024);
-    if (!arena) { print_error("Failed to create memory arena"); return nullptr; }
+    KalidousArena *arena = kalidous_arena_create(64 * 1024);
+    if (!arena) {
+        print_error("Failed to create memory arena");
+        return nullptr;
+    }
 
     size_t file_size = 0;
-    const char* source = kalidous_load_file_to_arena(arena, src_path.c_str(), &file_size);
+    const char *source = kalidous_load_file_to_arena(arena, src_path.c_str(), &file_size);
     if (!source) {
         print_error("Failed to load file: " + src_path);
         kalidous_arena_destroy(arena);
@@ -132,7 +136,7 @@ static KalidousArena* tokenize_file(const std::string& src_path,
         print_info("Tokenized " + std::to_string(out_stream.len) + " tokens from " + src_path);
 
     // Return source pointer — already in arena, no extra allocation needed
-    if (out_source)     *out_source     = source;
+    if (out_source) *out_source = source;
     if (out_source_len) *out_source_len = file_size;
 
     return arena;
@@ -143,8 +147,8 @@ static KalidousArena* tokenize_file(const std::string& src_path,
 // ============================================================================
 
 // check — parse + semântica, só reporta erros, não produz artefacto
-static int cmd_check(const std::string& input_file,
-                     const std::string& mode_str, bool verbose) {
+static int cmd_check(const std::string &input_file,
+                     const std::string &mode_str, bool verbose) {
     std::string src = input_file;
 
     if (src.empty()) {
@@ -159,23 +163,23 @@ static int cmd_check(const std::string& input_file,
     if (verbose) print_info("Checking '" + src + "' in " + mode_str + " mode...");
 
     KalidousTokenStream stream{};
-    const char* source   = nullptr;
-    size_t      src_size = 0;
-    KalidousArena* arena = tokenize_file(src, stream, &source, &src_size, verbose);
+    const char *source = nullptr;
+    size_t src_size = 0;
+    KalidousArena *arena = tokenize_file(src, stream, &source, &src_size, verbose);
     if (!arena) return 1;
 
     kalidous_debug_tokens(stream.data, stream.len);
 
-    KalidousNode* ast = kalidous_parse_with_source(arena,
-                                                    source, src_size,
-                                                    src.c_str(), stream);
+    KalidousNode *ast = kalidous_parse_with_source(arena,
+                                                   source, src_size,
+                                                   src.c_str(), stream);
 
     // Debug: AST dump
     if (ast) {
-        fprintf(stderr, "\n── AST ──────────────────────────────────────────\n");
+        /*std::this_thread::sleep_for(std::chrono::seconds(1));
+        printf("-Starting AST\n");
         kalidous_ast_print(ast, 0);
-        fprintf(stderr, "─────────────────────────────────────────────────\n\n");
-        fflush(stderr); // ensure debug output appears before stdout
+        printf("Ending AST\n");*/
     } else {
         print_error("Parse failed — null AST");
         kalidous_arena_destroy(arena);
@@ -191,21 +195,21 @@ static int cmd_check(const std::string& input_file,
 }
 
 // compile — check + gera objeto nativo (.o) ou bytecode (.nbc), sem linkar
-static int cmd_compile(const std::string& input_file,
-                       const std::string& output_file,
-                       const std::string& mode_str,
+static int cmd_compile(const std::string &input_file,
+                       const std::string &output_file,
+                       const std::string &mode_str,
                        bool interpreted,
                        bool verbose,
-                       const std::vector<std::string>& include_dirs) {
+                       const std::vector<std::string> &include_dirs) {
     if (verbose) {
         const std::string kind = interpreted ? "bytecode" : "LLVM IR / native object";
         print_info("Compiling '" + input_file + "' → " + kind + " (" + mode_str + ")");
     }
 
     KalidousTokenStream stream{};
-    const char* source   = nullptr;
-    size_t      src_size = 0;
-    KalidousArena* arena = tokenize_file(input_file, stream, &source, &src_size, verbose);
+    const char *source = nullptr;
+    size_t src_size = 0;
+    KalidousArena *arena = tokenize_file(input_file, stream, &source, &src_size, verbose);
     if (!arena) return 1;
 
     // TODO: kalidous_parse(arena, stream)  → AST
@@ -231,20 +235,21 @@ static int cmd_compile(const std::string& input_file,
 
     kalidous_arena_destroy(arena);
 
-    const std::string out = !output_file.empty() ? output_file
-                                                  : (interpreted ? "a.nbc" : "a.o");
+    const std::string out = !output_file.empty()
+                                ? output_file
+                                : (interpreted ? "a.nbc" : "a.o");
     print_success(interpreted ? "Bytecode compile" : "Compile", out);
     return 0;
 }
 
 // build — compile (nativo) + link → binário final
-static int cmd_build(const std::string& input_file,
-                     const std::string& output_file,
-                     const std::string& mode_str,
+static int cmd_build(const std::string &input_file,
+                     const std::string &output_file,
+                     const std::string &mode_str,
                      bool verbose,
-                     const std::vector<std::string>& include_dirs) {
-    std::string src  = input_file;
-    std::string out  = output_file;
+                     const std::vector<std::string> &include_dirs) {
+    std::string src = input_file;
+    std::string out = output_file;
     std::string mode = mode_str;
     std::vector<std::string> extra_includes = include_dirs;
 
@@ -255,7 +260,7 @@ static int cmd_build(const std::string& input_file,
             return 1;
         }
         src = proj.entry;
-        if (out.empty())     out  = proj.output;
+        if (out.empty()) out = proj.output;
         if (mode == "debug") mode = proj.mode;
 
         // Herdar configurações do projecto
@@ -272,7 +277,8 @@ static int cmd_build(const std::string& input_file,
 
     // compile: nativo apenas (interpreted = false)
     if (const int rc = cmd_compile(src, "", mode, /*interpreted=*/false,
-                                   verbose, extra_includes); rc != 0) return rc;
+                                   verbose, extra_includes); rc != 0)
+        return rc;
 
     // TODO: invocar linker (LLD embutido ou system linker como fallback)
     //   - recolher todos os .o (suporte multi-ficheiro no futuro)
@@ -286,7 +292,7 @@ static int cmd_build(const std::string& input_file,
 }
 
 // execute — executa um binário ou bytecode já existente
-static int cmd_execute(const std::string& target, bool interpreted, bool verbose) {
+static int cmd_execute(const std::string &target, bool interpreted, bool verbose) {
     std::string bin = target;
 
     if (bin.empty()) {
@@ -323,12 +329,12 @@ static int cmd_execute(const std::string& target, bool interpreted, bool verbose
 }
 
 // run — build/compile + execute numa só invocação
-static int cmd_run(const std::string& input_file,
-                   const std::string& output_file,
-                   const std::string& mode_str,
+static int cmd_run(const std::string &input_file,
+                   const std::string &output_file,
+                   const std::string &mode_str,
                    bool interpreted,
                    bool verbose,
-                   const std::vector<std::string>& include_dirs) {
+                   const std::vector<std::string> &include_dirs) {
     if (interpreted) {
         const std::string bc = output_file.empty() ? "a.nbc" : output_file;
         if (const int rc = cmd_compile(input_file, bc, mode_str,
@@ -338,13 +344,14 @@ static int cmd_run(const std::string& input_file,
     }
 
     if (const int rc = cmd_build(input_file, output_file, mode_str,
-                                  verbose, include_dirs); rc != 0) return rc;
+                                 verbose, include_dirs); rc != 0)
+        return rc;
 
     const std::string binary = output_file.empty() ? "a.out" : output_file;
     return cmd_execute(binary, /*interpreted=*/false, verbose);
 }
 
-static int cmd_test(const std::string& /*input_file*/, bool /*verbose*/) {
+static int cmd_test(const std::string & /*input_file*/, bool /*verbose*/) {
     // TODO: sintaxe de testes: #[test] fn my_test() { ... }
     // TODO: descobrir automaticamente ficheiros *_test.kalidous em test_dir
     // TODO: compilar e executar cada teste isoladamente
@@ -354,7 +361,7 @@ static int cmd_test(const std::string& /*input_file*/, bool /*verbose*/) {
     return 1;
 }
 
-static int cmd_fmt(const std::string& /*input_file*/, bool /*check_only*/, bool /*verbose*/) {
+static int cmd_fmt(const std::string & /*input_file*/, bool /*check_only*/, bool /*verbose*/) {
     // TODO: pretty-printer sobre a AST (canonical form)
     // TODO: suporte a ficheiro único ou directório recursivo
     // TODO: --check → não modifica, retorna 1 se algum ficheiro difere (CI)
@@ -363,8 +370,8 @@ static int cmd_fmt(const std::string& /*input_file*/, bool /*check_only*/, bool 
     return 1;
 }
 
-static int cmd_docs(const std::string& /*input_file*/,
-                    const std::string& /*output_dir*/, bool /*verbose*/) {
+static int cmd_docs(const std::string & /*input_file*/,
+                    const std::string & /*output_dir*/, bool /*verbose*/) {
     // TODO: extrair doc-comments (/// ou /** */) durante o parse
     // TODO: gerar HTML estático ou Markdown por módulo/função/tipo
     // TODO: suporte a exemplos embutidos nos doc-comments (runnable snippets)
@@ -384,8 +391,8 @@ static int cmd_repl(bool /*verbose*/) {
 
 static int cmd_version() {
     std::cout << "Kalidous Programming Language\n"
-              << "Version:  " << kalidous_version   << "\n"
-              << "Compiler: " << __VERSION__         << "\n";
+            << "Version:  " << kalidous_version << "\n"
+            << "Compiler: " << __VERSION__ << "\n";
     // TODO: LLVMGetVersion() quando o backend estiver linkado
     // TODO: LLVMGetDefaultTargetTriple() para mostrar o host target
     return 0;
@@ -403,7 +410,7 @@ COMMANDS:
     build      Compile and link to native binary  (reads KalidousProject.toml)
     execute    Run an existing binary or bytecode (reads KalidousProject.toml)
     run        Build then execute                 (reads KalidousProject.toml)
-    test       Run tests defined in source
+    test       Run examples defined in source
     fmt        Format source code
     docs       Generate documentation
     repl       Start interactive REPL
@@ -448,81 +455,81 @@ LEARN MORE:
 // Entry point (C API)
 // ============================================================================
 
-extern "C" int kalidous_run(int argc, const char* const argv[]) {
+extern "C" int kalidous_run(int argc, const char *const argv[]) {
     CLI::App app{"Kalidous - A low-level general-purpose language"};
     app.require_subcommand(0, 1);
 
     // -- Opções globais -------------------------------------------------------
-    std::string              mode_str = "debug";
-    std::string              output_file;
+    std::string mode_str = "debug";
+    std::string output_file;
     std::vector<std::string> include_dirs;
-    std::string              emit_target;
-    std::string              target_triple;
-    bool                     verbose = false;
+    std::string emit_target;
+    std::string target_triple;
+    bool verbose = false;
 
-    app.add_option("-m,--mode",    mode_str,     "Build mode: debug, dev, release, fast, test")
-       ->transform(CLI::IsMember({"debug", "dev", "release", "fast", "test"}))
-       ->default_str("debug");
-    app.add_option("-o,--output",  output_file,  "Output file path");
+    app.add_option("-m,--mode", mode_str, "Build mode: debug, dev, release, fast, test")
+            ->transform(CLI::IsMember({"debug", "dev", "release", "fast", "test"}))
+            ->default_str("debug");
+    app.add_option("-o,--output", output_file, "Output file path");
     app.add_option("-I,--include", include_dirs, "Include directories (repeatable)");
-    app.add_option("--emit",       emit_target,  "Emit: ast, ir, asm, obj, bin");
-    app.add_option("--target",     target_triple,"Target triple");
-    app.add_flag  ("-v,--verbose", verbose,      "Verbose output");
+    app.add_option("--emit", emit_target, "Emit: ast, ir, asm, obj, bin");
+    app.add_option("--target", target_triple, "Target triple");
+    app.add_flag("-v,--verbose", verbose, "Verbose output");
 
     // TODO: propagar emit_target e target_triple para cmd_compile / cmd_build
     // TODO: validar target_triple contra os targets suportados pelo LLVM linkado
 
     // -- Subcomandos ----------------------------------------------------------
     std::string input_file;
-    bool        interpreted = false;
-    bool        fmt_check   = false;
+    bool interpreted = false;
+    bool fmt_check = false;
     std::string docs_output = "docs";
 
-    auto* check_cmd = app.add_subcommand("check", "Parse and type-check only");
+    auto *check_cmd = app.add_subcommand("check", "Parse and type-check only");
     check_cmd->add_option("input", input_file, "Source file [optional, reads toml if omitted]")
-             ->check(CLI::ExistingFile);
+            ->check(CLI::ExistingFile);
 
-    auto* compile_cmd = app.add_subcommand("compile", "Compile to object/bytecode, no linking");
+    auto *compile_cmd = app.add_subcommand("compile", "Compile to object/bytecode, no linking");
     compile_cmd->add_option("input", input_file, "Source file (.kalidous)")
-               ->required()->check(CLI::ExistingFile);
+            ->required()->check(CLI::ExistingFile);
     compile_cmd->add_flag("--interpreted", interpreted, "Compile to bytecode instead of native");
 
-    auto* build_cmd = app.add_subcommand("build", "Compile and link to native binary");
+    auto *build_cmd = app.add_subcommand("build", "Compile and link to native binary");
     build_cmd->add_option("input", input_file, "Source file [optional, reads toml if omitted]")
-             ->check(CLI::ExistingFile);
+            ->check(CLI::ExistingFile);
 
-    auto* execute_cmd = app.add_subcommand("execute", "Run existing binary or bytecode");
+    auto *execute_cmd = app.add_subcommand("execute", "Run existing binary or bytecode");
     execute_cmd->add_option("target", input_file, "Binary or bytecode [optional, reads toml if omitted]");
     execute_cmd->add_flag("--interpreted", interpreted, "Run bytecode instead of native binary");
 
-    auto* run_cmd = app.add_subcommand("run", "Build then execute");
+    auto *run_cmd = app.add_subcommand("run", "Build then execute");
     run_cmd->add_option("input", input_file, "Source file [optional, reads toml if omitted]")
-           ->check(CLI::ExistingFile);
+            ->check(CLI::ExistingFile);
     run_cmd->add_flag("--interpreted", interpreted, "Compile to bytecode and run interpreted");
 
-    auto* test_cmd = app.add_subcommand("test", "Run tests in source");
+    auto *test_cmd = app.add_subcommand("test", "Run examples in source");
     test_cmd->add_option("input", input_file, "Source file (.kalidous)")->check(CLI::ExistingFile);
 
-    auto* fmt_cmd = app.add_subcommand("fmt", "Format source code");
+    auto *fmt_cmd = app.add_subcommand("fmt", "Format source code");
     fmt_cmd->add_option("input", input_file, "Source file or directory")->required();
-    fmt_cmd->add_flag("--check", fmt_check,  "Check formatting only, do not modify files");
+    fmt_cmd->add_flag("--check", fmt_check, "Check formatting only, do not modify files");
 
-    auto* docs_cmd = app.add_subcommand("docs", "Generate documentation");
-    docs_cmd->add_option("input",      input_file,  "Source file (.kalidous)")->check(CLI::ExistingFile);
-    docs_cmd->add_option("-o,--output",docs_output, "Output directory")->default_str("docs");
+    auto *docs_cmd = app.add_subcommand("docs", "Generate documentation");
+    docs_cmd->add_option("input", input_file, "Source file (.kalidous)")->check(CLI::ExistingFile);
+    docs_cmd->add_option("-o,--output", docs_output, "Output directory")->default_str("docs");
 
-    auto* repl_cmd    = app.add_subcommand("repl",    "Start interactive REPL");
-    auto* version_cmd = app.add_subcommand("version", "Show version information");
-    auto* help_cmd    = app.add_subcommand("help",    "Show help message");
+    auto *repl_cmd = app.add_subcommand("repl", "Start interactive REPL");
+    auto *version_cmd = app.add_subcommand("version", "Show version information");
+    auto *help_cmd = app.add_subcommand("help", "Show help message");
 
     // -- Parse ----------------------------------------------------------------
     try {
         app.parse(argc, argv);
-    } catch (const CLI::CallForHelp&) {
+    } catch (const CLI::CallForHelp &) {
         return cmd_help();
-    } catch (const CLI::CallForVersion&) {
+    } catch (const CLI::CallForVersion &) {
         return cmd_version();
-    } catch (const CLI::ParseError& e) {
+    } catch (const CLI::ParseError &e) {
         if (e.get_name() == "ExtrasError" && argc > 1 && std::string(argv[1]) == "help")
             return cmd_help();
         std::cerr << "[error] " << e.what() << "\n\n" << app.help();
@@ -530,20 +537,23 @@ extern "C" int kalidous_run(int argc, const char* const argv[]) {
     }
 
     // -- Dispatch -------------------------------------------------------------
-    if (*help_cmd)    return cmd_help();
+    if (*help_cmd) return cmd_help();
     if (*version_cmd) return cmd_version();
-    if (*repl_cmd)    return cmd_repl(verbose);
-    if (*docs_cmd)    return cmd_docs(input_file, docs_output, verbose);
-    if (*fmt_cmd)     return cmd_fmt(input_file, fmt_check, verbose);
-    if (*test_cmd)    return cmd_test(input_file, verbose);
-    if (*check_cmd)   return cmd_check(input_file, mode_str, verbose);
-    if (*compile_cmd) return cmd_compile(input_file, output_file, mode_str,
-                                         interpreted, verbose, include_dirs);
-    if (*build_cmd)   return cmd_build(input_file, output_file, mode_str,
-                                       verbose, include_dirs);
+    if (*repl_cmd) return cmd_repl(verbose);
+    if (*docs_cmd) return cmd_docs(input_file, docs_output, verbose);
+    if (*fmt_cmd) return cmd_fmt(input_file, fmt_check, verbose);
+    if (*test_cmd) return cmd_test(input_file, verbose);
+    if (*check_cmd) return cmd_check(input_file, mode_str, verbose);
+    if (*compile_cmd)
+        return cmd_compile(input_file, output_file, mode_str,
+                           interpreted, verbose, include_dirs);
+    if (*build_cmd)
+        return cmd_build(input_file, output_file, mode_str,
+                         verbose, include_dirs);
     if (*execute_cmd) return cmd_execute(input_file, interpreted, verbose);
-    if (*run_cmd)     return cmd_run(input_file, output_file, mode_str,
-                                     interpreted, verbose, include_dirs);
+    if (*run_cmd)
+        return cmd_run(input_file, output_file, mode_str,
+                       interpreted, verbose, include_dirs);
 
     // Sem subcomando: tenta build via toml, senão mostra ajuda
     KalidousProject proj;

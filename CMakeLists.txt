@@ -9,9 +9,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 
-if(POLICY CMP0091)
+if (POLICY CMP0091)
     cmake_policy(SET CMP0091 NEW)
-endif()
+endif ()
 
 # =============================================================================
 # Output Directories
@@ -29,23 +29,23 @@ include(FetchContent)
 # --- CLI11 ---
 FetchContent_Declare(cli11
         GIT_REPOSITORY https://github.com/CLIUtils/CLI11.git
-        GIT_TAG        v2.4.1
-        GIT_SHALLOW    TRUE
+        GIT_TAG v2.4.1
+        GIT_SHALLOW TRUE
 )
 FetchContent_MakeAvailable(cli11)
 
 # --- unordered_dense ---
 FetchContent_Declare(unordered_dense
         GIT_REPOSITORY https://github.com/martinus/unordered_dense.git
-        GIT_TAG        v4.0.0
-        GIT_SHALLOW    TRUE
+        GIT_TAG v4.0.0
+        GIT_SHALLOW TRUE
 )
 FetchContent_MakeAvailable(unordered_dense)
 
 FetchContent_Declare(
         tomlplusplus
         GIT_REPOSITORY https://github.com/marzer/tomlplusplus.git
-        GIT_TAG        v3.4.0  # ou a versão mais recente
+        GIT_TAG v3.4.0  # ou a versão mais recente
 )
 
 FetchContent_MakeAvailable(tomlplusplus)
@@ -65,18 +65,18 @@ FetchContent_MakeAvailable(tomlplusplus)
 # Compiler Flags
 # =============================================================================
 # Prefer target-specific flags over global add_definitions where possible
-if(MSVC)
+if (MSVC)
     add_compile_options(/W4 /WX)
-else()
+else ()
     #add_compile_options(-Wall -Wextra -Wpedantic -Werror)
-    if(CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
-        if(EXISTS "/usr/bin/ld.lld" OR EXISTS "/usr/local/bin/ld.lld")
+    if (CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
+        if (EXISTS "/usr/bin/ld.lld" OR EXISTS "/usr/local/bin/ld.lld")
             set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fuse-ld=lld")
             set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -fuse-ld=lld")
             message(STATUS "Using LLD linker")
-        endif()
-    endif()
-endif()
+        endif ()
+    endif ()
+endif ()
 
 # =============================================================================
 # Sources
@@ -165,7 +165,7 @@ message("")
 message(STATUS "💡 Build Summary")
 #message(STATUS "   KalidousABI version: ${Kalidous_ABI_VERSION}")  # Commented out as variable is likely unset
 #message(STATUS "   LLVM version: ${LLVM_PACKAGE_VERSION}")
-if(TARGET Kalidous::Kalidous)
+if (TARGET Kalidous::Kalidous)
     message(STATUS "   Kalidous::Kalidous target found.")
-endif()
+endif ()
 message("")

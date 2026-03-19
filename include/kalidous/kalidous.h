@@ -20,12 +20,12 @@ typedef struct {
 } KalidousSourceLoc;
 
 typedef struct {
-    const void* data;
+    const void *data;
     size_t len;
 } KalidousSlice;
 
 typedef struct {
-    const char* data;
+    const char *data;
     size_t len;
 } KalidousStr;
 
@@ -72,7 +72,7 @@ typedef enum {
     // Operadores de atribuição
     // ------------------------------------------------------------------------
     KALIDOUS_TOKEN_ASSIGNMENT,
-    KALIDOUS_TOKEN_DECLARATION,     // :=
+    KALIDOUS_TOKEN_DECLARATION, // :=
     KALIDOUS_TOKEN_PLUS_EQUAL,
     KALIDOUS_TOKEN_MINUS_EQUAL,
     KALIDOUS_TOKEN_MULTIPLY_EQUAL,
@@ -81,9 +81,9 @@ typedef enum {
     // ------------------------------------------------------------------------
     // Operadores especiais
     // ------------------------------------------------------------------------
-    KALIDOUS_TOKEN_QUESTION,        // ?  optional
-    KALIDOUS_TOKEN_BANG,            // !  type may fail
-    KALIDOUS_TOKEN_ARROW,           // -> encadeamento de funções
+    KALIDOUS_TOKEN_QUESTION, // ?  optional
+    KALIDOUS_TOKEN_BANG, // !  type may fail
+    KALIDOUS_TOKEN_ARROW, // -> encadeamento de funções
 
     // ------------------------------------------------------------------------
     // Delimitadores
@@ -95,7 +95,7 @@ typedef enum {
     KALIDOUS_TOKEN_LBRACKET,
     KALIDOUS_TOKEN_RBRACKET,
     KALIDOUS_TOKEN_DOT,
-    KALIDOUS_TOKEN_DOTS,            // ...
+    KALIDOUS_TOKEN_DOTS, // ...
     KALIDOUS_TOKEN_COMMA,
     KALIDOUS_TOKEN_COLON,
     KALIDOUS_TOKEN_SEMICOLON,
@@ -107,7 +107,7 @@ typedef enum {
     KALIDOUS_TOKEN_ELSE,
     KALIDOUS_TOKEN_FOR,
     KALIDOUS_TOKEN_IN,
-    KALIDOUS_TOKEN_WHILE,           // reservado na ABI, não usado como keyword ativa
+    KALIDOUS_TOKEN_WHILE, // reservado na ABI, não usado como keyword ativa
     KALIDOUS_TOKEN_SWITCH,
     KALIDOUS_TOKEN_RETURN,
     KALIDOUS_TOKEN_BREAK,
@@ -128,13 +128,13 @@ typedef enum {
     // ------------------------------------------------------------------------
     KALIDOUS_TOKEN_TRY,
     KALIDOUS_TOKEN_CATCH,
-    KALIDOUS_TOKEN_MUST,            // "must!" — o ! é semântico, o Parser resolve
+    KALIDOUS_TOKEN_MUST, // "must!" — o ! é semântico, o Parser resolve
 
     // ------------------------------------------------------------------------
     // Modificadores de propriedade e escopo
     // ------------------------------------------------------------------------
     KALIDOUS_TOKEN_CONST,
-    KALIDOUS_TOKEN_MUTABLE,         // keyword: 'mut'
+    KALIDOUS_TOKEN_MUTABLE, // keyword: 'mut'
     KALIDOUS_TOKEN_VAR,
     KALIDOUS_TOKEN_LET,
     KALIDOUS_TOKEN_AUTO,
@@ -146,12 +146,12 @@ typedef enum {
     KALIDOUS_TOKEN_SHARED,
     KALIDOUS_TOKEN_VIEW,
     KALIDOUS_TOKEN_UNIQUE,
-    KALIDOUS_TOKEN_PACK,            // reservado na ABI; [] é resolvido pelo Parser
+    KALIDOUS_TOKEN_PACK, // reservado na ABI; [] é resolvido pelo Parser
 
     // ------------------------------------------------------------------------
     // Modificadores de acesso
     // ------------------------------------------------------------------------
-    KALIDOUS_TOKEN_MODIFIER,        // public / private / protected
+    KALIDOUS_TOKEN_MODIFIER, // public / private / protected
 
     // ------------------------------------------------------------------------
     // Declarações de tipo
@@ -175,7 +175,7 @@ typedef enum {
     KALIDOUS_TOKEN_END,
     KALIDOUS_TOKEN_UNKNOWN, KALIDOUS_TOKEN_RECURSE,
     KALIDOUS_TOKEN_YIELD, KALIDOUS_TOKEN_ASYNC, KALIDOUS_TOKEN_FN,
-    KALIDOUS_TOKEN_FLOWING, KALIDOUS_TOKEN_ENTRY, KALIDOUS_TOKEN_NORETURN
+    KALIDOUS_TOKEN_FLOWING, KALIDOUS_TOKEN_ENTRY, KALIDOUS_TOKEN_NORETURN, KALIDOUS_TOKEN_IMPORT
 } KalidousTokenType;
 
 typedef struct {
@@ -186,14 +186,15 @@ typedef struct {
 } KalidousToken;
 
 typedef struct {
-    const KalidousToken* data;
+    const KalidousToken *data;
     size_t len;
 } KalidousTokenStream;
 
 typedef struct KalidousArena KalidousArena;
 
-KalidousTokenStream kalidous_tokenize(KalidousArena* arena, const char* source, size_t source_len);
-void kalidous_debug_tokenize(KalidousArena* arena, const char* source, size_t source_len);
+KalidousTokenStream kalidous_tokenize(KalidousArena *arena, const char *source, size_t source_len);
+
+void kalidous_debug_tokenize(KalidousArena *arena, const char *source, size_t source_len);
 
 // ============================================================================
 // AST System
@@ -204,79 +205,111 @@ typedef uint16_t KalidousNodeId;
 enum {
     KALIDOUS_NODE_ERROR = 0,
 
-    KALIDOUS_NODE_LITERAL    = 100,
+    KALIDOUS_NODE_LITERAL = 100,
     KALIDOUS_NODE_IDENTIFIER = 101,
-    KALIDOUS_NODE_BINARY_OP  = 102,
-    KALIDOUS_NODE_UNARY_OP   = 103,
-    KALIDOUS_NODE_CALL       = 104,
-    KALIDOUS_NODE_INDEX      = 105,
-    KALIDOUS_NODE_MEMBER     = 106,
+    KALIDOUS_NODE_BINARY_OP = 102,
+    KALIDOUS_NODE_UNARY_OP = 103,
+    KALIDOUS_NODE_CALL = 104,
+    KALIDOUS_NODE_INDEX = 105,
+    KALIDOUS_NODE_MEMBER = 106,
 
-    KALIDOUS_NODE_VAR_DECL   = 200,
-    KALIDOUS_NODE_FUNC_DECL  = 201,
-    KALIDOUS_NODE_PARAM      = 202,
+    KALIDOUS_NODE_VAR_DECL = 200,
+    KALIDOUS_NODE_FUNC_DECL = 201,
+    KALIDOUS_NODE_PARAM = 202,
 
-    KALIDOUS_NODE_BLOCK      = 300,
-    KALIDOUS_NODE_IF         = 301,
-    KALIDOUS_NODE_FOR        = 302,  // unifica for e while
-    KALIDOUS_NODE_RETURN     = 303,
-    KALIDOUS_NODE_EXPR_STMT  = 304,
+    KALIDOUS_NODE_BLOCK = 300,
+    KALIDOUS_NODE_IF = 301,
+    KALIDOUS_NODE_FOR = 302, // unifica for e while
+    KALIDOUS_NODE_RETURN = 303,
+    KALIDOUS_NODE_EXPR_STMT = 304,
 
-    KALIDOUS_NODE_TYPE_REF   = 400,
-    KALIDOUS_NODE_TYPE_FUNC  = 401,
+    KALIDOUS_NODE_TYPE_REF = 400,
+    KALIDOUS_NODE_TYPE_FUNC = 401,
 
     KALIDOUS_NODE_CUSTOM_START = 1000
 };
 
 typedef struct KalidousNode KalidousNode;
-struct KalidousNode {
-    KalidousNodeId type;
-    KalidousSourceLoc loc;
 
+struct KalidousNode {
     union {
-        struct { KalidousNode* a; KalidousNode* b; KalidousNode* c; } kids;
-        struct { void* ptr; size_t len; } list;
-        struct { const char* str; size_t len; } ident;
-        struct { double num; } number;
-        struct { bool value; } boolean;
+        struct {
+            KalidousNode *a;
+            KalidousNode *b;
+            KalidousNode *c;
+        } kids;
+
+        struct {
+            void *ptr;
+            size_t len;
+        } list;
+
+        struct {
+            const char *str;
+            size_t len;
+        } ident;
+
+        struct {
+            double num;
+        } number;
+
+        struct {
+            bool value;
+        } boolean;
+
         uint64_t custom;
     } data;
+    KalidousSourceLoc loc;
+    KalidousNodeId type;
+
+
+
 };
 
-KalidousNode* kalidous_parse(KalidousArena* arena, KalidousTokenStream tokens);
+KalidousNode *kalidous_parse(KalidousArena *arena, KalidousTokenStream tokens);
 
-KalidousNode* kalidous_parse_with_source(KalidousArena* arena,const char*        source,
-size_t             source_len, const char*        filename,
-                                              KalidousTokenStream tokens);
+KalidousNode *kalidous_parse_with_source(KalidousArena *arena, const char *source,
+                                         size_t source_len, const char *filename,
+                                         KalidousTokenStream tokens);
 
 
-static inline KalidousNodeId kalidous_node_type(const KalidousNode* node) {
-        return node ? node->type : (KalidousNodeId)KALIDOUS_NODE_ERROR;
+static inline KalidousNodeId kalidous_node_type(const KalidousNode *node) {
+    return node ? node->type : (KalidousNodeId) KALIDOUS_NODE_ERROR;
 }
 
 // ============================================================================
 // Memory Arena
 // ============================================================================
 
-KalidousArena* kalidous_arena_create(size_t initial_block_size);
-void*      kalidous_arena_alloc(KalidousArena* arena, size_t size);
-char*      kalidous_arena_strdup(KalidousArena* arena, const char* str);
-void       kalidous_arena_reset(KalidousArena* arena);
-void       kalidous_arena_destroy(KalidousArena* arena);
+KalidousArena *kalidous_arena_create(size_t initial_block_size);
+
+void *kalidous_arena_alloc(KalidousArena *arena, size_t size);
+
+char *kalidous_arena_strdup(KalidousArena *arena, const char *str);
+
+void kalidous_arena_reset(KalidousArena *arena);
+
+void kalidous_arena_destroy(KalidousArena *arena);
 
 // ============================================================================
 // File Utilities
 // ============================================================================
 
-bool   kalidous_file_exists(const char* path);
-bool   kalidous_file_is_regular(const char* path);
-size_t kalidous_file_size(const char* path);
-bool   kalidous_file_has_extension(const char* path, const char* ext);
-char*  kalidous_load_file_to_arena(KalidousArena* arena, const char* path, size_t* out_size);
+bool kalidous_file_exists(const char *path);
 
-int           kalidous_run(int argc, const char* const argv[]);
-KalidousTokenType kalidous_lookup_keyword(const char* src, size_t len);
-char* kalidous_arena_str  (KalidousArena* arena, const char* str, size_t len);
+bool kalidous_file_is_regular(const char *path);
+
+size_t kalidous_file_size(const char *path);
+
+bool kalidous_file_has_extension(const char *path, const char *ext);
+
+char *kalidous_load_file_to_arena(KalidousArena *arena, const char *path, size_t *out_size);
+
+int kalidous_run(int argc, const char *const argv[]);
+
+KalidousTokenType kalidous_lookup_keyword(const char *src, size_t len);
+
+char *kalidous_arena_str(KalidousArena *arena, const char *str, size_t len);
 
 // ============================================================================
 // Error Handling
@@ -297,43 +330,54 @@ typedef enum {
 
 #ifdef __cplusplus
 }
+
 #include <memory>
 #include <string_view>
 
 namespace KALIDOUS {
+    class Arena {
+        struct Deleter {
+            void operator()(KalidousArena *a) const { kalidous_arena_destroy(a); }
+        };
 
-class Arena {
-    struct Deleter { void operator()(KalidousArena* a) const { kalidous_arena_destroy(a); } };
-    std::unique_ptr<KalidousArena, Deleter> handle_;
-public:
-    explicit Arena(size_t initial = 65536)
-        : handle_(kalidous_arena_create(initial)) { if (!handle_) throw std::bad_alloc(); }
-    [[nodiscard]] void* alloc(size_t size) const { return kalidous_arena_alloc(handle_.get(), size); }
-    char* strdup(const char* s) const { return kalidous_arena_strdup(handle_.get(), s); }
-    [[nodiscard]] char* strdup(std::string_view sv) const {
-        char* p = static_cast<char*>(alloc(sv.size() + 1));
-        if (p) { memcpy(p, sv.data(), sv.size()); p[sv.size()] = '\0'; }
-        return p;
+        std::unique_ptr<KalidousArena, Deleter> handle_;
+
+    public:
+        explicit Arena(size_t initial = 65536)
+            : handle_(kalidous_arena_create(initial)) { if (!handle_) throw std::bad_alloc(); }
+
+        [[nodiscard]] void *alloc(size_t size) const { return kalidous_arena_alloc(handle_.get(), size); }
+        char *strdup(const char *s) const { return kalidous_arena_strdup(handle_.get(), s); }
+
+        [[nodiscard]] char *strdup(std::string_view sv) const {
+            char *p = static_cast<char *>(alloc(sv.size() + 1));
+            if (p) {
+                memcpy(p, sv.data(), sv.size());
+                p[sv.size()] = '\0';
+            }
+            return p;
+        }
+
+        [[nodiscard]] KalidousArena *get() const { return handle_.get(); }
+    };
+
+    inline KalidousTokenStream tokenize(const Arena &arena, std::string_view source) {
+        return kalidous_tokenize(arena.get(), source.data(), source.size());
     }
-    [[nodiscard]] KalidousArena* get() const { return handle_.get(); }
-};
 
-inline KalidousTokenStream tokenize(const Arena& arena, std::string_view source) {
-    return kalidous_tokenize(arena.get(), source.data(), source.size());
-}
+    inline std::pair<char *, size_t> load_file(const Arena &arena, const char *path) {
+        size_t size = 0;
+        char *data = kalidous_load_file_to_arena(arena.get(), path, &size);
+        if (!data) throw std::runtime_error("Failed to load file: " + std::string(path));
+        return {data, size};
+    }
 
-inline std::pair<char*, size_t> load_file(const Arena& arena, const char* path) {
-    size_t size = 0;
-    char* data = kalidous_load_file_to_arena(arena.get(), path, &size);
-    if (!data) throw std::runtime_error("Failed to load file: " + std::string(path));
-    return {data, size};
-}
+    namespace debug {
+        const char *token_type_name(KalidousTokenType t);
 
-namespace debug {
-    const char* token_type_name(KalidousTokenType t);
-    void print_tokens(KalidousTokenStream tokens);
-    void print_ast(const KalidousNode* node, int indent = 0);
-}
+        void print_tokens(KalidousTokenStream tokens);
 
+        void print_ast(const KalidousNode *node, int indent = 0);
+    }
 } // namespace KALIDOUS
 #endif // __cplusplus
