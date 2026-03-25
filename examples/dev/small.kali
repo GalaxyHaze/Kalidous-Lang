@@ -13,12 +13,12 @@ import std.dyn.array;
 
 
 struct Point{
-    x: u32, //apenas declara os membros
+    x: u32, //only declares the members
     y: u32,
     //note: self is a special argument if it's the first argument
     //share -> it means your object is 'passed' as a mut ref, the default for struct would be immutable 'move'
     fn add(self: share, x: u32, y:u32),
-    const fnPtr: fn (x: u32, y: u32) -> //ponteiro de função
+    const fnPtr: fn (x: u32, y: u32): u32 //ponteiro de função
 }
 
 //since component has 'pure' function, they can be directly defined
@@ -53,6 +53,7 @@ implement Point{ //aplica o código
     fn add(self: share, x: u32, y: u32){
         self.x += x;
         self.y += y;
+        return self;
     }
 }
 
