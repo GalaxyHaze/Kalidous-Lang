@@ -34,23 +34,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d080124f-2444-4f78-93fb-8b99318eaf32" name="Changes" comment="Documentation web-site HUGE update">
-      <change afterPath="$PROJECT_DIR$/docs/pages/cli/build.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/pages/cli/check.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/pages/cli/compile.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/pages/cli/execute.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/pages/cli/flags.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/pages/cli/overview.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/pages/cli/run.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/pages/language/functions.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/pages/language/generics.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/pages/language/memory.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/pages/language/modules.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/pages/language/overview.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/pages/language/syntax.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/pages/language/types.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/pages/language/variables.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/sitemap.xml" beforeDir="false" afterPath="$PROJECT_DIR$/docs/sitemap.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/assets/js/main.js" beforeDir="false" afterPath="$PROJECT_DIR$/docs/assets/js/main.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -218,7 +203,7 @@
       <workItem from="1774436584517" duration="76000" />
       <workItem from="1774450174898" duration="3729000" />
       <workItem from="1774463480180" duration="618000" />
-      <workItem from="1774466132299" duration="4024000" />
+      <workItem from="1774466132299" duration="4917000" />
     </task>
     <task id="LOCAL-00001" summary="Migration: to Kalidous-Lang">
       <option name="closed" value="true" />
@@ -284,7 +269,15 @@
       <option name="project" value="LOCAL" />
       <updated>1774471649290</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="Documentation web-site HUGE update">
+      <option name="closed" value="true" />
+      <created>1774472473479</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1774472473479</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

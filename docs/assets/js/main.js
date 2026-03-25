@@ -32,7 +32,7 @@ function getBasePath() {
 
     // If running on GitHub Pages
     if (window.location.hostname === 'galaxyhaze.github.io') {
-        return '/Kalidous-lang/docs/';
+        return '/Kalidous-Lang/docs/'; // FIXED: Capital 'L' in Kalidous-Lang
     }
 
     // Default for local server or custom domain
@@ -69,6 +69,7 @@ function loadPage(path, pageId) {
             const content = document.querySelector('.content');
             if (content) {
                 content.innerHTML = html;
+                // This adds the entry to history (allows "Back" button to work URL-wise)
                 window.history.pushState({ page: pageId }, '', `?page=${pageId}`);
                 animatePageIn();
             }
@@ -140,9 +141,47 @@ function copyCode(button) {
     });
 }
 
+// --- History Management (The Fix) ---
+window.onpopstate = function(event) {
+    // This runs when the user clicks Back or Forward
+    const params = new URLSearchParams(window.location.search);
+    const pageId = params.get('page') || 'intro';
+
+    // We manually call loadPage directly to avoid pushState (creating a double history entry)
+    const relativePath = pageMap[pageId];
+    if (relativePath) {
+        const fullPath = basePath + relativePath;
+
+        // We need to fetch and update content, but NOT push state again
+        fetch(fullPath)
+            .then(response => {
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                return response.text();
+            })
+            .then(html => {
+                const content = document.querySelector('.content');
+                if (content) {
+                    content.innerHTML = html;
+                    updateActiveNav(pageId);
+                    animatePageIn();
+                }
+            })
+            .catch(error => {
+                console.error('Error loading page on back/forward:', error);
+            });
+    }
+};
+
 // Initialize page load
 document.addEventListener('DOMContentLoaded', () => {
     const params = new URLSearchParams(window.location.search);
     const page = params.get('page') || 'intro';
-    navigate(page);
+
+    // We use loadPage directly here to set the initial state without adding an extra history entry
+    const relativePath = pageMap[page];
+    if (relativePath) {
+        loadPage(basePath + relativePath, page);
+    } else {
+        navigate('intro'); // Fallback
+    }
 });
