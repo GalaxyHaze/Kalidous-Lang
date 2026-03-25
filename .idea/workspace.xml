@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="BackendCodeEditorMiscSettings">
-    <option name="/Default/Environment/Hierarchy/GeneratedFilesCacheKey/Timestamp/@EntryValue" value="6" type="long" />
+    <option name="/Default/Environment/Hierarchy/GeneratedFilesCacheKey/Timestamp/@EntryValue" value="22" type="long" />
     <option name="/Default/Housekeeping/FeatureSuggestion/FeatureSuggestionManager/DisabledSuggesters/=SwitchToGoToActionSuggester/@EntryIndexedValue" value="true" type="bool" />
     <option name="/Default/Housekeeping/GlobalSettingsUpgraded/IsUpgraded/@EntryValue" value="true" type="bool" />
     <option name="/Default/RiderDebugger/RiderRestoreDecompile/RestoreDecompileSetting/@EntryValue" value="false" type="bool" />
@@ -34,13 +34,18 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d080124f-2444-4f78-93fb-8b99318eaf32" name="Changes" comment="shikai">
-      <change afterPath="$PROJECT_DIR$/kalidous doc.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/editor.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/editor.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docs/assets/css/style.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docs/assets/js/main.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docs/index.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docs/pages/installation.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docs/pages/intro.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docs/pages/language/control-flow.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docs/pages/language/errors.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docs/pages/project/toml.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docs/pages/quickstart.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docs/sitemap.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/impl/lexer/keywords.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/impl/lexer/keywords.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/impl/parser/parser.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/impl/parser/parser.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/impl/parser/parser.h" beforeDir="false" afterPath="$PROJECT_DIR$/impl/parser/parser.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/include/kalidous/kalidous.h" beforeDir="false" afterPath="$PROJECT_DIR$/include/kalidous/kalidous.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -55,6 +60,7 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="HTML File" />
+        <option value="JavaScript File" />
       </list>
     </option>
   </component>
@@ -68,12 +74,12 @@
     &quot;assignee&quot;: &quot;GalaxyHaze&quot;
   }
 }</component>
-  <component name="GithubPullRequestsUISettings">{
-  &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/GalaxyHaze/Kalidous-Implementation.git&quot;,
-    &quot;accountId&quot;: &quot;780da64c-3602-4eb0-8256-dedc90a12900&quot;
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/GalaxyHaze/Kalidous-Lang.git",
+    "accountId": "7924b62b-ab4a-4473-a106-26e4bc834b7c"
   }
-}</component>
+}]]></component>
   <component name="MacroExpansionManager">
     <option name="directoryName" value="bWTyexzf" />
   </component>
@@ -99,6 +105,8 @@
     "CMake Application.KalidousCore.executor": "Run",
     "CMake Application.kalidous.executor": "Run",
     "DefaultHtmlFileTemplate": "HTML File",
+    "JavaScript Debug.index.html.executor": "Coverage",
+    "JavaScript Debug.kalidous doc.html.executor": "Run",
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "RunOnceActivity.RadMigrateCodeStyle": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
@@ -112,7 +120,7 @@
     "cf.first.check.clang-format": "false",
     "cidr.known.project.marker": "true",
     "git-widget-placeholder": "master",
-    "last_opened_file_path": "/home/diogo/CLionProjects/Kalidous-Implementation",
+    "last_opened_file_path": "/home/diogo/CLionProjects/Kalidous-Lang/docs",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -127,15 +135,18 @@
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/docs" />
       <recent name="$PROJECT_DIR$/tests" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/include/kalidous" />
-      <recent name="$PROJECT_DIR$/impl/memory" />
-      <recent name="$PROJECT_DIR$/impl/ast" />
+      <recent name="$PROJECT_DIR$/docs" />
+      <recent name="$PROJECT_DIR$/docs/assets/pages" />
+      <recent name="$PROJECT_DIR$/docs/assets/pages/project" />
+      <recent name="$PROJECT_DIR$/docs/assets/pages/language" />
+      <recent name="$PROJECT_DIR$/docs/assets/pages/cli" />
     </key>
   </component>
-  <component name="RunManager" selected="JavaScript Debug.kalidous doc.html">
+  <component name="RunManager" selected="JavaScript Debug.index.html">
     <configuration name="CLI11" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Kalidous" TARGET_NAME="CLI11" CONFIG_NAME="Debug">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -151,6 +162,14 @@
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
+    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="index.html" type="JavascriptDebugType" temporary="true" nameIsGenerated="true" uri="http://localhost:63342/Kalidous/docs/index.html" useBuiltInWebServerPort="true">
+      <method v="2" />
+    </configuration>
     <configuration name="kalidous doc.html" type="JavascriptDebugType" temporary="true" nameIsGenerated="true" uri="http://localhost:63342/Kalidous/kalidous doc.html" useBuiltInWebServerPort="true">
       <method v="2" />
     </configuration>
@@ -158,11 +177,12 @@
       <item itemvalue="CMake Application.CLI11" />
       <item itemvalue="CMake Application.KalidousCore" />
       <item itemvalue="CMake Application.KalidousParse" />
-      <item itemvalue="CMake Application.kalidous" />
+      <item itemvalue="JavaScript Debug.index.html" />
       <item itemvalue="JavaScript Debug.kalidous doc.html" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="JavaScript Debug.index.html" />
         <item itemvalue="JavaScript Debug.kalidous doc.html" />
       </list>
     </recent_temporary>
@@ -193,6 +213,7 @@
       <workItem from="1774436584517" duration="76000" />
       <workItem from="1774450174898" duration="3729000" />
       <workItem from="1774463480180" duration="618000" />
+      <workItem from="1774466132299" duration="2956000" />
     </task>
     <task id="LOCAL-00001" summary="Migration: to Kalidous-Lang">
       <option name="closed" value="true" />

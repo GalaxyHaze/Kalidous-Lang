@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Official Kalidous programming language documentation - CLI reference, language guide, and tooling setup">
+  <meta name="keywords" content="Kalidous, programming language, documentation, CLI, language guide, systems programming">
+  <meta name="author" content="Kalidous Team">
+  <meta name="robots" content="index, follow">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Kalidous Documentation">
+  <meta property="og:description" content="Official Kalidous programming language documentation and reference guide">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://github.com/GalaxyHaze/Kalidous-Lang/docs">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Kalidous Documentation">
+  <meta name="twitter:description" content="Complete Kalidous language and CLI reference">
+
+  <!-- Canonical -->
+  <link rel="canonical" href="https://github.com/GalaxyHaze/Kalidous-Lang/docs/index.html">
+
+  <!-- Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Kalidous Documentation",
+    "url": "https://github.com/GalaxyHaze/Kalidous-Lang/docs",
+    "description": "Official documentation for Kalidous programming language",
+    "creator": {
+      "@type": "Organization",
+      "name": "Kalidous Team"
+    },
+    "mainEntity": {
+      "@type": "SoftwareApplication",
+      "name": "Kalidous",
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "Linux, macOS, Windows"
+    }
+  }
+  </script>
+
+  <!-- Fonts & Styles -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+
+  <title>Kalidous — Documentation</title>
+</head>
+<body>
+  <div class="page-wrapper">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-label">Getting Started</div>
+        <div class="sidebar-item active" onclick="navigate('intro')">
+          <span class="sidebar-item-dot"></span> Introduction
+        </div>
+        <div class="sidebar-item" onclick="navigate('installation')">
+          <span class="sidebar-item-dot"></span> Installation
+        </div>
+        <div class="sidebar-item" onclick="navigate('quickstart')">
+          <span class="sidebar-item-dot"></span> Quick Start
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-label">CLI Reference</div>
+        <div class="sidebar-item" onclick="navigate('cli-overview')">
+          <span class="sidebar-item-dot"></span> Overview
+        </div>
+        <div class="sidebar-item" onclick="navigate('cmd-check')">
+          <span class="sidebar-item-dot"></span> check
+        </div>
+        <div class="sidebar-item" onclick="navigate('cmd-compile')">
+          <span class="sidebar-item-dot"></span> compile
+        </div>
+        <div class="sidebar-item" onclick="navigate('cmd-build')">
+          <span class="sidebar-item-dot"></span> build
+        </div>
+        <div class="sidebar-item" onclick="navigate('cmd-execute')">
+          <span class="sidebar-item-dot"></span> execute
+        </div>
+        <div class="sidebar-item" onclick="navigate('cmd-run')">
+          <span class="sidebar-item-dot"></span> run
+        </div>
+        <div class="sidebar-item" onclick="navigate('cli-flags')">
+          <span class="sidebar-item-dot"></span> Global Flags
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-label">Project</div>
+        <div class="sidebar-item" onclick="navigate('project-toml')">
+          <span class="sidebar-item-dot"></span> KalidousProject.toml
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-label">Language Guide</div>
+        <div class="sidebar-item" onclick="navigate('lang-overview')">
+          <span class="sidebar-item-dot"></span> Overview
+        </div>
+        <div class="sidebar-item" onclick="navigate('lang-syntax')">
+          <span class="sidebar-item-dot"></span> Syntax Basics
+        </div>
+        <div class="sidebar-item" onclick="navigate('lang-vars')">
+          <span class="sidebar-item-dot"></span> Variables
+        </div>
+        <div class="sidebar-item" onclick="navigate('lang-types')">
+          <span class="sidebar-item-dot"></span> Types
+        </div>
+        <div class="sidebar-item" onclick="navigate('lang-control')">
+          <span class="sidebar-item-dot"></span> Control Flow
+        </div>
+        <div class="sidebar-item" onclick="navigate('lang-functions')">
+          <span class="sidebar-item-dot"></span> Functions
+        </div>
+        <div class="sidebar-item" onclick="navigate('lang-memory')">
+          <span class="sidebar-item-dot"></span> Memory
+        </div>
+        <div class="sidebar-item" onclick="navigate('lang-errors')">
+          <span class="sidebar-item-dot"></span> Error Handling
+        </div>
+        <div class="sidebar-item" onclick="navigate('lang-modules')">
+          <span class="sidebar-item-dot"></span> Modules
+        </div>
+        <div class="sidebar-item" onclick="navigate('lang-generics')">
+          <span class="sidebar-item-dot"></span> Generics
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <div class="main-content">
+      <header class="header">
+        <span class="logo">Kalidous</span>
+      </header>
+      <main class="content">
+        <!-- Content will be loaded here -->
+      </main>
+    </div>
+  </div>
+
+  <script src="assets/js/main.js"></script>
+</body>
+</html>

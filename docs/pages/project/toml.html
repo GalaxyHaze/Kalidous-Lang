@@ -1,0 +1,203 @@
+<div class="breadcrumb">
+  <span onclick="navigate('intro')" style="cursor:pointer">docs</span>
+  <span class="breadcrumb-sep">/</span>
+  <span>project</span>
+  <span class="breadcrumb-sep">/</span>
+  <span>KalidousProject.toml</span>
+</div>
+<div class="page-eyebrow animate-in">Project Configuration</div>
+<h1 class="animate-in">KalidousProject.toml</h1>
+<p class="lead animate-in">Configuration file for Kalidous projects. Defines metadata, dependencies, and build settings.</p>
+
+<h2>Overview</h2>
+<p><code>KalidousProject.toml</code> is a TOML configuration file that sits in the root of your project. It specifies project metadata, dependencies, and build configuration.</p>
+
+<h2>Basic Structure</h2>
+<div class="code-block">
+  <div class="code-block-header"><span class="code-block-lang">toml</span><button class="code-block-copy" onclick="copyCode(this)">copy</button></div>
+  <pre>[project]
+name = "my-app"
+version = "0.1.0"
+authors = ["Your Name &lt;email@example.com&gt;"]
+description = "A Kalidous application"
+
+[output]
+bin = "bin/my-app"
+
+[dependencies]
+# Dependencies here
+
+[dev-dependencies]
+# Dev-only dependencies
+
+[build]
+# Build settings</pre>
+</div>
+
+<h2>[project] Section</h2>
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>Key</th>
+        <th>Type</th>
+        <th>Required</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>name</code></td>
+        <td>string</td>
+        <td>Yes</td>
+        <td>Project name (alphanumeric + hyphens)</td>
+      </tr>
+      <tr>
+        <td><code>version</code></td>
+        <td>string</td>
+        <td>Yes</td>
+        <td>Semantic version (e.g., 1.0.0)</td>
+      </tr>
+      <tr>
+        <td><code>authors</code></td>
+        <td>array</td>
+        <td>No</td>
+        <td>Author names and emails</td>
+      </tr>
+      <tr>
+        <td><code>description</code></td>
+        <td>string</td>
+        <td>No</td>
+        <td>Project description</td>
+      </tr>
+      <tr>
+        <td><code>license</code></td>
+        <td>string</td>
+        <td>No</td>
+        <td>License (SPDX identifier)</td>
+      </tr>
+      <tr>
+        <td><code>repository</code></td>
+        <td>string</td>
+        <td>No</td>
+        <td>Repository URL</td>
+      </tr>
+      <tr>
+        <td><code>keywords</code></td>
+        <td>array</td>
+        <td>No</td>
+        <td>Search keywords</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<h2>[output] Section</h2>
+<p>Specifies build output paths:</p>
+<div class="code-block">
+  <div class="code-block-header"><span class="code-block-lang">toml</span></div>
+  <pre>[output]
+bin = "bin/my-app"      # Binary output
+lib = "lib/libmy.a"     # Static library
+shared = "lib/libmy.so" # Shared library</pre>
+</div>
+
+<h2>[dependencies] Section</h2>
+<p>External crates your project depends on:</p>
+<div class="code-block">
+  <div class="code-block-header"><span class="code-block-lang">toml</span></div>
+  <pre>[dependencies]
+standard = "1.0"
+math = { version = "2.1", features = ["simd"] }</pre>
+</div>
+
+<h2>[dev-dependencies] Section</h2>
+<p>Dependencies only for testing and development:</p>
+<div class="code-block">
+  <div class="code-block-header"><span class="code-block-lang">toml</span></div>
+  <pre>[dev-dependencies]
+test-framework = "0.5"</pre>
+</div>
+
+<h2>[build] Section</h2>
+<p>Build configuration options:</p>
+<div class="code-block">
+  <div class="code-block-header"><span class="code-block-lang">toml</span></div>
+  <pre>[build]
+opt-level = 3
+debug = false
+lto = true
+panic = "abort"</pre>
+</div>
+
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>Key</th>
+        <th>Values</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>opt-level</code></td>
+        <td>0-3</td>
+        <td>Optimization level</td>
+      </tr>
+      <tr>
+        <td><code>debug</code></td>
+        <td>true/false</td>
+        <td>Include debug symbols</td>
+      </tr>
+      <tr>
+        <td><code>lto</code></td>
+        <td>true/false</td>
+        <td>Link-time optimization</td>
+      </tr>
+      <tr>
+        <td><code>panic</code></td>
+        <td>unwind/abort</td>
+        <td>Panic behavior</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<h2>Example Complete File</h2>
+<div class="code-block">
+  <div class="code-block-header"><span class="code-block-lang">toml</span><button class="code-block-copy" onclick="copyCode(this)">copy</button></div>
+  <pre>[project]
+name = "web-server"
+version = "1.2.3"
+authors = ["Alice &lt;alice@example.com&gt;", "Bob &lt;bob@example.com&gt;"]
+description = "A fast HTTP server"
+license = "MIT"
+keywords = ["http", "server", "networking"]
+
+[output]
+bin = "bin/web-server"
+
+[dependencies]
+http = "1.0"
+socket = { version = "0.8", features = ["async"] }
+
+[dev-dependencies]
+test-client = "2.0"
+
+[build]
+opt-level = 3
+debug = false
+lto = true</pre>
+</div>
+
+<div class="callout callout-note">
+  <span class="callout-icon">ℹ</span>
+  <div class="callout-body">Run <code>kalidous</code> with no arguments and a <code>KalidousProject.toml</code> present to automatically build the project.</div>
+</div>
+
+<h2>See Also</h2>
+<ul>
+  <li><span onclick="navigate('cmd-build')" style="cursor:pointer; color: #4d9fff;">build</span> - Building projects</li>
+  <li><span onclick="navigate('quickstart')" style="cursor:pointer; color: #4d9fff;">Quick Start</span> - Creating projects</li>
+</ul>
