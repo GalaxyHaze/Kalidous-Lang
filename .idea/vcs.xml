@@ -2,6 +2,9 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/build/_deps/cli11-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/build/_deps/tomlplusplus-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/build/_deps/unordered_dense-src" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/cmake-build-debug/_deps/cli11-src" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/cmake-build-release/_deps/cli11-src" vcs="Git" />
   </component>

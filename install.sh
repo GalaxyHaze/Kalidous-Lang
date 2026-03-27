@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # 1. Setup Global Variables
-REPO="GalaxyHaze/Kalidous"
+REPO="GalaxyHaze/Kalidous-Lang"
 VERSION=""
 OUTPUT_NAME="kalidous"
 
@@ -10,15 +10,19 @@ if [ -n "$1" ]; then
     VERSION="$1"
     echo "Installing requested version: $VERSION"
 else
+    # We use the GitHub API. To avoid strict rate limits (60/hr), we avoid auth 
+    # but keep the URL standard. If this hits a limit, it will return 403.
     API_URL="https://api.github.com/repos/$REPO/releases/latest"
+    
     # Fetch latest tag
     VERSION=$(curl -s "$API_URL" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
+    
+    if [ -z "$VERSION" ]; then
+        echo "Error: Could not fetch latest version from GitHub (API Rate Limit?)."
+        echo "Please specify a version manually: ./install.sh v1.0.0"
+        exit 1
+    fi
     echo "No version specified. Installing latest version: $VERSION"
-fi
-
-if [ -z "$VERSION" ]; then
-    echo "Error: Could not determine version."
-    exit 1
 fi
 
 # 3. Detect OS and Architecture
@@ -27,9 +31,22 @@ ARCH="$(uname -m)"
 
 FILE_NAME=""
 
+# Determine Filename based on OS and Arch
 case "$OS" in
-  Linux*)  FILE_NAME="kalidous-linux-amd64" ;;
-  Darwin*) FILE_NAME="kalidous-macos-amd64" ;;
+  Linux*)  
+      case "$ARCH" in
+          x86_64) FILE_NAME="kalidous-linux-amd64" ;;
+          aarch64|arm64) FILE_NAME="kalidous-linux-arm64" ;;
+          *) echo "Architecture not supported on Linux: $ARCH"; exit 1 ;;
+      esac
+      ;;
+  Darwin*) 
+      case "$ARCH" in
+          x86_64) FILE_NAME="kalidous-macos-amd64" ;;
+          arm64) FILE_NAME="kalidous-macos-arm64" ;;
+          *) echo "Architecture not supported on macOS: $ARCH"; exit 1 ;;
+      esac
+      ;;
   # Covers Git Bash, MinGW, and MSYS on Windows
   MINGW*|MSYS*|CYGWIN*)
       FILE_NAME="kalidous-windows-amd64.exe"
@@ -38,7 +55,7 @@ case "$OS" in
   *)      echo "OS not supported: $OS"; exit 1 ;;
 esac
 
-# Safety Check if we didn't find a filename (e.g. on an unsupported ARM Mac)
+# Safety Check
 if [ -z "$FILE_NAME" ]; then
     echo "Error: Could not find a compatible binary for $OS $ARCH."
     exit 1
@@ -46,10 +63,9 @@ fi
 
 DOWNLOAD_URL="https://github.com/$REPO/releases/download/$VERSION/$FILE_NAME"
 
-echo "Downloading from $DOWNLOAD_URL..."
+echo "Downloading $FILE_NAME from $DOWNLOAD_URL..."
 
 # 4. Download the binary
-# -L follows redirects, -s is silent, -S shows error on fail, -o specifies output
 if ! curl -fsSL "$DOWNLOAD_URL" -o "$OUTPUT_NAME"; then
     echo "Error: Failed to download binary."
     echo "Please check the URL: $DOWNLOAD_URL"
@@ -57,21 +73,22 @@ if ! curl -fsSL "$DOWNLOAD_URL" -o "$OUTPUT_NAME"; then
 fi
 
 # 5. Install
+chmod +x "$OUTPUT_NAME"
+
 if [[ "$OS" == MINGW* ]] || [[ "$OS" == MSYS* ]] || [[ "$OS" == CYGWIN* ]]; then
-    # Windows (Git Bash)
-    chmod +x "$OUTPUT_NAME"
-    echo "Download complete. Please move '$OUTPUT_NAME' to a folder in your PATH."
+    # Windows (Git Bash) - Just chmod, user must move it manually
+    # or add it to PATH manually. 
+    echo "Download complete: $OUTPUT_NAME"
+    echo "Please move '$OUTPUT_NAME' to a folder in your PATH."
 else
     # Linux / macOS
-    chmod +x "$OUTPUT_NAME"
     echo "Installing Kalidous to /usr/local/bin/..."
-    sudo mv "$OUTPUT_NAME" /usr/local/bin/kalidous
-
-    # Check if it worked
-    # shellcheck disable=SC2181
-    if [ $? -eq 0 ]; then
+    
+    # Using 'sudo -v' checks if we have sudo rights nicely
+    if sudo mv "$OUTPUT_NAME" /usr/local/bin/kalidous; then
         echo "Installation complete! Run 'kalidous --help' to get started."
     else
-        echo "Installation failed. Please check your sudo permissions."
+        echo "Installation failed. Please check your sudo permissions or try manually moving the file."
+        exit 1
     fi
 fi

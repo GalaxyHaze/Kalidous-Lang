@@ -17,12 +17,27 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          # Linux
           - os: ubuntu-latest
             target_name: kalidous-linux-amd64
-          - os: macos-15
+            
+          # macOS (Intel)
+          - os: macos-13 # Intel runner
             target_name: kalidous-macos-amd64
+            
+          # macOS (Apple Silicon - M1/M2/M3)
+          - os: macos-latest # ARM runner (macos-14+)
+            target_name: kalidous-macos-arm64
+            
+          # Windows (Intel/AMD)
           - os: windows-latest
             target_name: kalidous-windows-amd64.exe
+            
+          # Windows (ARM64)
+          - os: windows-latest
+            target_name: kalidous-windows-arm64.exe
+            # We need to tell CMake to target ARM64 on Windows
+            cmake_arch: -A ARM64
 
     steps:
       - uses: actions/checkout@v4
@@ -39,7 +54,8 @@ jobs:
         uses: ilammy/msvc-dev-cmd@v1
 
       - name: Configure CMake
-        run: cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+        # Pass the architecture flag if it exists in the matrix
+        run: cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release ${{ matrix.cmake_arch }}
 
       - name: Build
         run: cmake --build build --config Release
@@ -55,6 +71,7 @@ jobs:
             cp build/Kalidous artifacts/${{ matrix.target_name }}
           fi
 
+      # --- This was separated in your snippet, now connected properly ---
       - name: Upload Release Assets
         uses: softprops/action-gh-release@v1
         with:
