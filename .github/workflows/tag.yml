@@ -19,45 +19,45 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          # FIX: Use a PAT here so the tag push later can trigger
+          # the Build & Release workflow. GITHUB_TOKEN pushes are
+          # deliberately blocked from firing downstream workflows.
+          token: ${{ secrets.RELEASE_PAT }}
 
       - name: Configure Git
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Create Tag and Push
+      - name: Create and Push Tag
         run: |
-          # Verifica se a tag já existe
-          if git rev-parse v${{ inputs.version }} >/dev/null 2>&1; then
+          if git rev-parse "v${{ inputs.version }}" >/dev/null 2>&1; then
             echo "Error: Tag v${{ inputs.version }} already exists."
             exit 1
           fi
-          
-          # Cria a tag anotada
-          git tag -a v${{ inputs.version }} -m "Release v${{ inputs.version }}"
-          
-          # Envia a tag para o GitHub
-          git push origin v${{ inputs.version }}
+          git tag -a "v${{ inputs.version }}" -m "Release v${{ inputs.version }}"
+          # FIX: This push now uses the PAT (via the checkout token above),
+          # which GitHub treats as a real user event — triggering Build & Release.
+          git push origin "v${{ inputs.version }}"
 
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
+      - name: Create GitHub Release Page
+        # FIX: Updated from @v1 (Node 16, deprecated) to @v2.
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ inputs.version }}
           name: Release v${{ inputs.version }}
           body: |
             ## Changes in v${{ inputs.version }}
-            <!-- Você pode adicionar notas de lançamento aqui manualmente depois, ou automatizar -->
-            
+
             ### Installation
             **Linux / macOS:**
-            ```bash
+            bash
             curl -fsSL https://raw.githubusercontent.com/GalaxyHaze/Kalidous-Lang/main/install.sh | bash
-            ```
-            
+
             **Windows:**
-            ```powershell
+            powershell
             irm https://raw.githubusercontent.com/GalaxyHaze/Kalidous-Lang/main/install.ps1 | iex
-            ```
+
           draft: false
           prerelease: false
         env:
