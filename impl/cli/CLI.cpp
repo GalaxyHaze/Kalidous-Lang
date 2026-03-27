@@ -446,7 +446,7 @@ EXAMPLES:
 
 LEARN MORE:
     Source: https://github.com/GalaxyHaze/Kalidous-lang
-    Docs:   https://galaxyhaze.github.io/Kalidous-Lang/kalidous-docs.html
+    Docs:   https://galaxyhaze.github.io/Kalidous-Lang/docs/index.html
 )";
     return 0;
 }
