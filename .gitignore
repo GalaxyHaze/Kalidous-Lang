@@ -1,4 +1,2 @@
-/cmake-build-debug/
-
-/cmake-build-release/
-/cmake-build-release/
+/build
+/.cache
