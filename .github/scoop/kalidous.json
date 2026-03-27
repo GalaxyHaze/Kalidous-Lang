@@ -1,0 +1,12 @@
+{
+  "version": "1.0.0",
+  "description": "The Kalidous programming language toolchain.",
+  "homepage": "https://github.com/GalaxyHaze/Kalidous-Lang",
+  "license": "MIT",
+  "url": "https://github.com/GalaxyHaze/Kalidous-Lang/releases/download/v1.0.0/kalidous-windows-amd64.exe",
+  "hash": "REPLACE_WITH_SHA256",
+  "bin": "kalidous-windows-amd64.exe",
+  "installer": {
+    "script": "Rename-Item \"$dir\\kalidous-windows-amd64.exe\" \"kalidous.exe\""
+  }
+}
