@@ -207,10 +207,12 @@ jobs:
               -s WASM=1 \
               -s FILESYSTEM=1 \
               -s ENVIRONMENT='web,node'"
+      - name: Build WASM
+        run: cmake --build build-wasm --config Release -j$(nproc)
 
       - name: Prepare Artifact (zip)
         run: |
-          mkdir -p artifacts wasm-staging
+         mkdir -p artifacts wasm-staging
       
           echo "=== Emscripten output ==="
           find build-wasm -type f | sort
