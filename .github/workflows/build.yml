@@ -4,8 +4,18 @@ on:
   push:
     tags:
       - '*'
-  workflow_dispatch:   # still manually runnable on its own
-  workflow_call:       # ← allows other workflows to call it directly
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Tag para a Release (ex: v1.0.0)'
+        required: false
+        default: 'manual-build'
+  workflow_call:
+    inputs:
+      tag_name:
+        type: string
+        required: false
+
 
 permissions:
   contents: write
