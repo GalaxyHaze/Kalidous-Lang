@@ -167,7 +167,7 @@ jobs:
   # ─────────────────────────────────────────────────────────────────────────────
   build-wasm:
     name: Build WebAssembly
-    runs-on: ubuntu-llatest
+    runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
