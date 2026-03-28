@@ -105,7 +105,7 @@ jobs:
       contents: write
 
     container:
-      image: voidlinux/void-glibc:latest
+      image: ghcr.io/void-linux/void-glibc
       options: --user root
 
     steps:
