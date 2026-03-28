@@ -46,8 +46,9 @@ jobs:
           # ── macOS Intel (x64) ────────────────────────────────────────────────
           # FIX: macos-14 is an ARM (M1/M2) runner, NOT Intel.
           # macos-13 is the last stable Intel runner.
-          - os: macos-13
+          - os: macos-latest
             target_name: kalidous-macos-amd64
+            cmake_flags: -DCMAKE_OSX_ARCHITECTURES=x86_64
 
           # ── macOS Apple Silicon (ARM64) ───────────────────────────────────────
           - os: macos-latest
@@ -156,23 +157,24 @@ jobs:
   build-void-musl:
     name: Build Void Linux (musl x86_64)
     runs-on: ubuntu-latest
-    # FIX: was missing — required to upload to releases from inside a container.
     permissions:
       contents: write
     container:
       image: ghcr.io/void-linux/void-musl
-      # FIX: was missing — xbps-install requires root, just like the glibc job.
       options: --user root
     steps:
-      # FIX: git must be installed before actions/checkout, same as glibc job.
-      # Chaining with && is risky — a repo refresh failure silently skips the install.
-      - name: Install git (required by actions/checkout)
+      # FIX: Must install nodejs BEFORE any uses: action.
+      # GitHub Actions injects a glibc Node.js binary to run actions —
+      # it doesn't work on musl. Installing nodejs here gives the runner
+      # a musl-compatible binary it can actually execute.
+      - name: Install Node.js and git
         run: |
           xbps-install -Suy xbps
-          xbps-install -Suy git
-
+          xbps-install -Suy nodejs git
+  
+      # This now works — actions/checkout will find the musl Node.js
       - uses: actions/checkout@v4
-
+  
       - name: Install build dependencies
         run: xbps-install -Suy cmake ninja gcc make pkg-config
 
