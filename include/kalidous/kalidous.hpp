@@ -2,6 +2,10 @@
 #pragma once
 
 #include <stddef.h>
+#ifdef __cplusplus
+#include <string>
+#include <stdexcept>
+#endif 
 #include <stdint.h>
 #include <string.h>
 #include <stdbool.h>

@@ -1,5 +1,5 @@
 // src/arena.c
-#include <kalidous/kalidous.h>
+#include <kalidous/kalidous.hpp>
 #include <stdlib.h>
 #include <string.h>
 

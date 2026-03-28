@@ -1,5 +1,5 @@
 // impl/parser/keywords.cpp
-#include "kalidous/kalidous.h"
+#include "kalidous/kalidous.hpp"
 #include <string_view>
 #include <array>
 

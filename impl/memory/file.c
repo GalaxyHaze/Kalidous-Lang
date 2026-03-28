@@ -1,9 +1,15 @@
 // src/utils/file.c
-#include <kalidous/kalidous.h>
+#include <kalidous/kalidous.hpp>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#ifdef _WIN32
+#ifndef S_ISREG
+#define S_ISREG(m) (((m) & _S_IFMT) == _S_IFREG)
+#endif
+#endif
 #include <sys/stat.h>
+
 #include <ctype.h>
 #include <stdbool.h>
 
@@ -14,6 +20,10 @@
 #else
 #include <unistd.h>
 #endif
+#ifdef _MSC_VER
+#pragma warning(disable: 4200)
+#endif
+
 
 // Extensão canónica dos ficheiros fonte Kalidous
 #define KALIDOUS_SOURCE_EXT ".kali"

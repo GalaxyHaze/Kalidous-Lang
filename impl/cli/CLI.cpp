@@ -4,7 +4,7 @@
 // Depends on: CLI11, Kalidous/kalidous.h
 
 #include <CLI/CLI.hpp>
-#include <kalidous/kalidous.h>
+#include <kalidous/kalidous.hpp>
 #include <iostream>
 #include <string>
 #include <thread>

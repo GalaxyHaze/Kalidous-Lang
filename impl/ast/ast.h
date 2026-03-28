@@ -4,7 +4,7 @@
 // Extended nodes live at 1000+ as required by the base header contract.
 #pragma once
 
-#include <kalidous/kalidous.h>
+#include <kalidous/kalidous.hpp>
 
 #ifdef __cplusplus
 extern "C" {

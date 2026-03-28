@@ -1,4 +1,4 @@
-#include <kalidous/kalidous.h>
+#include <kalidous/kalidous.hpp>
 
 
 int main(const int argc, const char **argv) {

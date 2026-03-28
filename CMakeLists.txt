@@ -101,7 +101,7 @@ set(CLI_SOURCES
         impl/cli/CLI.cpp
         impl/memory/utils.h
         impl/lexer/debug.h
-        include/kalidous/kalidous.h
+        include/kalidous/kalidous.hpp
 )
 
 # ───────────────────────────────────────────────

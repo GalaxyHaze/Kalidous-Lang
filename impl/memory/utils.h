@@ -11,7 +11,7 @@
 #include <cstddef>
 #include <cstring>
 
-#include "kalidous/kalidous.h"
+#include <kalidous/kalidous.hpp>
 
 // ============================================================================
 // ArenaList<T>

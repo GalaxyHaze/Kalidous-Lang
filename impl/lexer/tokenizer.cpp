@@ -1,5 +1,5 @@
 // impl/parser/tokenizer.cpp
-#include "kalidous/kalidous.h"
+#include "kalidous/kalidous.hpp"
 #include "../memory/utils.h"
 #include <string_view>
 #include <vector>

@@ -1,6 +1,6 @@
 // impl/parser/token_debug.cpp — Debug utilities for KalidousToken
 #pragma once
-#include "kalidous/kalidous.h"
+#include <kalidous/kalidous.hpp>
 #include <cstdio>
 #include <cstring>
 
