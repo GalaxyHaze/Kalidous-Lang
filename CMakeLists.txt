@@ -174,39 +174,31 @@ message("")
 # WebAssembly (Emscripten)
 # =============================================================================
 if(EMSCRIPTEN)
-    add_executable(kalidous-wasm
-        impl/main.cpp
-        ${CLI_SOURCES}
-    )
+  add_executable(kalidous-wasm
+    impl/main.cpp
+    # Do NOT include CLI_SOURCES here
+  )
+  target_include_directories(kalidous-wasm PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+  target_link_libraries(kalidous-wasm PRIVATE KalidousParse)
 
-    target_include_directories(kalidous-wasm PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
-    )
+  target_compile_definitions(kalidous-wasm PRIVATE
+    KALIDOUS_VERSION="v0.0-alpha"
+    KALIDOUS_EXECUTABLE
+    KALIDOUS_WASM
+  )
 
-    # CLI11 is skipped — no terminal in a browser context.
-    # KalidousParse pulls in KalidousCore + unordered_dense + tomlplusplus.
-    target_link_libraries(kalidous-wasm PRIVATE KalidousParse)
+  target_link_options(kalidous-wasm PRIVATE
+    -O3 -flto
+    --closure 1
+    -s WASM=1
+    -s FILESYSTEM=1
+    -s ENVIRONMENT=web,node
+    -s EXPORTED_RUNTIME_METHODS=['ccall','cwrap']
+    -s ALLOW_MEMORY_GROWTH=1
+  )
 
-    target_compile_definitions(kalidous-wasm PRIVATE
-        KALIDOUS_VERSION="v0.0-alpha"
-        KALIDOUS_EXECUTABLE
-        KALIDOUS_WASM  # use this guard in main.cpp to skip CLI parsing
-    )
-
-    set_target_properties(kalidous-wasm PROPERTIES
-        # .html triggers Emscripten to emit .html + .js + .wasm together
-        SUFFIX ".html"
-        OUTPUT_NAME "kalidous"
-        RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}
-        LINK_FLAGS "\
-            -O3 \
-            -flto \
-            --closure 1 \
-            -s WASM=1 \
-            -s FILESYSTEM=1 \
-            -s ENVIRONMENT='web,node' \
-            -s EXPORTED_RUNTIME_METHODS=['ccall','cwrap'] \
-            -s ALLOW_MEMORY_GROWTH=1 \
-        "
-    )
+  set_target_properties(kalidous-wasm PROPERTIES
+    SUFFIX ".html"
+    OUTPUT_NAME "kalidous"
+  )
 endif()
