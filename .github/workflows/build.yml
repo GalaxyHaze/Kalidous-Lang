@@ -78,10 +78,10 @@ jobs:
         run: |
           mkdir -p artifacts
           if [ "${{ runner.os }}" == "Windows" ]; then
-            cp build/kalidous.exe "artifacts/${{ matrix.target_name }}"
+            cp build/bin/kalidous.exe "artifacts/${{ matrix.target_name }}"
           else
-            chmod +x build/kalidous
-            cp build/kalidous "artifacts/${{ matrix.target_name }}"
+            chmod +x build/bin/kalidous
+            cp build/bin/kalidous "artifacts/${{ matrix.target_name }}"
           fi
 
       # FIX: Updated from @v1 (deprecated Node 16) to @v2 (Node 20+).
