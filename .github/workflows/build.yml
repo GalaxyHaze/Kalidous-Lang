@@ -208,25 +208,29 @@ jobs:
               -s FILESYSTEM=1 \
               -s ENVIRONMENT='web,node'"
 
-      - name: Build
-        run: cmake --build build-wasm
-
       - name: Prepare Artifact (zip)
         run: |
           mkdir -p artifacts wasm-staging
-
+      
           echo "=== Emscripten output ==="
           find build-wasm -type f | sort
-
-          cp build-wasm/kalidous.wasm wasm-staging/ 2>/dev/null || true
-          cp build-wasm/kalidous.js   wasm-staging/ 2>/dev/null || true
-          cp build-wasm/kalidous.html wasm-staging/ 2>/dev/null || true
-
+      
+          # Find files regardless of subdirectory
+          find build-wasm -name "*.wasm" -exec cp {} wasm-staging/ \;
+          find build-wasm -name "*.js"   -exec cp {} wasm-staging/ \;
+          find build-wasm -name "*.html" -exec cp {} wasm-staging/ \;
+      
           echo "=== WASM files staged ==="
           ls -lh wasm-staging/
-
-          cd wasm-staging && zip ../artifacts/kalidous-wasm.zip * && cd ..
-
+      
+          # Fail explicitly if nothing was found
+          if [ -z "$(ls -A wasm-staging/)" ]; then
+            echo "Error: No WASM files found in build-wasm/"
+            exit 1
+          fi
+      
+          cd wasm-staging && zip ../artifacts/kalidous-wasm.zip ./* && cd ..
+      
           echo "=== Final artifact ==="
           ls -lh artifacts/
 
