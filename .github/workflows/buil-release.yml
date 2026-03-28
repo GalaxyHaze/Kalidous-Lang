@@ -107,14 +107,6 @@ jobs:
 
   # ─────────────────────────────────────────────────────────────────────────────
   # musl static builds (x86_64 + ARM64) via Zig toolchain
-  #
-  # REMOVED: build-void-glibc — redundant with kalidous-linux-amd64 (Ubuntu),
-  # which is also glibc. The musl static binary works on Void glibc too.
-  #
-  # Zig is used because musl-gcc is a glibc GCC wrapper and cannot link
-  # a C++ project statically — libstdc++ on the Ubuntu runner is glibc-compiled
-  # and missing musl symbols (__libc_single_threaded, __printf_chk, etc.).
-  # Zig ships its own musl libc + C++ runtime, fully self-contained.
   # ─────────────────────────────────────────────────────────────────────────────
   build-musl:
     name: Build Linux musl static (${{ matrix.target_name }})
@@ -172,18 +164,10 @@ jobs:
 
   # ─────────────────────────────────────────────────────────────────────────────
   # WebAssembly (Emscripten)
-  #
-  # Optimization flags:
-  #   -O3          — maximum speed optimization
-  #   -flto        — link-time optimization across all translation units
-  #   --closure 1  — runs Google Closure Compiler on the JS glue (minifies ~30%)
-  #   -s WASM=1    — explicit wasm output (guard against fallback to asm.js)
-  #   -s ENVIRONMENT='web,node' — strips runtime checks for other environments
-  #   -s FILESYSTEM=1           — keep if your lang reads source files at runtime
   # ─────────────────────────────────────────────────────────────────────────────
   build-wasm:
     name: Build WebAssembly
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-llatest
     permissions:
       contents: write
     steps:
@@ -191,6 +175,11 @@ jobs:
 
       - name: Setup Emscripten
         uses: mymindstorm/setup-emsdk@v14
+
+      - name: Install System Deps (Safety for FetchContent)
+        # Although we use FetchContent, installing libtomlplusplus-dev ensures 
+        # headers are findable if Emscripten's CMake behaves oddly.
+        run: sudo apt-get update && sudo apt-get install -y libtomlplusplus-dev
 
       - name: Verify Emscripten
         run: emcc -v
@@ -207,32 +196,35 @@ jobs:
               -s WASM=1 \
               -s FILESYSTEM=1 \
               -s ENVIRONMENT='web,node'"
+
       - name: Build WASM
         run: cmake --build build-wasm --config Release -j$(nproc)
 
       - name: Prepare Artifact (zip)
         run: |
-         mkdir -p artifacts wasm-staging
-      
+          mkdir -p artifacts wasm-staging
+        
           echo "=== Emscripten output ==="
           find build-wasm -type f | sort
-      
-          # Find files regardless of subdirectory
-          find build-wasm -name "*.wasm" -exec cp {} wasm-staging/ \;
-          find build-wasm -name "*.js"   -exec cp {} wasm-staging/ \;
-          find build-wasm -name "*.html" -exec cp {} wasm-staging/ \;
-      
+        
+          # FIX: Look in build-wasm/bin/ as per your CMakeLists.txt config
+          if [ -d "build-wasm/bin" ]; then
+             cp build-wasm/bin/* wasm-staging/
+          else
+             # Fallback to root if bin dir is missing for some reason
+             cp build-wasm/* wasm-staging/ 2>/dev/null || true
+          fi
+        
           echo "=== WASM files staged ==="
           ls -lh wasm-staging/
-      
-          # Fail explicitly if nothing was found
+        
           if [ -z "$(ls -A wasm-staging/)" ]; then
-            echo "Error: No WASM files found in build-wasm/"
+            echo "Error: No WASM files found."
             exit 1
           fi
-      
+        
           cd wasm-staging && zip ../artifacts/kalidous-wasm.zip ./* && cd ..
-      
+        
           echo "=== Final artifact ==="
           ls -lh artifacts/
 

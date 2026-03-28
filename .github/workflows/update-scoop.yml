@@ -2,7 +2,7 @@ name: Update Scoop Manifest
 
 on:
   workflow_run:
-    workflows: ["Build and Release"]
+    workflows: ["Build and Release"] # <--- MUST match the 'name' in build-release.yml
     types:
       - completed
 
@@ -10,12 +10,15 @@ jobs:
   update-scoop:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - name: Get latest release tag
         id: tag
         run: |
-          TAG=$(gh release list --limit 1 --json tagName -q '.[0].tagName')
+          # We query the main repo to find the latest tag
+          TAG=$(gh release list --repo ${{ github.repository }} --limit 1 --json tagName -q '.[0].tagName')
           echo "tag=$TAG" >> $GITHUB_OUTPUT
           echo "version=${TAG#v}" >> $GITHUB_OUTPUT
         env:
@@ -24,6 +27,7 @@ jobs:
       - name: Download release binaries
         run: |
           gh release download ${{ steps.tag.outputs.tag }} \
+            --repo ${{ github.repository }} \
             --pattern "kalidous-windows-amd64.exe" \
             --pattern "kalidous-windows-arm64.exe" \
             --dir release-bins
@@ -50,12 +54,13 @@ jobs:
           cd scoop-bucket
           jq --arg version "${{ steps.tag.outputs.version }}" \
              --arg amd64 "${{ steps.hashes.outputs.amd64 }}" \
-             --arg arm64 "${{ steps.hashes.outputs.arm64 }}" '
+             --arg arm64 "${{ steps.hashes.outputs.arm64 }}" \
+             --arg repo "https://github.com/GalaxyHaze/Kalidous-Lang" '
             .version = $version |
             .architecture["64bit"].hash = $amd64 |
-            .architecture["64bit"].url = "https://github.com/GalaxyHaze/Kalidous-Lang/releases/download/v\($version)/kalidous-windows-amd64.exe" |
+            .architecture["64bit"].url = "\($repo)/releases/download/v\($version)/kalidous-windows-amd64.exe" |
             .architecture.arm64.hash = $arm64 |
-            .architecture.arm64.url = "https://github.com/GalaxyHaze/Kalidous-Lang/releases/download/v\($version)/kalidous-windows-arm64.exe"
+            .architecture.arm64.url = "\($repo)/releases/download/v\($version)/kalidous-windows-arm64.exe"
           ' bucket/kalidous.json > tmp.json && mv tmp.json bucket/kalidous.json
 
       - name: Commit and push
