@@ -24,6 +24,8 @@ else
     fi
     echo "No version specified. Installing latest version: $VERSION"
 fi
+    echo "$VERSION" > version.txt
+
 
 # 3. Detect OS and Architecture
 OS="$(uname -s)"
