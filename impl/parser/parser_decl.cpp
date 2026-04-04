@@ -203,9 +203,9 @@ static KalidousNode *parse_fn_decl(Parser *p, KalidousSourceLoc loc, KalidousVis
 
     KalidousNode *body = nullptr;
     if (p->mode == KALIDOUS_MODE_SCAN) {
-        if (!parser_match(p, KALIDOUS_TOKEN_SEMICOLON)) skip_block(p);
+        if (!parser_match(p, KALIDOUS_TOKEN_COLON)) skip_block(p);
     } else {
-        if (!parser_check(p, KALIDOUS_TOKEN_SEMICOLON)) body = parse_body(p);
+        if (!parser_check(p, KALIDOUS_TOKEN_COLON)) body = parse_body(p);
         else parser_advance(p);
     }
     
@@ -276,7 +276,8 @@ static KalidousNode *parse_struct_decl(Parser *p, KalidousVisibility struct_vis)
             // CHANGED: Use parser_match instead of parser_expect
             // This allows the last field to omit the comma before '}' without causing an error,
             // or it simply consumes the comma if present.
-            parser_match(p, KALIDOUS_TOKEN_COMMA);
+            if (parser_peek(p)->type != KALIDOUS_TOKEN_RBRACE)
+                parser_expect(p, KALIDOUS_TOKEN_COMMA, "-shall use ';'");
 
             fields_b.push(p->arena, kalidous_ast_make_field(p->arena, floc, {fname->lexeme.data, fname->lexeme.len, own, item_vis, ftype, fdef}));
             continue;
