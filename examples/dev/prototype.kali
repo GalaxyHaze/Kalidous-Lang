@@ -10,10 +10,9 @@ enum Color{
     gray = 4
 }
 
-struct Point{
-    public:
-    x: u32;
-    y: u32;
+public struct Point{
+    x: u32,
+    y: u32
 }
 
 const CONSTANT = 0xdeadbeef;
@@ -23,24 +22,19 @@ flowing fn add( num1: lend long, num2: long ){
 
     }
 
-   if true
+   if (true)
         entry goto sample(5);
    else
         goto scene level1;
 
-   public struct Point{
-       public:
-       x: u32;
-       y: u32;
+   public struct Coord{
+       x: u32,
+       y: u32
    }
-    union Number{
-        u8,
-        u16,
-        f32,
-        char
-    }
-    fn add(){
-        return infinity;
+   //is a type constrain, inline union
+    type Number = u8 | u16 | f32 | f64;
+    fn add(a: Number, b: Number){
+        a + b
     }
 }
 
@@ -50,9 +44,9 @@ fn main( agrc: u32, argv: string ){
     let num1: u32 = 50;
 
     switch(a){
-        case 1:
+        0 .. 50 ->
             break;
-        default:
+        _       ->
             println(5);
     }
 
