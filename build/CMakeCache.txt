@@ -214,8 +214,7 @@ CMAKE_ADDR2LINE:FILEPATH=/usr/bin/llvm-addr2line
 //Path to a program.
 CMAKE_AR:FILEPATH=/usr/bin/llvm-ar
 
-//Choose the type of build, options are: None Debug Release RelWithDebInfo
-// MinSizeRel ...
+//No help, variable specified on the command line.
 CMAKE_BUILD_TYPE:STRING=Debug
 
 //No help, variable specified on the command line.

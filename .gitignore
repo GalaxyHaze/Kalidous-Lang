@@ -49,6 +49,7 @@ htmlcov/
 
 # Gradle
 .gradle/
+.cache/
 
 # Compressed files
 *.zip
