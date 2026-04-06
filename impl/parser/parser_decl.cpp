@@ -220,9 +220,9 @@ static KalidousNode *parse_body(Parser *p) {
 
 static KalidousNode *parse_fn_decl(Parser *p, KalidousSourceLoc loc, KalidousVisibility vis, bool is_method) {
     KalidousFnKind kind = KALIDOUS_FN_NORMAL;
-    if (check_kw(p, "async")) { parser_advance(p); kind = KALIDOUS_FN_ASYNC; }
-    else if (check_kw(p, "flowing")) { parser_advance(p); kind = KALIDOUS_FN_FLOWING; }
-    else if (check_kw(p, "noreturn")) { parser_advance(p); kind = KALIDOUS_FN_NORETURN; }
+    if (parser_match(p, KALIDOUS_TOKEN_ASYNC)) {  kind = KALIDOUS_FN_ASYNC; }
+    else if (parser_match(p, KALIDOUS_TOKEN_FLOWING)) { kind = KALIDOUS_FN_FLOWING; }
+    else if (parser_match(p, KALIDOUS_TOKEN_NORETURN)) { kind = KALIDOUS_FN_NORETURN; }
     
     parser_expect(p, KALIDOUS_TOKEN_FN, "expected 'fn' keyword");
     const KalidousToken *name = parser_expect(p, KALIDOUS_TOKEN_IDENTIFIER, "expected function name");
@@ -272,7 +272,7 @@ static KalidousNode *parse_struct_decl(Parser *p, KalidousVisibility struct_vis)
         if ((int)item_vis == -1) continue;
 
         // 2. Check for Methods (fn, async, etc)
-        if (parser_check(p, KALIDOUS_TOKEN_FN) || check_kw(p, "async") || check_kw(p, "flowing") || check_kw(p, "noreturn")) {
+        if (parser_check(p, KALIDOUS_TOKEN_FN) || parser_check(p, KALIDOUS_TOKEN_ASYNC) || parser_check(p, KALIDOUS_TOKEN_FLOWING) || parser_check(p, KALIDOUS_TOKEN_NORETURN)) {
             methods_b.push(p->arena, parse_fn_decl(p, parser_peek(p)->loc, item_vis, true));
             continue;
         }
