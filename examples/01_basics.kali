@@ -1,143 +1,197 @@
 // ============================================================================
 // 01_basics.kali
-// Demonstração dos fundamentos da linguagem Kalidous:
-// - Controle de binding (let/var/auto)
-// - Mutabilidade explícita
-// - Sistema de Ownership (unique, share, view, lend)
-// - Tipos Opcionais (?)
-// - Structs e Trait de Extension
+// ============================================================================
+// This file demonstrates the core fundamentals of the Kalidous language, 
+// focusing on memory safety without a garbage collector, strict typing, 
+// and explicit control over mutability.
+//
+// Key Concepts Covered:
+// - Binding Control: let, var, and auto (smart inference).
+// - Dual-layer Mutability: Distinguishing between variable reassignment 
+//   and content modification.
+// - Ownership System: Unique, Shared, View, and Lend semantics.
+// - Type Safety: Optional types (?) and void states.
+// - Extensibility: Structs and the 'Extension' trait pattern.
 // ============================================================================
 
-import std.io.println as println;
+import std.io.console.println as println;
+// Alternative import style:
+// from std.io.console; // Usage: console.println;
+// Forwarding imports (re-exporting):
+// export std.io.console.println; // Anyone importing this file gets console.println
 
 // ----------------------------------------------------------------------------
-// 1. Variáveis, Binding e Mutabilidade
+// 1. Variables, Binding, and Mutability
 // ----------------------------------------------------------------------------
 fn demo_binding() {
-    // let: Imutável por padrão (não permite reatribuição)
+    // --- let: Immutable Binding ---
+    // 'let' defines a name that cannot be reassigned to a different value 
+    // or memory address. It is the default for safety.
     let x = 10; 
-    // x = 20;  // ERRO: let não permite reatribuição
+    // x = 20;  // COMPILE ERROR: 'let' bindings cannot be reassigned.
 
-    // var: Permite reatribuição
+    // --- var: Mutable Binding ---
+    // 'var' allows the identifier to be reassigned to different values 
+    // over its lifetime.
     var y = 5;
-    y = 15; // OK
+    y = 15; // OK: 'y' now refers to a new value.
 
-    // auto: Açúcar sintático. Começa como let, se reatribuído vira var.
+    // --- auto: Smart Inference ---
+    // Syntax sugar. The compiler infers the type.
+    // Behavior: It starts as 'let' (immutable). However, if the control flow 
+    // detects a reassignment, the compiler automatically promotes it to 'var'.
     auto z = 100;
-    // Se houvesse uma reatribuição aqui, o compilador trataria 'z' como var.
-    
-    // Estado inicial 'void': Variáveis declaradas sem valor são 'nothing' até atribuição.
+    // If we uncommented the line below, the compiler would treat 'z' as 'var'.
+    // z = 200; 
+
+    // --- Void/Nothing State ---
+    // Variables declared without an initial value are in a 'void' (nothing) state.
+    // They are strictly typed but uninitialized until assigned.
     let a: i32; 
-    a = 42; // Agora 'a' é i32. Antes disso, era nothing/void.
+    // 'a' is effectively unusable here.
+    a = 42; // 'a' is now initialized and valid.
 
-    // Mutabilidade de conteúdo (explícita com 'mut')
-    // let não permite trocar o que aponta, mas se for 'mut', permite alterar o conteúdo.
-    let counter: mut i32 = 0;
-    counter += 1; // OK: altera o conteúdo
-    // counter = 5; // ERRO: let não permite reatribuição (trocar o binding)
+    // --- Deep Mutability (The 'mut' modifier) ---
+    // Kalidous distinguishes between the *binding* (the container) and the *content*.
+    // 'let' prevents changing the container, but 'mut' allows changing the content inside.
+    
+    // Example: A constant reference to mutable data.
+    let counter: mut i32 = 0; 
+    counter += 1; // OK: We modify the content (0 -> 1).
+    // counter = 5; // COMPILE ERROR: We cannot reassign the binding itself.
 
+    // Example: A mutable reference to mutable data.
     var mutable_val: mut i32 = 10;
-    mutable_val += 5; // OK
-    mutable_val = 20; // OK (var permite reatribuição)
+    mutable_val += 5; // OK: Modify content.
+    mutable_val = 20; // OK: Reassign binding.
 
-    // Type Hints com inferência parcial
-    // O compilador infere o tipo base (i32) pela direita, mas aplica o modificador 'mut'
+    // --- Partial Type Hints ---
+    // You can specify modifiers without the type, letting the compiler infer 
+    // the base type (e.g., i32) from the initialization expression.
     let hint_mut: mut = 50; 
-    hint_mut += 10;
+    hint_mut += 10; // Valid because 'mut' was explicitly requested.
 }
 
 // ----------------------------------------------------------------------------
-// 2. Ownership e Borrowing
+// 2. Ownership and Borrowing
 // ----------------------------------------------------------------------------
 fn demo_ownership() {
-    // Unique: Posse exclusiva. Apenas este identificador pode modificar.
-    let data: unique i32 = 100;
+    // --- unique: Exclusive Ownership ---
+    // This is the default owner type. It has sole responsibility for the data.
+    // When it goes out of scope, the data is dropped.
+    let data: unique = 100;
     
-    // View: Referência imutável. Pode haver múltiplas views.
+    // --- view: Immutable Borrow ---
+    // Creates a read-only reference. You can have unlimited 'views' 
+    // simultaneously because they cannot modify the data.
     let view_data: view i32 = data; 
-    // *view_data = 200; // ERRO: view é imutável
+    // *view_data = 200; // COMPILE ERROR: Cannot mutate through a 'view'.
 
-    // Share: Promoção por move. O original é invalidado.
-    // Ao mover 'data' para um contexto 'share', ele se torna compartilhado.
-    // Nota: Em código real, isso geralmente envolve uma mudança de escopo ou função.
-    let shared_data: share i32 = data; // Move 'data' para 'shared_data'
-    // 'data' não é mais válido aqui.
+    // --- share: Ownership Transfer (Promotion) ---
+    // Moves the 'unique' data into a 'shared' context (likely reference-counted).
+    // The original binding 'data' is invalidated (moved).
+    // This is useful when data needs to outlive the current scope or be shared 
+    // across threads.
+    let shared_data: share i32 = data; 
+    // data is now invalid. Using it here would be a compile error.
     
-    // Opcional (?)
-    // '?' vem antes de qualquer outro modificador.
-    let maybe_val: ?unique i32 = null;
-    let maybe_mut: ?mut i32 = null;
+    // --- Optional Types (?) ---
+    // The '?' prefix denotes an Optional type. It can hold the value or 'null'.
+    // It can be combined with ownership modifiers.
+    let maybe_val: ?unique i32 = null;      // An optional unique owner
+    let maybe_mut: ?mut i32 = null;         // An optional mutable reference
     
-    if maybe_val != null {
-        // Uso seguro do opcional
+    // Safe checking for Optionals
+    if (maybe_val) {
+        // Inside this block, 'maybe_val' is automatically unwrapped.
+        // We can safely access the unique value.
     }
 }
 
 // ----------------------------------------------------------------------------
-// 3. Funções e Lend
+// 3. Functions and Lifetimes (Lend)
 // ----------------------------------------------------------------------------
 
-// lend: Referência mutável temporária. Não pode ser armazenada, apenas usada no escopo.
-// Ideal para recursos que não devem escapar da função.
+// --- lend: Scoped Mutable Borrow ---
+// 'lend' provides temporary mutable access to data.
+// Crucial Safety Feature: A 'lend' reference cannot be stored in a struct 
+// or returned from the function. It guarantees the reference does not 
+// outlive the data it points to.
 fn process_buffer(buf: lend Buffer) {
-    // Modifica o buffer temporariamente
+    // We can modify the buffer, but we cannot keep 'buf' alive 
+    // after this function returns.
     // buf.write(...); 
 }
 
-// Parâmetro auto: Comporta-se como 'let' (não reatribuível) por padrão.
-// Se o corpo da função tentar reatribuir, deve ser declarado explicitamente como var ou auto com permissão.
-fn generic_process(input: auto T) {
-    // input = ...; // Se tentar reatribuir aqui sem ser 'var', gera erro dependendo da flag do parâmetro.
-    println("Processing generic item");
+// --- Generic Parameters (auto T) ---
+// 'auto' in parameters are the standard bind.
+// The parameter behaves like 'let' but compiller will infere 'var'
+// if you re-assigned it
+// but you can specify 'let' or 'var' in order to guarantee intend bind
+fn process(input: data) {
+    println("Processing an 'let' argument");
 }
 
 // ----------------------------------------------------------------------------
-// 4. Structs e Extension (Lista Duplamente Ligada)
+// 4. Structs and Extension Pattern (Doubly Linked List)
 // ----------------------------------------------------------------------------
 
-// Definição da Struct herdando de Extension
+// Struct definition inheriting from the 'Extension' trait.
+// This allows the struct to be used in an extension chain.
 struct DoubleLink<T>: Extension {
-    prev: ?Self,          // Ponteiro opcional para o anterior
-    next: ?unique Self,   // Posse única do próximo nó
-    val: T
+    prev: ?Self,          // Optional pointer to the previous node (weak/parent link)
+    next: ?unique Self,   // Unique pointer to the next node (strong ownership)
+    val: T                // The payload data
 }
 
-// Implementação do método construtor/extensor
+// Implementation block for the struct
 implement DoubleLink {
-    // 'self' aqui refere-se ao contexto de extensão
+    // --- Method: insert ---
+    // Creates a new node extending the current one.
+    // 'self' is the instance invoking the method.
     fn insert(self, content: T) -> Self {
-        // Cria uma nova instância estendendo o atual
         Self {
-            prev = extension self, // Marca o pai como extensão
-            next = null,
+            // 'extension self' links the new node back to the parent.
+            // This syntax likely utilizes the 'Extension' trait to establish 
+            // the 'prev' relationship automatically or explicitly.
+            prev = extension self, 
+            
+            // The new node has no next node yet.
+            next = null, 
+            
+            // Store the content.
             val = content
         }
     }
 }
 
-// Exemplo de uso de Weak (placeholder runtime para listas circulares ou casos complexos)
-struct NodeWeak<T> {
-    data: T,
-    back_ref: ?weak NodeWeak<T> // Referência fraca, resolvida em runtime
-}
-
 // ----------------------------------------------------------------------------
-// 5. Main
+// 5. Main Entry Point
 // ----------------------------------------------------------------------------
 fn main() {
-    println("--- Demo Binding ---");
+    println("--- Demo: Binding & Mutability ---");
     demo_binding();
 
-    println("\n--- Demo Ownership ---");
+    println("\n--- Demo: Ownership System ---");
     demo_ownership();
 
-    println("\n--- Demo Extension ---");
-    // Criando o nó raiz (conceitual)
-    let root: unique DoubleLink<i32> = DoubleLink<i32> { prev = null, next = null, val = 0 };
+    println("\n--- Demo: Extension Pattern ---");
     
-    // Inserindo um novo nó que estende a lógica
-    // A sintaxe exata de chamada depende de como o compiler resolve o 'extends'
+    // Create the root node. It owns the start of the list.
+    // We explicitly initialize fields.
+    let root = DoubleLink<i32> { 
+        prev = null, 
+        next = null, 
+        val = 0 
+    };
+    
+    // Insert a new node extending the root.
+    // The 'insert' method takes a reference to it, more precise, a lend
+    // to establish the link.
     let new_node = root.insert(42);
+    
+    // Note: root is now 'aware' of new_node
+    // new_node is 'part' of root, so it cant outlive the father
 
-    println("\n--- Done ---");
+    println("\n--- Execution Complete ---");
 }
