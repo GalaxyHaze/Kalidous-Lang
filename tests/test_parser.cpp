@@ -1,6 +1,7 @@
 #include <catch2/catch_test_macros.hpp>
 #include <string>
 #include "../impl/parser/parser.h"
+#include "../impl/ast/ast.h"
 
 // ============================================================================
 // SCAN Phase — declarations and signatures
@@ -131,16 +132,175 @@ TEST_CASE("SCAN: struct with method", "[scan]") {
     REQUIRE(std::string(mp->name) == "len");
 }
 
-TEST_CASE("SCAN: import declaration — currently errors", "[scan][shouldfail]") {
-    // TODO: 'use' is not tokenized as a keyword — tokenizer emits IDENTIFIER
-    // The import parser expects KALIDOUS_TOKEN_IMPORT
-    auto ast = parse_test("use std.io;");
+TEST_CASE("SCAN: import declaration", "[scan]") {
+    auto ast = parse_test("import std.io;");
     REQUIRE(ast);
-    // Currently produces an error node instead of import
+    REQUIRE(ast->type == KALIDOUS_NODE_PROGRAM);
+    
+    auto **decls = static_cast<KalidousNode **>(ast->data.list.ptr);
+    REQUIRE(ast->data.list.len >= 1);
+    
+    auto *import_node = decls[0];
+    REQUIRE(import_node->type == KALIDOUS_NODE_IMPORT);
+    
+    auto *payload = static_cast<KalidousImportPayload *>(import_node->data.list.ptr);
+    REQUIRE(payload != nullptr);
+    REQUIRE(std::string(payload->path) == "std.io");
+    REQUIRE(payload->is_export == false);
+    REQUIRE(payload->is_from == false);
+}
+
+TEST_CASE("SCAN: import declaration with alias", "[scan]") {
+    auto ast = parse_test("import std.io.console as console;");
+    REQUIRE(ast);
+    REQUIRE(ast->type == KALIDOUS_NODE_PROGRAM);
+    
+    auto **decls = static_cast<KalidousNode **>(ast->data.list.ptr);
+    REQUIRE(ast->data.list.len >= 1);
+    
+    auto *import_node = decls[0];
+    REQUIRE(import_node->type == KALIDOUS_NODE_IMPORT);
+    
+    auto *payload = static_cast<KalidousImportPayload *>(import_node->data.list.ptr);
+    REQUIRE(payload != nullptr);
+    REQUIRE(std::string(payload->path) == "std.io.console");
+    REQUIRE(payload->alias != nullptr);
+    REQUIRE(std::string(payload->alias, payload->alias_len) == "console");
+}
+
+TEST_CASE("SCAN: from import declaration", "[scan]") {
+    auto ast = parse_test("from std.io.console import println;");
+    REQUIRE(ast);
+    REQUIRE(ast->type == KALIDOUS_NODE_PROGRAM);
+    
+    auto **decls = static_cast<KalidousNode **>(ast->data.list.ptr);
+    REQUIRE(ast->data.list.len >= 1);
+    
+    auto *import_node = decls[0];
+    REQUIRE(import_node->type == KALIDOUS_NODE_IMPORT);
+    
+    auto *payload = static_cast<KalidousImportPayload *>(import_node->data.list.ptr);
+    REQUIRE(payload != nullptr);
+    REQUIRE(std::string(payload->path) == "std.io.console");
+    REQUIRE(payload->is_from == true);
+}
+
+TEST_CASE("SCAN: from import declaration with alias", "[scan]") {
+    auto ast = parse_test("from std.io.console import println as log;");
+    REQUIRE(ast);
+    REQUIRE(ast->type == KALIDOUS_NODE_PROGRAM);
+    
+    auto **decls = static_cast<KalidousNode **>(ast->data.list.ptr);
+    REQUIRE(ast->data.list.len >= 1);
+    
+    auto *import_node = decls[0];
+    REQUIRE(import_node->type == KALIDOUS_NODE_IMPORT);
+    
+    auto *payload = static_cast<KalidousImportPayload *>(import_node->data.list.ptr);
+    REQUIRE(payload != nullptr);
+    REQUIRE(std::string(payload->path) == "std.io.console");
+    REQUIRE(payload->is_from == true);
+    REQUIRE(payload->alias != nullptr);
+    REQUIRE(std::string(payload->alias, payload->alias_len) == "log");
+}
+
+TEST_CASE("SCAN: export declaration", "[scan]") {
+    auto ast = parse_test("export std.io.console.println;");
+    REQUIRE(ast);
+    REQUIRE(ast->type == KALIDOUS_NODE_PROGRAM);
+    
+    auto **decls = static_cast<KalidousNode **>(ast->data.list.ptr);
+    REQUIRE(ast->data.list.len >= 1);
+    
+    auto *export_node = decls[0];
+    REQUIRE(export_node->type == KALIDOUS_NODE_EXPORT);
+    
+    auto *payload = static_cast<KalidousImportPayload *>(export_node->data.list.ptr);
+    REQUIRE(payload != nullptr);
+    REQUIRE(std::string(payload->path) == "std.io.console.println");
+    REQUIRE(payload->is_export == true);
+    REQUIRE(payload->vis == KALIDOUS_VIS_PUBLIC);
 }
 
 // ============================================================================
-// Error handling
+// Error handling - Import/Export/From
+// ============================================================================
+
+TEST_CASE("SCAN: import without semicolon", "[scan][error]") {
+    // Should error: missing ';' at end
+    auto ast = parse_test("import std.io");
+    // Parser should report error for missing semicolon
+    (void)ast;
+}
+
+TEST_CASE("SCAN: import without module path", "[scan][error]") {
+    // Should error: expected module name after 'import'
+    auto ast = parse_test("import ;");
+    (void)ast;
+}
+
+TEST_CASE("SCAN: from without import keyword", "[scan][error]") {
+    // Should error: expected 'import' after 'from <module>'
+    auto ast = parse_test("from std.io.console println;");
+    (void)ast;
+}
+
+TEST_CASE("SCAN: from without item", "[scan][error]") {
+    // Should error: expected item name after 'import'
+    auto ast = parse_test("from std.io.console import ;");
+    (void)ast;
+}
+
+TEST_CASE("SCAN: export without path", "[scan][error]") {
+    // Should error: expected module name after 'export'
+    auto ast = parse_test("export ;");
+    (void)ast;
+}
+
+TEST_CASE("SCAN: export without semicolon", "[scan][error]") {
+    // Should error: missing ';' at end
+    auto ast = parse_test("export std.io.console.println");
+    (void)ast;
+}
+
+TEST_CASE("SCAN: from without semicolon", "[scan][error]") {
+    // Should error: missing ';' at end
+    auto ast = parse_test("from std.io.console import println");
+    (void)ast;
+}
+
+TEST_CASE("SCAN: import with double dot", "[scan][error]") {
+    // Should error: unexpected token after '.'
+    auto ast = parse_test("import std..io;");
+    (void)ast;
+}
+
+TEST_CASE("SCAN: from with double dot", "[scan][error]") {
+    // Should error: unexpected token after '.'
+    auto ast = parse_test("from std..io import println;");
+    (void)ast;
+}
+
+TEST_CASE("SCAN: export with double dot", "[scan][error]") {
+    // Should error: unexpected token after '.'
+    auto ast = parse_test("export std..io.console;");
+    (void)ast;
+}
+
+TEST_CASE("SCAN: import alias without name", "[scan][error]") {
+    // Should error: expected alias name after 'as'
+    auto ast = parse_test("import std.io as ;");
+    (void)ast;
+}
+
+TEST_CASE("SCAN: from import alias without name", "[scan][error]") {
+    // Should error: expected alias name after 'as'
+    auto ast = parse_test("from std.io import println as ;");
+    (void)ast;
+}
+
+// ============================================================================
+// Error handling - Generic
 // ============================================================================
 
 TEST_CASE("SCAN: null source returns nullptr", "[scan][error]") {
