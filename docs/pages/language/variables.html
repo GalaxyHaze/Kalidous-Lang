@@ -91,13 +91,21 @@
 </div>
 
 <h2>Var</h2>
-<p>You can declare a new variable with the same name:</p>
+<p>The <code>var</code> keyword declares a mutable variable. Unlike <code>let</code>, variables declared with <code>var</code> can be reassigned:</p>
 
 <div class="code-block">
   <div class="code-block-header"><span class="code-block-lang">zith</span></div>
-  <pre><span class="tok-kw">let</span> x = 5;
-<span class="tok-kw">let</span> x = x + 1;   <span class="tok-cmt">// x is now 6</span>
-<span class="tok-kw">let</span> x = "hello"; <span class="tok-cmt">// x is now a string</span></pre>
+  <pre><span class="tok-kw">var</span> counter: <span class="tok-type">i32</span> = 0;
+counter = 1;    <span class="tok-cmt">// Reassign allowed</span>
+counter = 42;   <span class="tok-cmt">// Still mutable</span></pre>
+</div>
+
+<p>You can also use <code>var</code> with type inference:</p>
+
+<div class="code-block">
+  <div class="code-block-header"><span class="code-block-lang">zith</span></div>
+  <pre><span class="tok-kw">var</span> x = 10;     <span class="tok-cmt">// Inferred as i32, mutable</span>
+x = 20;         <span class="tok-cmt">// OK: x is mutable</span></pre>
 </div>
 
 <div class="callout callout-note">

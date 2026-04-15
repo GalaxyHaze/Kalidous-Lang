@@ -31,10 +31,10 @@
 </div>
 
 <h2>Return Types</h2>
-<p>Specify what a function returns:</p>
+<p>Specify what a function returns using a colon after the parameters:</p>
 <div class="code-block">
   <div class="code-block-header"><span class="code-block-lang">zith</span></div>
-  <pre><span class="tok-kw">fn</span> <span class="tok-fn">add</span>(a: <span class="tok-type">i32</span>, b: <span class="tok-type">i32</span>) -> <span class="tok-type">i32</span> {
+  <pre><span class="tok-kw">fn</span> <span class="tok-fn">add</span>(a: <span class="tok-type">i32</span>, b: <span class="tok-type">i32</span>): <span class="tok-type">i32</span> {
   a + b  <span class="tok-cmt">// No semicolon = return value</span>
 }
 
@@ -45,7 +45,7 @@
 <p>Use <code>return</code> to exit early:</p>
 <div class="code-block">
   <div class="code-block-header"><span class="code-block-lang">zith</span></div>
-  <pre><span class="tok-kw">fn</span> <span class="tok-fn">check</span>(x: <span class="tok-type">i32</span>) -> <span class="tok-type">str</span> {
+  <pre><span class="tok-kw">fn</span> <span class="tok-fn">check</span>(x: <span class="tok-type">i32</span>): <span class="tok-type">str</span> {
   <span class="tok-kw">if</span> x < 0 {
     <span class="tok-kw">return</span> "negative";
   }
@@ -60,7 +60,7 @@
 <p>Store and pass functions:</p>
 <div class="code-block">
   <div class="code-block-header"><span class="code-block-lang">zith</span></div>
-  <pre><span class="tok-kw">fn</span> <span class="tok-fn">apply</span>(f: <span class="tok-kw">fn</span>(<span class="tok-type">i32</span>) -> <span class="tok-type">i32</span>, x: <span class="tok-type">i32</span>) -> <span class="tok-type">i32</span> {
+  <pre><span class="tok-kw">fn</span> <span class="tok-fn">apply</span>(f: <span class="tok-kw">fn</span>(<span class="tok-type">i32</span>): <span class="tok-type">i32</span>, x: <span class="tok-type">i32</span>): <span class="tok-type">i32</span> {
   <span class="tok-fn">f</span>(x)
 }</pre>
 </div>
@@ -84,7 +84,7 @@
 /// ```
 /// let sum = add(2, 3);  // 5
 /// ```</span>
-<span class="tok-kw">fn</span> <span class="tok-fn">add</span>(a: <span class="tok-type">i32</span>, b: <span class="tok-type">i32</span>) -> <span class="tok-type">i32</span> {
+<span class="tok-kw">fn</span> <span class="tok-fn">add</span>(a: <span class="tok-type">i32</span>, b: <span class="tok-type">i32</span>): <span class="tok-type">i32</span> {
   a + b
 }</pre>
 </div>

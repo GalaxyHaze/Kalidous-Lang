@@ -126,6 +126,7 @@ typedef enum {
     ZITH_TOKEN_SPAWN,
     ZITH_TOKEN_JOINED,
     ZITH_TOKEN_AWAIT,
+    ZITH_TOKEN_JOIN,
 
     // ------------------------------------------------------------------------
     // Keywords: tratamento de erros
@@ -133,6 +134,9 @@ typedef enum {
     ZITH_TOKEN_TRY,
     ZITH_TOKEN_CATCH,
     ZITH_TOKEN_MUST, // "must!" — o ! é semântico, o Parser resolve
+    ZITH_TOKEN_THROW,
+    ZITH_TOKEN_DO,
+    ZITH_TOKEN_DROP,
 
     // ------------------------------------------------------------------------
     // Modificadores de propriedade e escopo
@@ -144,12 +148,11 @@ typedef enum {
     ZITH_TOKEN_AUTO,
 
     ZITH_TOKEN_GLOBAL,
-    ZITH_TOKEN_PERSISTENT,
-    ZITH_TOKEN_LOCAL,
     ZITH_TOKEN_LEND,
     ZITH_TOKEN_SHARED,
     ZITH_TOKEN_VIEW,
     ZITH_TOKEN_UNIQUE,
+    ZITH_TOKEN_EXTENSION,
     ZITH_TOKEN_PACK, // reservado na ABI; [] é resolvido pelo Parser
 
     // ------------------------------------------------------------------------
@@ -181,7 +184,10 @@ typedef enum {
     ZITH_TOKEN_YIELD, ZITH_TOKEN_ASYNC, ZITH_TOKEN_FN,
     ZITH_TOKEN_FLOWING, ZITH_TOKEN_ENTRY, ZITH_TOKEN_NORETURN, ZITH_TOKEN_IMPORT,
     ZITH_TOKEN_USE, ZITH_TOKEN_CONTEXT, ZITH_TOKEN_MACRO,
-    ZITH_TOKEN_EXPORT, ZITH_TOKEN_FROM, ZITH_TOKEN_AS
+    ZITH_TOKEN_EXPORT, ZITH_TOKEN_FROM, ZITH_TOKEN_AS,
+    ZITH_TOKEN_REQUIRE, ZITH_TOKEN_IS,
+    ZITH_TOKEN_PREFIX, ZITH_TOKEN_SUFIX,
+    ZITH_TOKEN_INFIX
 } ZithTokenType;
 
 typedef struct {

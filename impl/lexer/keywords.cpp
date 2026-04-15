@@ -77,17 +77,17 @@ static constexpr auto TokenTable = std::to_array<std::pair<std::string_view, Zit
     {"const", ZITH_TOKEN_CONST},
     {"mut", ZITH_TOKEN_MUTABLE},
     {"global", ZITH_TOKEN_GLOBAL},
-    {"persistent", ZITH_TOKEN_PERSISTENT},
-    {"local", ZITH_TOKEN_LOCAL},
     {"lend", ZITH_TOKEN_LEND},
     {"shared", ZITH_TOKEN_SHARED},
     {"view", ZITH_TOKEN_VIEW},
     {"unique", ZITH_TOKEN_UNIQUE},
+    {"extension", ZITH_TOKEN_EXTENSION},
     {"yield", ZITH_TOKEN_YIELD},
     {"async", ZITH_TOKEN_ASYNC},
     {"flowing", ZITH_TOKEN_FLOWING},
     {"entry", ZITH_TOKEN_ENTRY},
     {"noreturn", ZITH_TOKEN_NORETURN},
+    {"recurse", ZITH_TOKEN_RECURSE},
 
     // --- Modificadores de acesso --------------------------------------------
     {"public", ZITH_TOKEN_MODIFIER},
@@ -111,11 +111,22 @@ static constexpr auto TokenTable = std::to_array<std::pair<std::string_view, Zit
     // --- Concorrência -------------------------------------------------------
     {"spawn", ZITH_TOKEN_SPAWN},
     {"await", ZITH_TOKEN_AWAIT},
+    {"join", ZITH_TOKEN_JOIN},
 
     // --- Tratamento de erros ------------------------------------------------
     {"try", ZITH_TOKEN_TRY},
     {"catch", ZITH_TOKEN_CATCH},
     {"must", ZITH_TOKEN_MUST},
+    {"throw", ZITH_TOKEN_THROW},
+    {"do", ZITH_TOKEN_DO},
+    {"drop", ZITH_TOKEN_DROP},
+
+    // --- Metaprogramação ---------------------------------------------------
+    {"require", ZITH_TOKEN_REQUIRE},
+    {"is", ZITH_TOKEN_IS},
+    {"prefix", ZITH_TOKEN_PREFIX},
+    {"sufix", ZITH_TOKEN_SUFIX},
+    {"infix", ZITH_TOKEN_INFIX},
 
     // --- Operadores multi-caractere -----------------------------------------
     {"and", ZITH_TOKEN_AND},

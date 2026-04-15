@@ -79,16 +79,25 @@ inline const char *zith_token_type_name(ZithTokenType type) {
         case ZITH_TOKEN_EXPORT: return "EXPORT";
         case ZITH_TOKEN_FROM: return "FROM";
         case ZITH_TOKEN_AS: return "AS";
+        case ZITH_TOKEN_REQUIRE: return "REQUIRE";
+        case ZITH_TOKEN_IS: return "IS";
+        case ZITH_TOKEN_PREFIX: return "PREFIX";
+        case ZITH_TOKEN_SUFIX: return "SUFIX";
+        case ZITH_TOKEN_INFIX: return "INFIX";
 
         // -- Concorrência -----------------------------------------------------
         case ZITH_TOKEN_SPAWN: return "SPAWN";
         case ZITH_TOKEN_JOINED: return "JOINED";
         case ZITH_TOKEN_AWAIT: return "AWAIT";
+        case ZITH_TOKEN_JOIN: return "JOIN";
 
         // -- Erros ------------------------------------------------------------
         case ZITH_TOKEN_TRY: return "TRY";
         case ZITH_TOKEN_CATCH: return "CATCH";
         case ZITH_TOKEN_MUST: return "MUST";
+        case ZITH_TOKEN_THROW: return "THROW";
+        case ZITH_TOKEN_DO: return "DO";
+        case ZITH_TOKEN_DROP: return "DROP";
 
         // -- Modificadores de propriedade / escopo ----------------------------
         case ZITH_TOKEN_CONST: return "CONST";
@@ -97,12 +106,11 @@ inline const char *zith_token_type_name(ZithTokenType type) {
         case ZITH_TOKEN_LET: return "LET";
         case ZITH_TOKEN_AUTO: return "AUTO";
         case ZITH_TOKEN_GLOBAL: return "GLOBAL";
-        case ZITH_TOKEN_PERSISTENT: return "PERSISTENT";
-        case ZITH_TOKEN_LOCAL: return "LOCAL";
         case ZITH_TOKEN_LEND: return "LEND";
         case ZITH_TOKEN_SHARED: return "SHARED";
         case ZITH_TOKEN_VIEW: return "VIEW";
         case ZITH_TOKEN_UNIQUE: return "UNIQUE";
+        case ZITH_TOKEN_EXTENSION: return "EXTENSION";
         case ZITH_TOKEN_PACK: return "PACK";
 
         // -- Modificadores de acesso ------------------------------------------
@@ -162,11 +170,15 @@ static const char *token_category(ZithTokenType type) {
     if (type <= ZITH_TOKEN_SEMICOLON) return "delimiter";
     if (type <= ZITH_TOKEN_SCENE) return "flow";
     if (type <= ZITH_TOKEN_AWAIT) return "concurrency";
+    if (type == ZITH_TOKEN_JOIN) return "concurrency";
     if (type <= ZITH_TOKEN_MUST) return "error";
+    if (type == ZITH_TOKEN_THROW || type == ZITH_TOKEN_DO || type == ZITH_TOKEN_DROP) return "error";
+    if (type == ZITH_TOKEN_EXTENSION) return "binding";
     if (type <= ZITH_TOKEN_PACK) return "binding";
     if (type == ZITH_TOKEN_MODIFIER) return "access";
     if (type == ZITH_TOKEN_IMPORT || type == ZITH_TOKEN_EXPORT || type == ZITH_TOKEN_FROM) return "module";
-    if (type == ZITH_TOKEN_AS) return "module";
+    if (type == ZITH_TOKEN_AS || type == ZITH_TOKEN_REQUIRE || type == ZITH_TOKEN_IS || 
+        type == ZITH_TOKEN_PREFIX || type == ZITH_TOKEN_SUFIX || type == ZITH_TOKEN_INFIX) return "meta";
     if (type <= ZITH_TOKEN_IMPLEMENT) return "type-decl";
     return "control";
 }

@@ -152,4 +152,27 @@
 <div class="code-block">
   <div class="code-block-header"><span class="code-block-lang">zith</span></div>
   <pre><span class="tok-kw">let</span> x: <span class="tok-type">i32</span> = 42;
-<span class="tok-kw">let</span> y: <span class="tok-type">i
+<span class="tok-kw">let</span> y: <span class="tok-type">f64</span> = x <span class="tok-kw">as</span> <span class="tok-type">f64</span>;  <span class="tok-cmt">// Explicit conversion</span>
+<span class="tok-kw">let</span> z: <span class="tok-type">i64</span> = y <span class="tok-kw">as</span> <span class="tok-type">i64</span>;</pre>
+</div>
+
+<div class="callout callout-warning">
+  <span class="callout-icon">⚠</span>
+  <div class="callout-body">
+    <p>Zith requires explicit type conversions. Implicit casts are not allowed to prevent accidental data loss.</p>
+  </div>
+</div>
+
+<h2>Pointer Types</h2>
+<p>Raw pointers for low-level memory access:</p>
+<div class="code-block">
+  <div class="code-block-header"><span class="code-block-lang">zith</span></div>
+  <pre><span class="tok-kw">let</span> x: <span class="tok-type">i32</span> = 42;
+<span class="tok-kw">let</span> ptr: <span class="tok-type">*i32</span> = &amp;x;  <span class="tok-cmt">// Pointer to i32</span></pre>
+</div>
+
+<h2>See Also</h2>
+<ul>
+  <li><span onclick="navigate('lang-vars')" style="cursor:pointer; color: #4d9fff;">Variables & Constants</span> - Declaring values</li>
+  <li><span onclick="navigate('lang-memory')" style="cursor:pointer; color: #4d9fff;">Memory Management</span> - Ownership semantics</li>
+</ul>
