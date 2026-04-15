@@ -61,6 +61,34 @@ body::before {
   position: fixed;
   height: 100vh;
   z-index: 200;
+  transition: transform var(--transition);
+}
+
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 199;
+}
+
+.menu-toggle {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--text);
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 6px;
+  transition: background var(--transition);
+}
+
+.menu-toggle:hover {
+  background: var(--bg-3);
+}
+
+.menu-toggle svg {
+  display: block;
 }
 
 .main-content {
@@ -387,13 +415,30 @@ a:hover {
 .animate-in { animation: fadeInUp 0.6s ease-out forwards; }
 
 @media (max-width: 768px) {
-  .sidebar {
-    width: 100%;
-    height: auto;
-    position: relative;
-    border-right: none;
-    border-bottom: 1px solid var(--border);
+  .menu-toggle {
+    display: block;
   }
+
+  .sidebar {
+    width: var(--sidebar-w);
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    transform: translateX(-100%);
+    border-right: 1px solid var(--border);
+    border-bottom: none;
+    z-index: 300;
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  .sidebar-overlay.visible {
+    display: block;
+  }
+
   .main-content { margin-left: 0; }
   .content { padding: 24px; }
   h1 { font-size: 32px; }

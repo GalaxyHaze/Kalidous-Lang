@@ -25,17 +25,14 @@ const pageMap = {
 
 // Get the base path depending on environment
 function getBasePath() {
-    // If running locally from file system
     if (window.location.protocol === 'file:') {
         return './';
     }
 
-    // If running on GitHub Pages
     if (window.location.hostname === 'galaxyhaze.github.io') {
-        return '/Zith-Lang/docs/'; // FIXED: Capital 'L' in Zith-Lang
+        return '/Zith-Lang/docs/';
     }
 
-    // Default for local server or custom domain
     const path = window.location.pathname;
     if (path.includes('/docs/')) {
         return '/docs/';
@@ -45,6 +42,44 @@ function getBasePath() {
 }
 
 const basePath = getBasePath();
+
+// --- Mobile Menu Toggle ---
+function initMobileMenu() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    const toggle = document.getElementById('menuToggle');
+
+    if (!toggle || !sidebar || !overlay) return;
+
+    function openMenu() {
+        sidebar.classList.add('open');
+        overlay.classList.add('visible');
+    }
+
+    function closeMenu() {
+        sidebar.classList.remove('open');
+        overlay.classList.remove('visible');
+    }
+
+    toggle.addEventListener('click', () => {
+        if (sidebar.classList.contains('open')) {
+            closeMenu();
+        } else {
+            openMenu();
+        }
+    });
+
+    overlay.addEventListener('click', closeMenu);
+
+    // Close menu when a sidebar item is clicked on mobile
+    document.querySelectorAll('.sidebar-item').forEach(item => {
+        item.addEventListener('click', () => {
+            if (window.innerWidth <= 768) {
+                closeMenu();
+            }
+        });
+    });
+}
 
 function navigate(pageId) {
     const relativePath = pageMap[pageId];
@@ -69,7 +104,6 @@ function loadPage(path, pageId) {
             const content = document.querySelector('.content');
             if (content) {
                 content.innerHTML = html;
-                // This adds the entry to history (allows "Back" button to work URL-wise)
                 window.history.pushState({ page: pageId }, '', `?page=${pageId}`);
                 animatePageIn();
             }
@@ -103,7 +137,6 @@ function updateActiveNav(pageId) {
         item.classList.remove('active');
     });
 
-    // Find the item that matches this pageId
     document.querySelectorAll('.sidebar-item').forEach(item => {
         const onclickAttr = item.getAttribute('onclick');
         if (onclickAttr && onclickAttr.includes(`navigate('${pageId}')`)) {
@@ -141,18 +174,15 @@ function copyCode(button) {
     });
 }
 
-// --- History Management (The Fix) ---
+// --- History Management ---
 window.onpopstate = function(event) {
-    // This runs when the user clicks Back or Forward
     const params = new URLSearchParams(window.location.search);
     const pageId = params.get('page') || 'intro';
 
-    // We manually call loadPage directly to avoid pushState (creating a double history entry)
     const relativePath = pageMap[pageId];
     if (relativePath) {
         const fullPath = basePath + relativePath;
 
-        // We need to fetch and update content, but NOT push state again
         fetch(fullPath)
             .then(response => {
                 if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -177,11 +207,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const params = new URLSearchParams(window.location.search);
     const page = params.get('page') || 'intro';
 
-    // We use loadPage directly here to set the initial state without adding an extra history entry
+    initMobileMenu();
+
     const relativePath = pageMap[page];
     if (relativePath) {
         loadPage(basePath + relativePath, page);
     } else {
-        navigate('intro'); // Fallback
+        navigate('intro');
     }
 });

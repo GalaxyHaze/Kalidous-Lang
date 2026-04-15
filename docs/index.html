@@ -53,7 +53,7 @@
 <body>
   <div class="page-wrapper">
     <!-- Sidebar Navigation -->
-    <aside class="sidebar">
+    <aside class="sidebar" id="sidebar">
       <div class="sidebar-section">
         <div class="sidebar-label">Getting Started</div>
         <div class="sidebar-item active" onclick="navigate('intro')">
@@ -134,9 +134,19 @@
       </div>
     </aside>
 
+    <!-- Sidebar overlay for mobile -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
     <!-- Main Content Area -->
     <div class="main-content">
       <header class="header">
+        <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+        </button>
         <span class="logo">Zith</span>
       </header>
       <main class="content">

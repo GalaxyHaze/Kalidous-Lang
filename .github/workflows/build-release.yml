@@ -34,32 +34,32 @@ jobs:
         include:
           # ── Linux (x64) ──────────────────────────────────────────────────────
           - os: ubuntu-latest
-            target_name: kalidous-linux-amd64
+            target_name: zith-linux-amd64
 
           # ── Linux (ARM64, cross-compiled) ─────────────────────────────────────
           - os: ubuntu-latest
-            target_name: kalidous-linux-arm64
+            target_name: zith-linux-arm64
             cmake_flags: >-
               -DCMAKE_C_COMPILER=aarch64-linux-gnu-gcc
               -DCMAKE_CXX_COMPILER=aarch64-linux-gnu-g++
 
           # ── macOS Intel (x64, cross-compiled from ARM runner) ─────────────────
           - os: macos-latest
-            target_name: kalidous-macos-amd64
+            target_name: zith-macos-amd64
             cmake_flags: -DCMAKE_OSX_ARCHITECTURES=x86_64
 
           # ── macOS Apple Silicon (ARM64) ───────────────────────────────────────
           - os: macos-latest
-            target_name: kalidous-macos-arm64
+            target_name: zith-macos-arm64
 
           # ── Windows x64 ──────────────────────────────────────────────────────
           - os: windows-latest
-            target_name: kalidous-windows-amd64.exe
+            target_name: zith-windows-amd64.exe
             msvc_arch: amd64
 
           # ── Windows ARM64 (cross-compiled from x64 host) ─────────────────────
           - os: windows-latest
-            target_name: kalidous-windows-arm64.exe
+            target_name: zith-windows-arm64.exe
             msvc_arch: amd64_arm64
 
     steps:
@@ -71,7 +71,7 @@ jobs:
           cmake-version: '3.26.x'
 
       - name: Install ARM64 cross-compiler
-        if: matrix.target_name == 'kalidous-linux-arm64'
+        if: matrix.target_name == 'zith-linux-arm64'
         run: sudo apt-get update && sudo apt-get install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu binutils-aarch64-linux-gnu
 
       - name: Setup MSVC Dev Environment
@@ -81,7 +81,7 @@ jobs:
           arch: ${{ matrix.msvc_arch }}
 
       - name: Configure CMake
-        run: cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release ${{ matrix.cmake_flags }} -DKALIDOUS_VERSION=${{ inputs.tag_name || github.ref_name }}
+        run: cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release ${{ matrix.cmake_flags }} -DZITH_VERSION=${{ inputs.tag_name || github.ref_name }}
 
       - name: Build
         run: cmake --build build --config Release
@@ -91,10 +91,10 @@ jobs:
         run: |
           mkdir -p artifacts
           if [ "${{ runner.os }}" == "Windows" ]; then
-            cp build/bin/kalidous.exe "artifacts/${{ matrix.target_name }}"
+            cp build/bin/zith.exe "artifacts/${{ matrix.target_name }}"
           else
-            chmod +x build/bin/kalidous
-            cp build/bin/kalidous "artifacts/${{ matrix.target_name }}"
+            chmod +x build/bin/zith
+            cp build/bin/zith "artifacts/${{ matrix.target_name }}"
           fi
 
       - name: Upload Release Asset
@@ -118,10 +118,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - target_name: kalidous-linux-amd64-musl
+          - target_name: zith-linux-amd64-musl
             zig_target: x86_64-linux-musl
 
-          - target_name: kalidous-linux-arm64-musl
+          - target_name: zith-linux-arm64-musl
             zig_target: aarch64-linux-musl
 
     steps:
@@ -141,7 +141,7 @@ jobs:
             -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_C_COMPILER="zig;cc;-target;${{ matrix.zig_target }}" \
             -DCMAKE_CXX_COMPILER="zig;c++;-target;${{ matrix.zig_target }}" \
-            -DKALIDOUS_VERSION=${{ inputs.tag_name || github.ref_name }} \
+            -DZITH_VERSION=${{ inputs.tag_name || github.ref_name }} \
             -DCMAKE_EXE_LINKER_FLAGS="-static"
 
       - name: Build
@@ -150,8 +150,8 @@ jobs:
       - name: Prepare Artifact
         run: |
           mkdir -p artifacts
-          chmod +x build/bin/kalidous
-          cp build/bin/kalidous artifacts/${{ matrix.target_name }}
+          chmod +x build/bin/zith
+          cp build/bin/zith artifacts/${{ matrix.target_name }}
           file artifacts/${{ matrix.target_name }}
           ldd  artifacts/${{ matrix.target_name }} || echo "Static binary confirmed"
 
@@ -191,7 +191,7 @@ jobs:
             -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_C_FLAGS="-O3 -flto" \
             -DCMAKE_CXX_FLAGS="-O3 -flto" \
-            -DKALIDOUS_VERSION=${{ inputs.tag_name || github.ref_name }} \
+            -DZITH_VERSION=${{ inputs.tag_name || github.ref_name }} \
             -DCMAKE_EXE_LINKER_FLAGS="\
               -O3 -flto \
               --closure 1 \
@@ -225,7 +225,7 @@ jobs:
             exit 1
           fi
         
-          cd wasm-staging && zip ../artifacts/kalidous-wasm.zip ./* && cd ..
+          cd wasm-staging && zip ../artifacts/zith-wasm.zip ./* && cd ..
         
           echo "=== Final artifact ==="
           ls -lh artifacts/
@@ -234,6 +234,6 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ inputs.tag_name || github.ref_name }}
-          files: artifacts/kalidous-wasm.zip
+          files: artifacts/zith-wasm.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

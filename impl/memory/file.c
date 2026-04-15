@@ -28,7 +28,7 @@
 extern void zith_io_error(const char *fmt, ...);
 
 // Extensão canónica dos ficheiros fonte Zith
-#define ZITH_SOURCE_EXT ".kali"
+#define ZITH_SOURCE_EXT ".zith"
 
 // ============================================================================
 // Helpers internos
@@ -77,13 +77,13 @@ int zith_extension_matches(const char *path, const char *expected_ext) {
     return 1;
 }
 
-// Verifica se o ficheiro tem a extensão canónica (.kali)
+// Verifica se o ficheiro tem a extensão canónica (.zith)
 bool zith_is_source_file(const char *path) {
     return zith_extension_matches(path, ZITH_SOURCE_EXT);
 }
 
-// Carrega um ficheiro fonte (.kali) para a arena.
-// Falha com erro descritivo se a extensão não for .kali,
+// Carrega um ficheiro fonte (.zith) para a arena.
+// Falha com erro descritivo se a extensão não for .zith,
 // o ficheiro não existir, não for regular, ou a leitura falhar.
 char *zith_load_file_to_arena(struct ZithArena *arena,
                                   const char *path, size_t *out_size) {

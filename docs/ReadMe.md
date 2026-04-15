@@ -29,7 +29,7 @@ Unlike traditional backends, Zith implements a complete custom toolchain:
 ## Architecture Overview
 
 ```
-Zith Source Code (.kali)
+Zith Source Code (.zith)
         ↓
     Parser & Lexer
         ↓
@@ -113,7 +113,7 @@ zith run
 ```
 hello-world/
 ├── src/
-│   └── main.kali          # Entry point
+│   └── main.zith          # Entry point
 ├── ZithProject.toml   # Project metadata
 └── README.md
 ```
@@ -543,10 +543,10 @@ zith check
 
 ```bash
 # Compile to KBC bytecode
-zith compile src/main.kali -o main.kbc
+zith compile src/main.zith -o main.kbc
 
 # Compile to assembly (planned)
-zith compile src/main.kali --emit asm -o main.s
+zith compile src/main.zith --emit asm -o main.s
 ```
 
 ### Execute

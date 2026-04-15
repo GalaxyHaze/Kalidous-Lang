@@ -1,5 +1,5 @@
 // ============================================================================
-// 01_basics.kali
+// 01_basics.zith
 // ============================================================================
 // This file demonstrates the core fundamentals of the Zith language, 
 // focusing on memory safety without a garbage collector, strict typing, 

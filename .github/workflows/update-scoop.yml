@@ -28,8 +28,8 @@ jobs:
         run: |
           gh release download ${{ steps.tag.outputs.tag }} \
             --repo ${{ github.repository }} \
-            --pattern "kalidous-windows-amd64.exe" \
-            --pattern "kalidous-windows-arm64.exe" \
+            --pattern "zith-windows-amd64.exe" \
+            --pattern "zith-windows-arm64.exe" \
             --dir release-bins
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -37,12 +37,12 @@ jobs:
       - name: Compute SHA256 hashes
         id: hashes
         run: |
-          AMD64=$(sha256sum release-bins/kalidous-windows-amd64.exe | cut -d' ' -f1)
-          ARM64=$(sha256sum release-bins/kalidous-windows-arm64.exe | cut -d' ' -f1)
+          AMD64=$(sha256sum release-bins/zith-windows-amd64.exe | cut -d' ' -f1)
+          ARM64=$(sha256sum release-bins/zith-windows-arm64.exe | cut -d' ' -f1)
           echo "amd64=$AMD64" >> $GITHUB_OUTPUT
           echo "arm64=$ARM64" >> $GITHUB_OUTPUT
 
-      - name: Checkout Kalidous-Lang
+      - name: Checkout Zith-Lang
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.RELEASE_PAT }}
@@ -57,15 +57,15 @@ jobs:
             '
               .version = $version |
               .architecture["64bit"].hash = $amd64 |
-              .architecture["64bit"].url = "https://github.com/GalaxyHaze/Kalidous-Lang/releases/download/v\($version)/kalidous-windows-amd64.exe" |
+              .architecture["64bit"].url = "https://github.com/GalaxyHaze/Zith-Lang/releases/download/v\($version)/zith-windows-amd64.exe" |
               .architecture.arm64.hash = $arm64 |
-              .architecture.arm64.url = "https://github.com/GalaxyHaze/Kalidous-Lang/releases/download/v\($version)/kalidous-windows-arm64.exe"
-            ' .github/scoop/bucket/kalidous.json > tmp.json && mv tmp.json .github/scoop/bucket/kalidous.json
+              .architecture.arm64.url = "https://github.com/GalaxyHaze/Zith-Lang/releases/download/v\($version)/zith-windows-arm64.exe"
+            ' .github/scoop/bucket/zith.json > tmp.json && mv tmp.json .github/scoop/bucket/zith.json
       
       - name: Commit and push
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add .github/scoop/bucket/kalidous.json
+          git add .github/scoop/bucket/zith.json
           git diff --staged --quiet || git commit -m "chore: update scoop manifest to ${{ steps.tag.outputs.tag }}"
           git push

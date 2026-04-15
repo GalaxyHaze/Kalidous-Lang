@@ -18,6 +18,7 @@ venv/
 .env
 .env.local
 *.env.*
+.cache/clangd/index
 
 # Build artifacts
 dist/
@@ -26,9 +27,17 @@ target/
 
 # Editors and IDEs
 .vscode/
-.idea/
+.idea/*.xml
+.idea/*.iml
+.idea/*.swp
+.idea/misc.xml
+.idea/modules.xml
+.qwen/
 *.swp
 *.swo
+
+# Local toolchains
+docs/emsdk/
 
 # System files
 .DS_Store
