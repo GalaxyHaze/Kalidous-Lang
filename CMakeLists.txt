@@ -150,9 +150,13 @@ install(TARGETS zith ZithParse ZithCore
 # =============================================================================
 # Tests
 # =============================================================================
+# =============================================================================
+# Tests
+# =============================================================================
 option(BUILD_TESTS "Build unit tests" ON)
 
 if(BUILD_TESTS)
+    # --- Catch2 ---
     FetchContent_Declare(
         Catch2
         GIT_REPOSITORY https://github.com/catchorg/Catch2.git
@@ -168,14 +172,26 @@ if(BUILD_TESTS)
         target_include_directories(zith_tests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
         target_link_libraries(zith_tests PRIVATE ZithParse Catch2::Catch2WithMain)
 
+        # Enable CTest integration
         include(CTest)
         include(Catch)
-        if(CMAKE_CROSSCOMPILING OR EMSCRIPTEN)
+
+        # ======================================================================
+        # Cross-Compilation Fix
+        # ======================================================================
+        if(CMAKE_CROSSCOMPILING)
+            # When cross-compiling, we cannot run the executable to discover tests
+            # during the build phase. We define a generic test command instead.
+            message(STATUS "Cross-compiling detected. Skipping test discovery.")
+            
+            # This simply adds a test named "zith_tests" that runs the executable.
+            # When you run 'ctest', it will try to run the binary (if an emulator is present).
             add_test(NAME zith_tests COMMAND zith_tests)
         else()
+            # Native build: Automatically parse test names (standard Catch2 behavior)
             catch_discover_tests(zith_tests)
         endif()
-
+        
         message(STATUS "💡 Tests target 'zith_tests' configured.")
     endif()
 endif()

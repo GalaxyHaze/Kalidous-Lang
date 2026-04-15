@@ -42,11 +42,14 @@ jobs:
             cmake_flags: >-
               -DCMAKE_C_COMPILER=aarch64-linux-gnu-gcc
               -DCMAKE_CXX_COMPILER=aarch64-linux-gnu-g++
+              -DCMAKE_CROSSCOMPILING=ON
 
           # ── macOS Intel (x64, cross-compiled from ARM runner) ─────────────────
+          # Note: Universal binaries or arch-specific builds don't always set CMAKE_CROSSCOMPILING=ON 
+          # automatically on Apple Silicon, so we explicitly handle tests in CMake.
           - os: macos-latest
             target_name: zith-macos-amd64
-            cmake_flags: -DCMAKE_OSX_ARCHITECTURES=x86_64
+            cmake_flags: -DCMAKE_OSX_ARCHITECTURES=x86_64 -DCMAKE_CROSSCOMPILING=ON
 
           # ── macOS Apple Silicon (ARM64) ───────────────────────────────────────
           - os: macos-latest
@@ -61,6 +64,8 @@ jobs:
           - os: windows-latest
             target_name: zith-windows-arm64.exe
             msvc_arch: amd64_arm64
+            # Force cross-compiling detection for Visual Studio ARM64 builds
+            cmake_flags: -DCMAKE_CROSSCOMPILING=ON
 
     steps:
       - uses: actions/checkout@v4
@@ -142,7 +147,8 @@ jobs:
             -DCMAKE_C_COMPILER="zig;cc;-target;${{ matrix.zig_target }}" \
             -DCMAKE_CXX_COMPILER="zig;c++;-target;${{ matrix.zig_target }}" \
             -DZITH_VERSION=${{ inputs.tag_name || github.ref_name }} \
-            -DCMAKE_EXE_LINKER_FLAGS="-static"
+            -DCMAKE_EXE_LINKER_FLAGS="-static" \
+            -DCMAKE_CROSSCOMPILING=ON
 
       - name: Build
         run: cmake --build build --config Release
@@ -177,11 +183,6 @@ jobs:
       - name: Setup Emscripten
         uses: mymindstorm/setup-emsdk@v14
 
-      - name: Install System Deps (Safety for FetchContent)
-        # Although we use FetchContent, installing libtomlplusplus-dev ensures 
-        # headers are findable if Emscripten's CMake behaves oddly.
-        run: sudo apt-get update && sudo apt-get install -y libtomlplusplus-dev
-
       - name: Verify Emscripten
         run: emcc -v
 
@@ -189,15 +190,8 @@ jobs:
         run: |
           emcmake cmake -B build-wasm \
             -DCMAKE_BUILD_TYPE=Release \
-            -DCMAKE_C_FLAGS="-O3 -flto" \
-            -DCMAKE_CXX_FLAGS="-O3 -flto" \
             -DZITH_VERSION=${{ inputs.tag_name || github.ref_name }} \
-            -DCMAKE_EXE_LINKER_FLAGS="\
-              -O3 -flto \
-              --closure 1 \
-              -s WASM=1 \
-              -s FILESYSTEM=1 \
-              -s ENVIRONMENT='web,node'"
+            -DCMAKE_CROSSCOMPILING=ON
 
       - name: Build WASM
         run: cmake --build build-wasm --config Release -j$(nproc)
@@ -209,11 +203,9 @@ jobs:
           echo "=== Emscripten output ==="
           find build-wasm -type f | sort
         
-          # FIX: Look in build-wasm/bin/ as per your CMakeLists.txt config
           if [ -d "build-wasm/bin" ]; then
              cp build-wasm/bin/* wasm-staging/
           else
-             # Fallback to root if bin dir is missing for some reason
              cp build-wasm/* wasm-staging/ 2>/dev/null || true
           fi
         
