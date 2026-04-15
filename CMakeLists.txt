@@ -21,56 +21,57 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 # =============================================================================
+# Project Version (Fixed)
+# =============================================================================
+# Use 'set' with CACHE STRING, NOT 'option' (which is boolean)
+set(ZITH_VERSION "v0.0.1" CACHE STRING "Project version")
+
+# =============================================================================
 # Fetch External Dependencies
 # =============================================================================
-
 include(FetchContent)
 
 # --- CLI11 ---
 FetchContent_Declare(cli11
-        GIT_REPOSITORY https://github.com/CLIUtils/CLI11.git
-        GIT_TAG v2.4.1
-        GIT_SHALLOW TRUE
+    GIT_REPOSITORY https://github.com/CLIUtils/CLI11.git
+    GIT_TAG v2.4.1
+    GIT_SHALLOW TRUE
 )
 FetchContent_MakeAvailable(cli11)
 
 # --- unordered_dense ---
 FetchContent_Declare(unordered_dense
-        GIT_REPOSITORY https://github.com/martinus/unordered_dense.git
-        GIT_TAG v4.0.0
-        GIT_SHALLOW TRUE
+    GIT_REPOSITORY https://github.com/martinus/unordered_dense.git
+    GIT_TAG v4.0.0
+    GIT_SHALLOW TRUE
 )
 FetchContent_MakeAvailable(unordered_dense)
 
 # --- tomlplusplus ---
-# CORREÇÃO: Garante que o FetchContent baixe e construa o tomlplusplus
-# mesmo que o sistema não tenha o pacote instalado.
 FetchContent_Declare(
-        tomlplusplus
-        GIT_REPOSITORY https://github.com/marzer/tomlplusplus.git
-        GIT_TAG v3.4.0
-        GIT_SHALLOW TRUE
+    tomlplusplus
+    GIT_REPOSITORY https://github.com/marzer/tomlplusplus.git
+    GIT_TAG v3.4.0
+    GIT_SHALLOW TRUE
 )
-# Tornar disponível antes de tentar usar
 FetchContent_MakeAvailable(tomlplusplus)
-
 
 # =============================================================================
 # Compiler Flags
 # =============================================================================
 if (MSVC)
-    add_compile_options(/W4 /WX)
+    add_compile_options(/W4 /WX /wd4100) # /wd4100: unreferenced formal parameter
 else ()
-    # Cuidado com -Werror em compilações cruzadas (CI), pode falhar por warnings de versão do compilador
     # add_compile_options(-Wall -Wextra -Wpedantic -Werror)
-    
+
     if (CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
-        # Verifica se o linker lld existe antes de forçar
-        if (EXISTS "/usr/bin/ld.lld" OR EXISTS "/usr/local/bin/ld.lld")
+        # Robust check for lld
+        find_program(LLD_EXE NAMES ld.lld lld)
+        if(LLD_EXE)
             set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fuse-ld=lld")
             set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -fuse-ld=lld")
-            message(STATUS "Using LLD linker")
-        endif ()
+            message(STATUS "Using LLD linker: ${LLD_EXE}")
+        endif()
     endif ()
 endif ()
 
@@ -85,9 +86,11 @@ file(GLOB_RECURSE PARSER_CPP_SOURCES
     "impl/ast/*.cpp"
 )
 
+# Note: Usually we don't glob headers in add_executable, 
+# but kept here if you rely on it for IDE project generation.
 file(GLOB_RECURSE CLI_SOURCES
     "impl/cli/*.cpp"
-    "impl/memory/*.h"      # se quiser headers no target
+    "impl/memory/*.h"
     "impl/lexer/*.h"
 )
 
@@ -97,32 +100,30 @@ file(GLOB_RECURSE CLI_SOURCES
 
 add_library(ZithCore STATIC ${CORE_C_SOURCES} ${DIAGNOSTICS_SOURCES})
 target_include_directories(ZithCore
-        PUBLIC
+    PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:include>
 )
-option(ZITH_VERSION "Project version" "v0.0.1")
-# Agora o tomlplusplus::tomlplusplus deve ser encontrado com segurança
 target_link_libraries(ZithCore PUBLIC tomlplusplus::tomlplusplus)
 
 # ────────
 add_library(ZithParse STATIC ${PARSER_CPP_SOURCES})
 target_include_directories(ZithParse
-        PUBLIC
+    PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
 )
 target_link_libraries(ZithParse
-        PUBLIC
+    PUBLIC
         ZithCore
         unordered_dense::unordered_dense
 )
 target_compile_definitions(ZithParse PRIVATE ZITH_VERSION="${ZITH_VERSION}")
 
 set_target_properties(ZithParse PROPERTIES
-        VERSION 0.0.1
-        SOVERSION 0
-        CXX_VISIBILITY_PRESET hidden
-        VISIBILITY_INLINES_HIDDEN ON
+    VERSION 0.0.1
+    SOVERSION 0
+    CXX_VISIBILITY_PRESET hidden
+    VISIBILITY_INLINES_HIDDEN ON
 )
 
 # ────────
@@ -131,7 +132,7 @@ add_executable(zith impl/main.cpp ${CLI_SOURCES})
 target_include_directories(zith PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 target_link_libraries(zith
-        PRIVATE
+    PRIVATE
         ZithParse
         CLI11::CLI11
 )
@@ -141,9 +142,9 @@ target_compile_definitions(zith PRIVATE ZITH_VERSION="${ZITH_VERSION}" ZITH_EXEC
 # Install
 # ───────────────────────────────────────────────
 install(TARGETS zith ZithParse ZithCore
-        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
 
 # =============================================================================
@@ -152,7 +153,6 @@ install(TARGETS zith ZithParse ZithCore
 option(BUILD_TESTS "Build unit tests" ON)
 
 if(BUILD_TESTS)
-    # --- Catch2 ---
     FetchContent_Declare(
         Catch2
         GIT_REPOSITORY https://github.com/catchorg/Catch2.git
@@ -161,25 +161,20 @@ if(BUILD_TESTS)
     )
     FetchContent_MakeAvailable(Catch2)
 
-    # Collect all test source files
     file(GLOB_RECURSE TEST_SOURCES "tests/*.cpp")
 
     if(TEST_SOURCES)
         add_executable(zith_tests ${TEST_SOURCES})
+        target_include_directories(zith_tests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+        target_link_libraries(zith_tests PRIVATE ZithParse Catch2::Catch2WithMain)
 
-        target_include_directories(zith_tests PRIVATE
-            ${CMAKE_CURRENT_SOURCE_DIR}/include
-        )
-
-        target_link_libraries(zith_tests PRIVATE
-            ZithParse
-            Catch2::Catch2WithMain
-        )
-
-        # Enable CTest integration
         include(CTest)
         include(Catch)
-        catch_discover_tests(zith_tests)
+        if(CMAKE_CROSSCOMPILING OR EMSCRIPTEN)
+            add_test(NAME zith_tests COMMAND zith_tests)
+        else()
+            catch_discover_tests(zith_tests)
+        endif()
 
         message(STATUS "💡 Tests target 'zith_tests' configured.")
     endif()
@@ -190,6 +185,7 @@ endif()
 # =============================================================================
 message("")
 message(STATUS "💡 Build Summary")
+message(STATUS "   Version: ${ZITH_VERSION}")
 if (TARGET zith)
     message(STATUS "   Executable 'zith' target configured.")
 endif()
@@ -216,11 +212,28 @@ if(EMSCRIPTEN)
         ZITH_WASM
     )
 
-    # LINK_FLAGS passa como string única — evita o CMake splittar os -s flags
+    # Use target_link_options for cleaner syntax and better quoting support
+    target_link_options(zith-wasm PRIVATE
+        "SHELL:-O3"
+        "SHELL:-flto"
+        "SHELL:--closure 1"
+        "SHELL:-s WASM=1"
+        "SHELL:-s FILESYSTEM=1"
+        "SHELL:-s ENVIRONMENT=web,node"
+        "SHELL:-s EXPORTED_RUNTIME_METHODS=['ccall','cwrap']"
+        "SHELL:-s ALLOW_MEMORY_GROWTH=1"
+    )
+    
     set_target_properties(zith-wasm PROPERTIES
         SUFFIX ".html"
         OUTPUT_NAME "zith"
         RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}
-        LINK_FLAGS "-O3 -flto --closure 1 -s WASM=1 -s FILESYSTEM=1 -s ENVIRONMENT=web,node -s EXPORTED_RUNTIME_METHODS=['ccall','cwrap'] -s ALLOW_MEMORY_GROWTH=1"
     )
-endif()
+
+    # Apply WASM specific warnings ONLY to this target, not globally
+    if (MSVC)
+        target_compile_options(zith-wasm PRIVATE /W4 /WX /wd4100)
+    else ()
+        target_compile_options(zith-wasm PRIVATE -Wall -Wextra -Wpedantic)
+    endif()
+endif() # This closes the if(EMSCRIPTEN) block

@@ -1,7 +1,6 @@
-#include "parser/parser.h"
 #ifdef ZITH_WASM
 #include <iostream>
-#include <assert>
+#include <cassert>
 
 int main() {
     std::cout << "Thank you for installing Zith." << std::endl;
