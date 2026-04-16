@@ -417,53 +417,46 @@ USAGE:
     zith [OPTIONS] <COMMAND> [ARGS]
 
 COMMANDS:
-    check      Parse and type-check; report errors only, no output
-    compile    Compile to object file or bytecode, no linking
-    build      Compile and link to native binary  (reads ZithProject.toml)
-    execute    Run an existing binary or bytecode (reads ZithProject.toml)
-    run        Build then execute                 (reads ZithProject.toml)
-    clean      Clean the previous Build folder
-    test       Run examples defined tests/        (Reads ZithProject.toml)
-    fmt        Format source code
-    docs       Generate documentation
-    repl       Start interactive REPL
-    version    Show version information
-    help       Show this help message
-    new        Create a new project or file
+    build        Compile and link to native binary (reads ZithProject.toml)
+    run          Build then execute (reads ZithProject.toml)
+    check        Parse and type-check; report errors only, no output
+    compile      Compile to object file or bytecode, no linking
+    execute      Run an existing binary or bytecode (reads ZithProject.toml)
+    test         Run tests defined in tests/ (reads ZithProject.toml)
+    repl         Start interactive REPL
+    new          Create a new project or file
+    fmt          Format source code
+    docs         Generate documentation
+    clean        Remove the build directory
+    version      Show version information
+    help         Show this help message
 
 OPTIONS:
     -m, --mode <debug|dev|release|fast|test>    Build mode [default: debug]
-    -o, --output <FILE>                         Output file
+    -o, --output <FILE>                         Output file path
     -I, --include <DIR>                         Add include directory (repeatable)
         --interpreted                           Use bytecode path instead of native
         --emit <ast|ir|asm|obj|bin>             Emit intermediate representation
         --target <TRIPLE>                       Target triple (e.g. x86_64-linux-gnu)
-    -v, --verbose                               Verbose output
-    -c, --color                                 Set color on terminal, auto | on | off
-    -s, --strict                                Applies more strict rules on compiller
+    -s, --strict                                Apply stricter rules to the compiler
+    -v, --verbose                               Use verbose output
+    -c, --color <auto|on|off>                   Set color output [default: auto]
     -h, --help                                  Show help
 
 PIPELINE:
     check  <  compile  <  build
-    execute             <  run
+    execute            <  run
     run --interpreted  =  compile --interpreted + execute --interpreted
 
 EXAMPLES:
-    zith check main.zith
-    zith compile main.zith -o main.o
-    zith compile --interpreted main.zith -o main.nbc
     zith build
-    zith build main.zith -o bin/app -m release
-    zith execute
-    zith execute --interpreted
-    zith run
     zith run main.zith -m release
-    zith run --interpreted main.zith
+    zith compile --interpreted main.zith -o main.nbc
+    zith execute --interpreted
 
 LEARN MORE:
     Source: https://github.com/GalaxyHaze/Zith
-    Docs:   https://zith.run.place
-)";
+    Docs:   https://zith.run.place)";
     return 0;
 }
 
