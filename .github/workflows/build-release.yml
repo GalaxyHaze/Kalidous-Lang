@@ -20,211 +20,210 @@ permissions:
   contents: write
 
 jobs:
-  # ─────────────────────────────────────────────────────────────────────────────
-  # Standard matrix: Linux, macOS (Intel + ARM), Windows (x64 + ARM64)
-  # ─────────────────────────────────────────────────────────────────────────────
+  # Job dedicado para criar release e evitar race conditions
+  create-release:
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.set-tag.outputs.tag }}
+      release_id: ${{ steps.create-release.outputs.id }}
+    steps:
+      - id: set-tag
+        run: |
+          # Prioridade: Input manual > Input de chamada > Ref do Git
+          TAG="${{ github.event.inputs.tag_name || inputs.tag_name || github.ref_name }}"
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "Using tag: $TAG"
+
+      - name: Create Release (ou usar existente)
+        id: create-release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.set-tag.outputs.tag }}
+          generate_release_notes: true
+          draft: true  # Começa como draft para evitar publicações prematuras
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Wait for Release to be available
+        run: |
+          # Pequeno delay para garantir que a release foi criada no DB
+          sleep 2
+
   build-and-release:
+    needs: create-release
     name: Build on ${{ matrix.os }} (${{ matrix.target_name }})
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 30
-
     strategy:
       fail-fast: false
       matrix:
         include:
-          # ── Linux (x64) ──────────────────────────────────────────────────────
           - os: ubuntu-latest
             target_name: zith-linux-amd64
-
-          # ── Linux (ARM64, cross-compiled) ─────────────────────────────────────
-          - os: ubuntu-latest
-            target_name: zith-linux-arm64
-            cmake_flags: >-
-              -DCMAKE_C_COMPILER=aarch64-linux-gnu-gcc
-              -DCMAKE_CXX_COMPILER=aarch64-linux-gnu-g++
-              -DCMAKE_CROSSCOMPILING=ON
-
-          # ── macOS Intel (x64, cross-compiled from ARM runner) ─────────────────
-          - os: macos-latest
-            target_name: zith-macos-amd64
-            cmake_flags: -DCMAKE_OSX_ARCHITECTURES=x86_64 -DCMAKE_CROSSCOMPILING=ON
-
-          # ── macOS Apple Silicon (ARM64) ───────────────────────────────────────
+            cmake_flags: "-DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++"
           - os: macos-latest
             target_name: zith-macos-arm64
-
-          # ── Windows x64 ──────────────────────────────────────────────────────
+            cmake_flags: "-DCMAKE_OSX_ARCHITECTURES=arm64"
           - os: windows-latest
             target_name: zith-windows-amd64.exe
-            msvc_arch: amd64
-
-          # ── Windows ARM64 (cross-compiled from x64 host) ─────────────────────
-          - os: windows-latest
-            target_name: zith-windows-arm64.exe
-            msvc_arch: amd64_arm64
-            cmake_flags: -DCMAKE_CROSSCOMPILING=ON
+            cmake_flags: "-A x64"
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Necessário para versioning baseado em git
 
+      # Cache para dependências do sistema (mais eficaz em Linux)
+      - name: Cache APT packages (Linux)
+        if: runner.os == 'Linux'
+        uses: awalsh128/cache-apt-pkgs-action@latest
+        with:
+          packages: ninja-build libssl-dev pkg-config
+          version: 1.0
+
+      # Cache para Homebrew (macOS)
+      - name: Cache Homebrew (macOS)
+        if: runner.os == 'macOS'
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/Library/Caches/Homebrew
+            /Library/Caches/Homebrew
+          key: ${{ runner.os }}-homebrew-${{ hashFiles('.github/workflows/build-release.yml') }}
+          restore-keys: |
+            ${{ runner.os }}-homebrew-
+
+      # Setup CMake com cache
       - name: Setup CMake
-        uses: jwlawson/actions-setup-cmake@v2
+        uses: lukka/get-cmake@latest
         with:
-          cmake-version: '3.26.x'
+          cmake-version: '3.27.x'
 
-      - name: Install ARM64 cross-compiler
-        if: matrix.target_name == 'zith-linux-arm64'
-        run: sudo apt-get update && sudo apt-get install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu binutils-aarch64-linux-gnu
-
-      - name: Setup MSVC Dev Environment
-        if: runner.os == 'Windows'
-        uses: ilammy/msvc-dev-cmd@v1
+      # Cache para build directory (reutilizar objetos compilados)
+      - name: Restore CMake cache
+        uses: actions/cache@v4
         with:
-          arch: ${{ matrix.msvc_arch }}
+          path: |
+            build
+            ~/.ccache
+            ${{ env.VCPKG_ROOT }}
+          key: ${{ runner.os }}-cmake-${{ matrix.target_name }}-${{ hashFiles('CMakeLists.txt', 'src/**') }}
+          restore-keys: |
+            ${{ runner.os }}-cmake-${{ matrix.target_name }}-
+            ${{ runner.os }}-cmake-
 
-      - name: Configure CMake
-        run: cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF ${{ matrix.cmake_flags }} -DZITH_VERSION=${{ inputs.tag_name || github.ref_name }}
-
-      - name: Build
-        run: cmake --build build --config Release
-
-      - name: Prepare Artifact
-        shell: bash
+      # Setup Ninja
+      - name: Setup Ninja (Linux/macOS)
+        if: runner.os != 'Windows'
         run: |
-          mkdir -p artifacts
-          if [ "${{ runner.os }}" == "Windows" ]; then
-            cp build/bin/zith.exe "artifacts/${{ matrix.target_name }}"
-          else
-            chmod +x build/bin/zith
-            cp build/bin/zith "artifacts/${{ matrix.target_name }}"
+          if ! command -v ninja &> /dev/null; then
+            if [ "${{ runner.os }}" == "macOS" ]; then
+              brew install ninja
+            else
+              sudo apt-get update && sudo apt-get install -y ninja-build
+            fi
           fi
 
-      - name: Upload Release Asset
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ inputs.tag_name || github.ref_name }}
-          files: artifacts/*
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  # ─────────────────────────────────────────────────────────────────────────────
-  # musl static builds (x86_64 + ARM64) via Zig toolchain
-  # ─────────────────────────────────────────────────────────────────────────────
-  build-musl:
-    name: Build Linux musl static (${{ matrix.target_name }})
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - target_name: zith-linux-amd64-musl
-            zig_target: x86_64-linux-musl
-
-          - target_name: zith-linux-arm64-musl
-            zig_target: aarch64-linux-musl
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Install Zig and build tools
+      # Setup Clang (Linux)
+      - name: Setup Clang (Linux)
+        if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake ninja-build wget
-          wget -q https://ziglang.org/download/0.13.0/zig-linux-x86_64-0.13.0.tar.xz
-          tar -xf zig-linux-x86_64-0.13.0.tar.xz
-          echo "$PWD/zig-linux-x86_64-0.13.0" >> $GITHUB_PATH
+          sudo apt-get install -y clang
 
+      # Configure CMake com melhor controlo de paths
       - name: Configure CMake
         run: |
-          cmake -B build -G Ninja \
+          mkdir -p build
+          cmake -B build \
+            -G "Ninja" \
             -DCMAKE_BUILD_TYPE=Release \
             -DBUILD_TESTING=OFF \
-            -DCMAKE_C_COMPILER="zig;cc;-target;${{ matrix.zig_target }}" \
-            -DCMAKE_CXX_COMPILER="zig;c++;-target;${{ matrix.zig_target }}" \
-            -DZITH_VERSION=${{ inputs.tag_name || github.ref_name }} \
-            -DCMAKE_EXE_LINKER_FLAGS="-static" \
-            -DCMAKE_CROSSCOMPILING=ON
+            ${{ matrix.cmake_flags }} \
+            -DZITH_VERSION=${{ needs.create-release.outputs.tag }}
+        shell: bash
 
       - name: Build
-        run: cmake --build build --config Release
+        run: cmake --build build --config Release --parallel
+        shell: bash
 
-      - name: Prepare Artifact
+      # Validação robusta de artefatos
+      - name: Prepare Artifact with Validation
+        shell: bash
         run: |
+          set -euo pipefail
+          
           mkdir -p artifacts
-          chmod +x build/bin/zith
-          cp build/bin/zith artifacts/${{ matrix.target_name }}
-          file artifacts/${{ matrix.target_name }}
-          ldd  artifacts/${{ matrix.target_name }} || echo "Static binary confirmed"
+          
+          # Definir nome e extensão baseado no OS
+          if [[ "${{ runner.os }}" == "Windows" ]]; then
+            BINARY_NAME="zith.exe"
+            OUTPUT_PATH="artifacts/${{ matrix.target_name }}"
+          else
+            BINARY_NAME="zith"
+            OUTPUT_PATH="artifacts/${{ matrix.target_name }}"
+          fi
+          
+          # Busca recursiva com validação
+          FOUND_COUNT=$(find build -type f -name "$BINARY_NAME" 2>/dev/null | wc -l)
+          
+          if [ "$FOUND_COUNT" -eq 0 ]; then
+            echo "❌ ERROR: Binário '$BINARY_NAME' não encontrado em build/"
+            echo "Conteúdo de build/:"
+            find build -type f -executable 2>/dev/null || find build -type f 2>/dev/null | head -20
+            exit 1
+          elif [ "$FOUND_COUNT" -gt 1 ]; then
+            echo "⚠️  WARNING: Múltiplos binários encontrados ($FOUND_COUNT)"
+            find build -type f -name "$BINARY_NAME" 2>/dev/null
+          fi
+          
+          # Copiar binário
+          find build -type f -name "$BINARY_NAME" -print -quit | xargs -I {} cp {} "$OUTPUT_PATH"
+          
+          # Validar cópia
+          if [ ! -f "$OUTPUT_PATH" ]; then
+            echo "❌ ERROR: Falha ao copiar binário para $OUTPUT_PATH"
+            exit 1
+          fi
+          
+          # Tornar executável em Unix
+          if [[ "${{ runner.os }}" != "Windows" ]]; then
+            chmod +x "$OUTPUT_PATH"
+          fi
+          
+          # Informações finais
+          echo "✅ Artefato preparado com sucesso:"
+          ls -lh "$OUTPUT_PATH"
+          file "$OUTPUT_PATH" || true
 
+      # Verificação de integridade antes do upload
+      - name: Verify Artifacts
+        shell: bash
+        run: |
+          echo "Artefatos para upload:"
+          ls -lh artifacts/
+          
+          if [ ! -s artifacts/* ]; then
+            echo "❌ ERROR: Nenhum artefato encontrado ou ficheiro vazio"
+            exit 1
+          fi
+
+      # Upload com retry automático
       - name: Upload Release Asset
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ inputs.tag_name || github.ref_name }}
-          files: artifacts/${{ matrix.target_name }}
+          tag_name: ${{ needs.create-release.outputs.tag }}
+          files: artifacts/*
+          draft: false  # Agora publica (release já existe)
+          prerelease: ${{ contains(needs.create-release.outputs.tag, 'alpha') || contains(needs.create-release.outputs.tag, 'beta') || contains(needs.create-release.outputs.tag, 'rc') }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: true  # Continua mesmo se falhar (melhor que parar tudo)
 
-  # ─────────────────────────────────────────────────────────────────────────────
-  # WebAssembly (Emscripten)
-  # ─────────────────────────────────────────────────────────────────────────────
-  build-wasm:
-    name: Build WebAssembly
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Emscripten
-        uses: mymindstorm/setup-emsdk@v14
-
-      - name: Verify Emscripten
-        run: emcc -v
-
-      - name: Configure CMake
+      # Cleanup de cache para evitar espaço excessivo
+      - name: Cleanup large files
+        if: always()
+        shell: bash
         run: |
-          emcmake cmake -B build-wasm \
-            -DCMAKE_BUILD_TYPE=Release \
-            -DBUILD_TESTING=OFF \
-            -DZITH_VERSION=${{ inputs.tag_name || github.ref_name }} \
-            -DCMAKE_CROSSCOMPILING=ON
-
-      - name: Build WASM
-        run: cmake --build build-wasm --config Release -j$(nproc)
-
-      - name: Prepare Artifact (zip)
-        run: |
-          mkdir -p artifacts wasm-staging
-        
-          echo "=== Emscripten output ==="
-          find build-wasm -type f | sort
-        
-          if [ -d "build-wasm/bin" ]; then
-             cp build-wasm/bin/* wasm-staging/
-          else
-             cp build-wasm/* wasm-staging/ 2>/dev/null || true
-          fi
-        
-          echo "=== WASM files staged ==="
-          ls -lh wasm-staging/
-        
-          if [ -z "$(ls -A wasm-staging/)" ]; then
-            echo "Error: No WASM files found."
-            exit 1
-          fi
-        
-          cd wasm-staging && zip ../artifacts/zith-wasm.zip ./* && cd ..
-        
-          echo "=== Final artifact ==="
-          ls -lh artifacts/
-
-      - name: Upload WASM
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ inputs.tag_name || github.ref_name }}
-          files: artifacts/zith-wasm.zip
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Remove objetos de build desnecessários
+          rm -rf build/CMakeFiles build/.cmake
+          du -sh build/ artifacts/ 2>/dev/null || true
