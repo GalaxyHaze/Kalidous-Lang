@@ -422,12 +422,14 @@ COMMANDS:
     build      Compile and link to native binary  (reads ZithProject.toml)
     execute    Run an existing binary or bytecode (reads ZithProject.toml)
     run        Build then execute                 (reads ZithProject.toml)
-    test       Run examples defined in source
+    clean      Clean the previous Build folder
+    test       Run examples defined tests/        (Reads ZithProject.toml)
     fmt        Format source code
     docs       Generate documentation
     repl       Start interactive REPL
     version    Show version information
     help       Show this help message
+    new        Create a new project or file
 
 OPTIONS:
     -m, --mode <debug|dev|release|fast|test>    Build mode [default: debug]
@@ -437,6 +439,8 @@ OPTIONS:
         --emit <ast|ir|asm|obj|bin>             Emit intermediate representation
         --target <TRIPLE>                       Target triple (e.g. x86_64-linux-gnu)
     -v, --verbose                               Verbose output
+    -c, --color                                 Set color on terminal, auto | on | off
+    -s, --strict                                Applies more strict rules on compiller
     -h, --help                                  Show help
 
 PIPELINE:
@@ -458,7 +462,7 @@ EXAMPLES:
 
 LEARN MORE:
     Source: https://github.com/GalaxyHaze/Zith
-    Docs:   https://galaxyhaze.github.io/Zith/docs/index.html
+    Docs:   https://zith.run.place
 )";
     return 0;
 }
