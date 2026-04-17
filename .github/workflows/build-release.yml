@@ -23,6 +23,9 @@ jobs:
   # ─────────────────────────────────────────────────────────────────────────────
   # 1. Criar Release (Draft) para evitar Race Conditions
   # ─────────────────────────────────────────────────────────────────────────────
+    # ─────────────────────────────────────────────────────────────────────────────
+  # 1. Criar Release (Draft) para evitar Race Conditions
+  # ─────────────────────────────────────────────────────────────────────────────
   create-release:
     runs-on: ubuntu-latest
     outputs:
@@ -41,7 +44,7 @@ jobs:
           tag_name: ${{ steps.get_tag.outputs.tag }}
           draft: true
           generate_release_notes: true
-          files: []
+          # Removido 'files: []' para evitar erro de parsing
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
