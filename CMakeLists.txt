@@ -75,20 +75,34 @@ else ()
         add_compile_options(-Werror)
     endif()
 
-    # Clang Linker Setup (LLD)
+        # Clang Linker Setup (LLD)
     if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-        # Look for the actual linker executables (ld.lld, not lld dispatcher)
-        # ld.lld-18 for versioned installs, fallback to ld.lld
-        find_program(LLD_EXE NAMES ld.lld-18 ld.lld)
+        # Tenta encontrar o binário do linker.
+        # Procura versões específicas (ex: ld.lld-18) e os nomes genéricos (ld.lld, lld)
+        find_program(LLD_EXE 
+            NAMES 
+                ld.lld-18 ld.lld-17 ld.lld-16 
+                ld.lld 
+                lld 
+        )
+
         if(LLD_EXE)
-            # Only set flags if user hasn't passed them manually
-            if(NOT CMAKE_EXE_LINKER_FLAGS MATCHES "-fuse-ld=")
-                set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fuse-ld=ld.lld")
-                set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -fuse-ld=ld.lld")
-                message(STATUS "✓ Using LLD linker: ${LLD_EXE}")
+            # Pega apenas o nome do arquivo (ex: "ld.lld" ou "lld")
+            get_filename_component(LLD_NAME "${LLD_EXE}" NAME_WE)
+            
+            # Se o nome encontrado for "lld", removemos o ".exe" se estiver no Windows, 
+            # e garantimos que a flag fique correta. 
+            # Nota: Se o binário é 'lld', o Clang geralmente aceita '-fuse-ld=lld', 
+            # mas 'ld.lld' é o padrão mais seguro para evitar erros de dispacher.
+            
+            if (NOT CMAKE_EXE_LINKER_FLAGS MATCHES "-fuse-ld=")
+                set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fuse-ld=${LLD_NAME}")
+                set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -fuse-ld=${LLD_NAME}")
+                message(STATUS "✓ Using LLD linker: ${LLD_EXE} (flag: -fuse-ld=${LLD_NAME})")
             endif()
         else()
-            message(WARNING "⚠ LLD linker not found (ld.lld not in PATH). Cross-compilation may fail.")
+            # Se não encontrar, NÃO força a flag para evitar o erro "invalid linker name"
+            message(WARNING "⚠ LLD linker not found in PATH. Build will proceed with default linker.")
         endif()
     endif ()
 endif ()

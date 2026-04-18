@@ -137,9 +137,9 @@ static ZithNode *parse_body(Parser *p);
 ZithNode *parser_parse_statement(Parser *p) {
     if (p->panic) { parser_synchronize(p); p->panic = false; if (parser_is_at_end(p)) return nullptr; }
 
-    ZithVisibility vis = ZITH_VIS_PRIVATE;
+    /*ZithVisibility vis;
     if (check_kw(p, "public")) vis = ZITH_VIS_PUBLIC; else if (check_kw(p, "protected")) vis = ZITH_VIS_PROTECTED;
-    if (parser_peek(p)->type == ZITH_TOKEN_MODIFIER) parser_advance(p);
+    if (parser_peek(p)->type == ZITH_TOKEN_MODIFIER) parser_advance(p);*/
 
     const ZithSourceLoc loc = parser_peek(p)->loc;
     switch (parser_peek(p)->type) {
@@ -397,9 +397,9 @@ static ZithNode *parse_from_import_decl(Parser *p) {
     parser_expect(p, ZITH_TOKEN_IMPORT, "expected 'import' after 'from <module>'");
     
     // Parse dos itens importados (ex: println, println as log)
-    char items_buf[256]; size_t items_len = 0;
+    char items_buf[256]; //size_t items_len = 0;
     const ZithToken *item = parser_expect(p, ZITH_TOKEN_IDENTIFIER, "expected item name");
-    if (item->lexeme.len < sizeof(items_buf)) { memcpy(items_buf, item->lexeme.data, item->lexeme.len); items_len = item->lexeme.len; }
+    if (item->lexeme.len < sizeof(items_buf)) { memcpy(items_buf, item->lexeme.data, item->lexeme.len); /*items_len = item->lexeme.len;*/ }
     
     // Suporte a alias: import x as y
     const char *alias = nullptr;
