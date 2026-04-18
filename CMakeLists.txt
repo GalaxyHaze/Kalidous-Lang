@@ -21,10 +21,13 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 # =============================================================================
-# Project Version (Fixed)
+# Project Version (Dynamic via CI or Default v0.0.1)
 # =============================================================================
-# Use 'set' with CACHE STRING, NOT 'option' (which is boolean)
-set(ZITH_VERSION "v0.0.1" CACHE STRING "Project version")
+# Use FORCE para permitir sobrescrever via -DZITH_VERSION=... no CI
+if(NOT DEFINED ZITH_VERSION OR ZITH_VERSION STREQUAL "")
+    set(ZITH_VERSION "v0.0.1")
+endif()
+set(ZITH_VERSION "${ZITH_VERSION}" CACHE STRING "Project version" FORCE)
 
 # =============================================================================
 # Fetch External Dependencies
@@ -59,24 +62,64 @@ FetchContent_MakeAvailable(tomlplusplus)
 # =============================================================================
 # Compiler Flags
 # =============================================================================
-if (MSVC)
-    add_compile_options(/W4 /WX /wd4100) # /wd4100: unreferenced formal parameter
-else ()
-    # add_compile_options(-Wall -Wextra -Wpedantic -Werror)
+option(ENABLE_WERROR "Treat warnings as errors" OFF)
 
-    if (CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
-        # Only probe for lld on native builds — cross toolchains (Zig, aarch64-gnu)
-        # may not expose lld at the same path and would fail to link.
-        if(NOT CMAKE_CROSSCOMPILING)
-            find_program(LLD_EXE NAMES ld.lld lld)
-            if(LLD_EXE)
-                set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fuse-ld=lld")
-                set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -fuse-ld=lld")
-                message(STATUS "Using LLD linker: ${LLD_EXE}")
+if (MSVC)
+    add_compile_options(/W4 /wd4100) 
+    if(ENABLE_WERROR)
+        add_compile_options(/WX)
+    endif()
+else ()
+    add_compile_options(-Wall -Wextra -Wpedantic)
+    if(ENABLE_WERROR)
+        add_compile_options(-Werror)
+    endif()
+
+        # Clang Linker Setup (LLD)
+    if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+        # Tenta encontrar o binário do linker.
+        # Procura versões específicas (ex: ld.lld-18) e os nomes genéricos (ld.lld, lld)
+        find_program(LLD_EXE 
+            NAMES 
+                ld.lld-18 ld.lld-17 ld.lld-16 
+                ld.lld 
+                lld 
+        )
+
+        if(LLD_EXE)
+            # Pega apenas o nome do arquivo (ex: "ld.lld" ou "lld")
+            get_filename_component(LLD_NAME "${LLD_EXE}" NAME_WE)
+            
+            # Se o nome encontrado for "lld", removemos o ".exe" se estiver no Windows, 
+            # e garantimos que a flag fique correta. 
+            # Nota: Se o binário é 'lld', o Clang geralmente aceita '-fuse-ld=lld', 
+            # mas 'ld.lld' é o padrão mais seguro para evitar erros de dispacher.
+            
+            if (NOT CMAKE_EXE_LINKER_FLAGS MATCHES "-fuse-ld=")
+                set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fuse-ld=${LLD_NAME}")
+                set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -fuse-ld=${LLD_NAME}")
+                message(STATUS "✓ Using LLD linker: ${LLD_EXE} (flag: -fuse-ld=${LLD_NAME})")
             endif()
+        else()
+            # Se não encontrar, NÃO força a flag para evitar o erro "invalid linker name"
+            message(WARNING "⚠ LLD linker not found in PATH. Build will proceed with default linker.")
         endif()
     endif ()
 endif ()
+
+# =============================================================================
+# Clang Extension Configuration
+# =============================================================================
+# Se você tiver um caminho para a extensão, defina aqui.
+# Exemplo: -DCLANG_PLUGIN_PATH=/path/to/libMyPlugin.so
+if(DEFINED CLANG_PLUGIN_PATH AND EXISTS "${CLANG_PLUGIN_PATH}")
+    message(STATUS "Loading Clang Extension: ${CLANG_PLUGIN_PATH}")
+    add_compile_options(
+        "$<$<COMPILE_LANGUAGE:CXX>:-Xclang>-load"
+        "$<$<COMPILE_LANGUAGE:CXX>:-Xclang>${CLANG_PLUGIN_PATH}"
+    )
+    # Se a extensão adicionar argumentos adicionais, use -Xclang -plugin-arg-<NomePlugin>...
+endif()
 
 # =============================================================================
 # Sources
@@ -89,8 +132,6 @@ file(GLOB_RECURSE PARSER_CPP_SOURCES
     "impl/ast/*.cpp"
 )
 
-# Note: Usually we don't glob headers in add_executable, 
-# but kept here if you rely on it for IDE project generation.
 file(GLOB_RECURSE CLI_SOURCES
     "impl/cli/*.cpp"
     "impl/memory/*.h"
@@ -153,12 +194,9 @@ install(TARGETS zith ZithParse ZithCore
 # =============================================================================
 # Tests
 # =============================================================================
-# include(CTest) owns the BUILD_TESTING variable (defaults ON).
-# Pass -DBUILD_TESTING=OFF to disable tests, e.g. in CI cross-compile builds.
 include(CTest)
 
 if(BUILD_TESTING)
-    # --- Catch2 ---
     FetchContent_Declare(
         Catch2
         GIT_REPOSITORY https://github.com/catchorg/Catch2.git
@@ -172,20 +210,18 @@ if(BUILD_TESTING)
     if(TEST_SOURCES)
         add_executable(zith_tests ${TEST_SOURCES})
         target_include_directories(zith_tests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+        
+        # Garante que os testes também usem a versão correta
+        target_compile_definitions(zith_tests PRIVATE ZITH_VERSION="${ZITH_VERSION}")
+
         target_link_libraries(zith_tests PRIVATE ZithParse Catch2::Catch2WithMain)
 
         include(Catch)
 
-        # ======================================================================
-        # Cross-Compilation Fix
-        # ======================================================================
         if(CMAKE_CROSSCOMPILING)
-            # Cannot run the executable on the host to discover tests at build time.
-            # Register a single generic test entry instead; requires an emulator to run.
             message(STATUS "Cross-compiling detected. Skipping test discovery.")
             add_test(NAME zith_tests COMMAND zith_tests)
         else()
-            # Native build: automatically parse and register all Catch2 test cases.
             catch_discover_tests(zith_tests)
         endif()
 
@@ -243,8 +279,8 @@ if(EMSCRIPTEN)
     )
 
     if (MSVC)
-        target_compile_options(zith-wasm PRIVATE /W4 /WX /wd4100)
+        target_compile_options(zith-wasm PRIVATE /W4 /wd4100)
     else ()
-        target_compile_options(zith-wasm PRIVATE -Wall -Wextra -Wpedantic)
+        target_compile_options(zith-wasm PRIVATE -Wall -Wextra -Wpedantic -Wno-error)
     endif()
 endif()

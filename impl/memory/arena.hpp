@@ -37,6 +37,7 @@ public:
 
     // Initialize or reset the list for reuse
     void init(ZithArena *arena, size_t chunk_capacity = 16) {
+        (void)arena;
         head_ = nullptr;
         tail_ = nullptr;
         total_ = 0;
