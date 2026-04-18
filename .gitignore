@@ -1,1 +1,38 @@
-(docs/assets/css/modules/components.css, docs/assets/css/modules/home.css, docs/assets/js/main.js, docs/index.html, docs/pages/advanced/data-structures.html, docs/pages/advanced/how-to-use.html, docs/pages/advanced/metaprogramming.html)
+```
+# Dependencies
+node_modules/
+
+# Build artifacts
+dist/
+build/
+*.js
+
+# Cache directories
+.cache/
+.node_cache/
+
+# Environment variables
+.env
+.env.local
+*.env.*
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+
+# Coverage reports
+coverage/
+htmlcov/
+.coverage
+
+# Docusaurus specific
+.docusaurus/
+```
