@@ -52,11 +52,12 @@ jobs:
               sudo apt-get install -y ninja-build clang-18 lld-18
               sudo ln -sf /usr/bin/clang-18 /usr/bin/clang
               sudo ln -sf /usr/bin/clang++-18 /usr/bin/clang++
+              sudo ln -sf /usr/bin/ld.lld-18 /usr/bin/ld.lld-18
               sudo ln -sf /usr/bin/ld.lld-18 /usr/bin/ld.lld
             cmake_flags: >-
               -DCMAKE_C_COMPILER=clang
               -DCMAKE_CXX_COMPILER=clang++
-              -DCMAKE_EXE_LINKER_FLAGS=-fuse-ld=ld.lld
+              -DCMAKE_LINKER=ld.lld
           - os: ubuntu-latest
             target_name: zith-linux-arm64
             cache_id: linux-arm64
@@ -67,6 +68,7 @@ jobs:
                 libc6-dev-arm64-cross libc6-arm64-cross
               sudo ln -sf /usr/bin/clang-18 /usr/bin/clang
               sudo ln -sf /usr/bin/clang++-18 /usr/bin/clang++
+              sudo ln -sf /usr/bin/ld.lld-18 /usr/bin/ld.lld-18
               sudo ln -sf /usr/bin/ld.lld-18 /usr/bin/ld.lld
             cmake_flags: >-
               -DCMAKE_C_COMPILER=clang
@@ -74,7 +76,7 @@ jobs:
               -DCMAKE_C_COMPILER_TARGET=aarch64-unknown-linux-gnu
               -DCMAKE_CXX_COMPILER_TARGET=aarch64-unknown-linux-gnu
               -DCMAKE_LINKER=ld.lld
-              -DCMAKE_EXE_LINKER_FLAGS="-static -fuse-ld=ld.lld"
+              -DCMAKE_EXE_LINKER_FLAGS=-static
               -DCMAKE_CROSSCOMPILING=ON
           - os: macos-latest
             target_name: zith-macos-amd64
@@ -101,6 +103,15 @@ jobs:
             cmake_flags: >-
               -DCMAKE_C_COMPILER=clang-cl
               -DCMAKE_CXX_COMPILER=clang-cl
+          - os: windows-latest
+            target_name: zith-windows-arm64.exe
+            cache_id: windows-arm64
+            install_cmd: choco install llvm ninja -y
+            cmake_flags: >-
+              -DCMAKE_C_COMPILER=clang-cl
+              -DCMAKE_CXX_COMPILER=clang-cl
+              -DCMAKE_C_COMPILER_TARGET=aarch64-windows-msvc
+              -DCMAKE_CXX_COMPILER_TARGET=aarch64-windows-msvc
     steps:
       - uses: actions/checkout@v4
         with:
@@ -261,7 +272,7 @@ jobs:
             -DCMAKE_C_COMPILER_TARGET=${{ matrix.target_triple }} \
             -DCMAKE_CXX_COMPILER_TARGET=${{ matrix.target_triple }} \
             -DCMAKE_LINKER=ld.lld \
-            -DCMAKE_EXE_LINKER_FLAGS="-static -fuse-ld=ld.lld" \
+            -DCMAKE_EXE_LINKER_FLAGS=-static \
             -DZITH_VERSION=${{ needs.create-release.outputs.tag }} \
             -DCMAKE_CROSSCOMPILING=ON
         shell: bash
@@ -299,9 +310,9 @@ jobs:
           fetch-depth: 0
 
       - name: Setup Emscripten
-        uses: mymindstorm/setup-emsdk@v14
+        uses: emscripten-core/setup-emsdk@v16
         with:
-          version: 3.1.45
+          version: 3.1.65
           actions-cache-folder: 'emsdk-cache'
 
       - name: Setup CMake
@@ -313,7 +324,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: emsdk-cache
-          key: emsdk-3.1.45-v1
+          key: emsdk-3.1.65-v1
           restore-keys: emsdk-
 
       - name: Cache Build Artifacts (WASM)
@@ -325,6 +336,7 @@ jobs:
 
       - name: Configure CMake (WASM)
         run: |
+          export EM_CONFIG="$EMSDK/.emscripten"
           emcmake cmake -B build-wasm \
             -DCMAKE_BUILD_TYPE=Release \
             -DBUILD_TESTING=OFF \
