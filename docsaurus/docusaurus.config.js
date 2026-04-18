@@ -13,7 +13,7 @@ const config = {
   // Set the production url of your site here
   url: 'https://zith-lang.dev',
   // Set the /<baseUrl>/ pathname under which your site is served
-  baseUrl: '/',
+  baseUrl: '/Zith',
 
   // GitHub pages deployment config.
   organizationName: 'galaxyhaze',
