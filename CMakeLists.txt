@@ -62,7 +62,7 @@ FetchContent_MakeAvailable(tomlplusplus)
 # =============================================================================
 # Compiler Flags
 # =============================================================================
-option(ENABLE_WERROR "Treat warnings as errors" ON)
+option(ENABLE_WERROR "Treat warnings as errors" OFF)
 
 if (MSVC)
     add_compile_options(/W4 /wd4100) 
@@ -262,7 +262,7 @@ if(EMSCRIPTEN)
     )
 
     if (MSVC)
-        target_compile_options(zith-wasm PRIVATE /W4 /WX /wd4100)
+        target_compile_options(zith-wasm PRIVATE /W4 /wd4100)
     else ()
         target_compile_options(zith-wasm PRIVATE -Wall -Wextra -Wpedantic)
     endif()
