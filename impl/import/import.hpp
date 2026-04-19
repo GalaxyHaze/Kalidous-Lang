@@ -10,9 +10,8 @@
 #include <string>
 #include <vector>
 #include <utility>
-#include <algorithm>
 #include <cstring>
-#include <unordered_dense_map>
+#include <ankerl/unordered_dense.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -23,15 +22,6 @@ extern "C" {
 
 namespace zith {
 namespace import {
-
-// ============================================================================
-// Forward declarations
-// ============================================================================
-
-class Import;
-class Symbol;
-class Change;
-class SymbolTable;
 
 // ============================================================================
 // Enums (C++ wrappers)
@@ -92,7 +82,7 @@ using ChangeSpan = Span<ZithChange>;
 
 class Symbol {
 public:
-    Symbol() : name_(nullptr), kind_(SymbolKind::Struct), visibility_(Visibility::Public), decl_(nullptr) {}
+    Symbol() : name_(""), kind_(SymbolKind::Struct), visibility_(Visibility::Public), decl_(nullptr) {}
     Symbol(std::string name, SymbolKind kind, Visibility vis, void* decl = nullptr)
         : name_(std::move(name)), kind_(kind), visibility_(vis), decl_(decl) {}
 
@@ -130,7 +120,7 @@ private:
 
 class Change {
 public:
-    Change() : kind_(ChangeKind::Add), symbol_name_(nullptr), symbol_kind_(SymbolKind::Struct) {}
+    Change() : kind_(ChangeKind::Add), symbol_name_(""), symbol_kind_(SymbolKind::Struct) {}
     Change(ChangeKind kind, std::string name, SymbolKind sym_kind)
         : kind_(kind), symbol_name_(std::move(name)), symbol_kind_(sym_kind) {}
 
@@ -158,29 +148,6 @@ private:
 };
 
 // ============================================================================
-// Helper: Ownership-managed arrays
-// ============================================================================
-
-namespace detail {
-    template <typename T>
-    struct ManagedArray {
-        std::vector<T> vec;
-
-        void init(uint32_t cap) { vec.reserve(cap); }
-        void free() { vec.clear(); vec.shrink_to_fit(); }
-
-        void push(T&& item) { vec.push_back(std::move(item)); }
-        void push(const T& item) { vec.push_back(item); }
-
-        uint32_t length() const { return static_cast<uint32_t>(vec.size()); }
-        uint32_t capacity() const { return static_cast<uint32_t>(vec.capacity()); }
-
-        T* data() { return vec.data(); }
-        const T* data() const { return vec.data(); }
-    };
-} // namespace detail
-
-// ============================================================================
 // Import (main C++ wrapper with RAII)
 // ============================================================================
 
@@ -189,18 +156,7 @@ public:
     Import() : Import("", 0) {}
 
     Import(std::string name, uint32_t version = 0)
-        : name_(std::move(name)), version_(version), is_dirty_(true) {
-        auto init_arr = [](auto& arr) { arr.vec.clear(); arr.vec.shrink_to_fit(); };
-        init_arr(public_types_);
-        init_arr(public_functions_);
-        init_arr(public_traits_);
-        init_arr(protected_types_);
-        init_arr(protected_functions_);
-        init_arr(protected_traits_);
-        init_arr(private_types_);
-        init_arr(private_functions_);
-        init_arr(private_traits_);
-    }
+        : name_(std::move(name)), version_(version), is_dirty_(true) {}
 
     ~Import() = default;
 
@@ -250,45 +206,65 @@ public:
 
     // Symbol addition
     void add_type(std::string name, SymbolKind kind, Visibility vis = Visibility::Public) {
-        add_symbol(std::move(name), kind, vis, symbol_array_for(kind, vis));
+        switch (vis) {
+            case Visibility::Public: public_types_.push_back(Symbol{std::move(name), kind, vis, nullptr}); break;
+            case Visibility::Protected: protected_types_.push_back(Symbol{std::move(name), kind, vis, nullptr}); break;
+            case Visibility::Private: private_types_.push_back(Symbol{std::move(name), kind, vis, nullptr}); break;
+        }
+        mark_dirty();
     }
 
     void add_function(std::string name, Visibility vis = Visibility::Public) {
-        add_symbol(std::move(name), SymbolKind::Function, vis, functions_array_for(vis));
+        switch (vis) {
+            case Visibility::Public: public_functions_.push_back(Symbol{std::move(name), SymbolKind::Function, vis, nullptr}); break;
+            case Visibility::Protected: protected_functions_.push_back(Symbol{std::move(name), SymbolKind::Function, vis, nullptr}); break;
+            case Visibility::Private: private_functions_.push_back(Symbol{std::move(name), SymbolKind::Function, vis, nullptr}); break;
+        }
+        mark_dirty();
     }
 
-    void add_trait(std::string name, SymbolKind kind, Visibility vis = Visibility::Public) {
-        add_symbol(std::move(name), kind, vis, traits_array_for(kind, vis));
+    void add_trait(std::string name, Visibility vis = Visibility::Public) {
+        switch (vis) {
+            case Visibility::Public: public_traits_.push_back(Symbol{std::move(name), SymbolKind::Trait, vis, nullptr}); break;
+            case Visibility::Protected: protected_traits_.push_back(Symbol{std::move(name), SymbolKind::Trait, vis, nullptr}); break;
+            case Visibility::Private: private_traits_.push_back(Symbol{std::move(name), SymbolKind::Trait, vis, nullptr}); break;
+        }
+        mark_dirty();
     }
 
     void add_family(std::string name, Visibility vis = Visibility::Public) {
-        add_symbol(std::move(name), SymbolKind::Family, vis, traits_array_for(SymbolKind::Family, vis));
+        switch (vis) {
+            case Visibility::Public: public_traits_.push_back(Symbol{std::move(name), SymbolKind::Family, vis, nullptr}); break;
+            case Visibility::Protected: protected_traits_.push_back(Symbol{std::move(name), SymbolKind::Family, vis, nullptr}); break;
+            case Visibility::Private: private_traits_.push_back(Symbol{std::move(name), SymbolKind::Family, vis, nullptr}); break;
+        }
+        mark_dirty();
     }
 
     // Accessors by visibility
-    auto& public_types() { return public_types_; }
-    auto& protected_types() { return protected_types_; }
-    auto& private_types() { return private_types_; }
+    std::vector<Symbol>& public_types() { return public_types_; }
+    std::vector<Symbol>& protected_types() { return protected_types_; }
+    std::vector<Symbol>& private_types() { return private_types_; }
 
-    auto& public_functions() { return public_functions_; }
-    auto& protected_functions() { return protected_functions_; }
-    auto& private_functions() { return private_functions_; }
+    std::vector<Symbol>& public_functions() { return public_functions_; }
+    std::vector<Symbol>& protected_functions() { return protected_functions_; }
+    std::vector<Symbol>& private_functions() { return private_functions_; }
 
-    auto& public_traits() { return public_traits_; }
-    auto& protected_traits() { return protected_traits_; }
-    auto& private_traits() { return private_traits_; }
+    std::vector<Symbol>& public_traits() { return public_traits_; }
+    std::vector<Symbol>& protected_traits() { return protected_traits_; }
+    std::vector<Symbol>& private_traits() { return private_traits_; }
 
-    const auto& public_types() const { return public_types_; }
-    const auto& protected_types() const { return protected_types_; }
-    const auto& private_types() const { return private_types_; }
+    const std::vector<Symbol>& public_types() const { return public_types_; }
+    const std::vector<Symbol>& protected_types() const { return protected_types_; }
+    const std::vector<Symbol>& private_types() const { return private_types_; }
 
-    const auto& public_functions() const { return public_functions_; }
-    const auto& protected_functions() const { return protected_functions_; }
-    const auto& private_functions() const { return private_functions_; }
+    const std::vector<Symbol>& public_functions() const { return public_functions_; }
+    const std::vector<Symbol>& protected_functions() const { return protected_functions_; }
+    const std::vector<Symbol>& private_functions() const { return private_functions_; }
 
-    const auto& public_traits() const { return public_traits_; }
-    const auto& protected_traits() const { return protected_traits_; }
-    const auto& private_traits() const { return private_traits_; }
+    const std::vector<Symbol>& public_traits() const { return public_traits_; }
+    const std::vector<Symbol>& protected_traits() const { return protected_traits_; }
+    const std::vector<Symbol>& private_traits() const { return private_traits_; }
 
     // Dirty tracking
     bool is_dirty() const { return is_dirty_; }
@@ -297,90 +273,81 @@ public:
 
     // Change log
     void log_change(ChangeKind kind, std::string symbol_name, SymbolKind sym_kind) {
-        changes_.push(Change(kind, std::move(symbol_name), sym_kind));
+        changes_.push_back(Change(kind, std::move(symbol_name), sym_kind));
         mark_dirty();
     }
 
-    Span<const Change> changes() const {
-        return {const_cast<Change*>(changes_.vec.data()), changes_.length()};
-    }
-
+    const std::vector<Change>& changes() const { return changes_; }
     void clear_changes() {
-        changes_.free();
+        changes_.clear();
     }
 
-    // Conversion to C ABI (zero-copy view, caller must not free)
-    ZithImport* to_c() {
+    // Conversion to C ABI (deep copy, caller must free with zith_import_destroy)
+    ZithImport* to_c() const {
+        auto convert_arr = [](const std::vector<Symbol>& src) {
+            ZithSymbolArray arr;
+            arr.length = static_cast<uint32_t>(src.size());
+            arr.capacity = static_cast<uint32_t>(src.capacity());
+            arr.data = arr.length > 0 ? new ZithSymbol[arr.length] : nullptr;
+            for (uint32_t i = 0; i < arr.length; ++i) {
+                arr.data[i] = src[i].to_c();
+            }
+            return arr;
+        };
+
+        auto convert_changes = [](const std::vector<Change>& src) {
+            ZithChangeArray arr;
+            arr.length = static_cast<uint32_t>(src.size());
+            arr.capacity = static_cast<uint32_t>(src.capacity());
+            arr.data = arr.length > 0 ? new ZithChange[arr.length] : nullptr;
+            for (uint32_t i = 0; i < arr.length; ++i) {
+                arr.data[i] = src[i].to_c();
+            }
+            return arr;
+        };
+
         ZithImport* imp = new ZithImport{};
-        imp->name = const_cast<char*>(name_.c_str());
+        imp->name = new char[name_.size() + 1];
+        std::strcpy(imp->name, name_.c_str());
         imp->version = version_;
 
-        imp->public_types.data = public_types_.data();
-        imp->public_types.length = public_types_.length();
-        imp->public_types.capacity = public_types_.capacity();
-
-        imp->public_functions.data = public_functions_.data();
-        imp->public_functions.length = public_functions_.length();
-        imp->public_functions.capacity = public_functions_.capacity();
-
-        imp->public_traits.data = public_traits_.data();
-        imp->public_traits.length = public_traits_.length();
-        imp->public_traits.capacity = public_traits_.capacity();
-
-        imp->protected_types.data = protected_types_.data();
-        imp->protected_types.length = protected_types_.length();
-        imp->protected_types.capacity = protected_types_.capacity();
-
-        imp->protected_functions.data = protected_functions_.data();
-        imp->protected_functions.length = protected_functions_.length();
-        imp->protected_functions.capacity = protected_functions_.capacity();
-
-        imp->protected_traits.data = protected_traits_.data();
-        imp->protected_traits.length = protected_traits_.length();
-        imp->protected_traits.capacity = protected_traits_.capacity();
-
-        imp->private_types.data = private_types_.data();
-        imp->private_types.length = private_types_.length();
-        imp->private_types.capacity = private_types_.capacity();
-
-        imp->private_functions.data = private_functions_.data();
-        imp->private_functions.length = private_functions_.length();
-        imp->private_functions.capacity = private_functions_.capacity();
-
-        imp->private_traits.data = private_traits_.data();
-        imp->private_traits.length = private_traits_.length();
-        imp->private_traits.capacity = private_traits_.capacity();
+        imp->public_types = convert_arr(public_types_);
+        imp->public_functions = convert_arr(public_functions_);
+        imp->public_traits = convert_arr(public_traits_);
+        imp->protected_types = convert_arr(protected_types_);
+        imp->protected_functions = convert_arr(protected_functions_);
+        imp->protected_traits = convert_arr(protected_traits_);
+        imp->private_types = convert_arr(private_types_);
+        imp->private_functions = convert_arr(private_functions_);
+        imp->private_traits = convert_arr(private_traits_);
 
         imp->is_dirty = is_dirty_ ? 1 : 0;
-
-        imp->changes.data = const_cast<Change*>(changes_.vec.data());
-        imp->changes.length = changes_.length();
-        imp->changes.capacity = changes_.capacity();
+        imp->changes = convert_changes(changes_);
 
         return imp;
     }
 
-    static Import from_c(ZithImport* c_imp) {
+    static Import from_c(const ZithImport* c_imp) {
         Import imp(c_imp->name ? c_imp->name : "", c_imp->version);
 
-        auto copy_arr = [](auto& dest, const ZithSymbolArray& src) {
+        auto copy_arr = [](const ZithSymbolArray& src, std::vector<Symbol>& dest) {
             for (uint32_t i = 0; i < src.length; ++i) {
-                dest.push(Symbol::from_c(src.data[i]));
+                dest.push_back(Symbol::from_c(src.data[i]));
             }
         };
 
-        copy_arr(imp.public_types_, c_imp->public_types);
-        copy_arr(imp.public_functions_, c_imp->public_functions);
-        copy_arr(imp.public_traits_, c_imp->public_traits);
-        copy_arr(imp.protected_types_, c_imp->protected_types);
-        copy_arr(imp.protected_functions_, c_imp->protected_functions);
-        copy_arr(imp.protected_traits_, c_imp->protected_traits);
-        copy_arr(imp.private_types_, c_imp->private_types);
-        copy_arr(imp.private_functions_, c_imp->private_functions);
-        copy_arr(imp.private_traits_, c_imp->private_traits);
+        copy_arr(c_imp->public_types, imp.public_types_);
+        copy_arr(c_imp->public_functions, imp.public_functions_);
+        copy_arr(c_imp->public_traits, imp.public_traits_);
+        copy_arr(c_imp->protected_types, imp.protected_types_);
+        copy_arr(c_imp->protected_functions, imp.protected_functions_);
+        copy_arr(c_imp->protected_traits, imp.protected_traits_);
+        copy_arr(c_imp->private_types, imp.private_types_);
+        copy_arr(c_imp->private_functions, imp.private_functions_);
+        copy_arr(c_imp->private_traits, imp.private_traits_);
 
         for (uint32_t i = 0; i < c_imp->changes.length; ++i) {
-            imp.changes_.push(Change::from_c(c_imp->changes.data[i]));
+            imp.changes_.push_back(Change::from_c(c_imp->changes.data[i]));
         }
 
         imp.is_dirty_ = c_imp->is_dirty != 0;
@@ -388,57 +355,23 @@ public:
     }
 
 private:
-    using Arr = detail::ManagedArray<Symbol>;
-
-    void add_symbol(std::string name, SymbolKind kind, Visibility vis, Arr& arr) {
-        arr.push(Symbol{std::move(name), kind, vis, nullptr});
-        mark_dirty();
-    }
-
-    Arr& symbol_array_for(SymbolKind kind, Visibility vis) {
-        switch (vis) {
-            case Visibility::Public: return public_types_;
-            case Visibility::Protected: return protected_types_;
-            case Visibility::Private: return private_types_;
-        }
-        return public_types_;
-    }
-
-    Arr& functions_array_for(Visibility vis) {
-        switch (vis) {
-            case Visibility::Public: return public_functions_;
-            case Visibility::Protected: return protected_functions_;
-            case Visibility::Private: return private_functions_;
-        }
-        return public_functions_;
-    }
-
-    Arr& traits_array_for(SymbolKind kind, Visibility vis) {
-        switch (vis) {
-            case Visibility::Public: return public_traits_;
-            case Visibility::Protected: return protected_traits_;
-            case Visibility::Private: return private_traits_;
-        }
-        return public_traits_;
-    }
-
     std::string name_;
     uint32_t version_;
     bool is_dirty_;
 
-    Arr public_types_;
-    Arr public_functions_;
-    Arr public_traits_;
+    std::vector<Symbol> public_types_;
+    std::vector<Symbol> public_functions_;
+    std::vector<Symbol> public_traits_;
 
-    Arr protected_types_;
-    Arr protected_functions_;
-    Arr protected_traits_;
+    std::vector<Symbol> protected_types_;
+    std::vector<Symbol> protected_functions_;
+    std::vector<Symbol> protected_traits_;
 
-    Arr private_types_;
-    Arr private_functions_;
-    Arr private_traits_;
+    std::vector<Symbol> private_types_;
+    std::vector<Symbol> private_functions_;
+    std::vector<Symbol> private_traits_;
 
-    Arr changes_;
+    std::vector<Change> changes_;
 };
 
 // ============================================================================
@@ -446,7 +379,6 @@ private:
 // ============================================================================
 
 using ImportPtr = std::unique_ptr<Import>;
-using ImportView = std::unique_ptr<Import>;
 
 } // namespace import
 } // namespace zith

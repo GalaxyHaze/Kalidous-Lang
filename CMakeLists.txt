@@ -132,6 +132,8 @@ file(GLOB_RECURSE PARSER_CPP_SOURCES
     "impl/ast/*.cpp"
 )
 
+file(GLOB_RECURSE IMPORT_SOURCES "impl/import/*.hpp")
+
 file(GLOB_RECURSE CLI_SOURCES
     "impl/cli/*.cpp"
     "impl/memory/*.h"
@@ -151,7 +153,7 @@ target_include_directories(ZithCore
 target_link_libraries(ZithCore PUBLIC tomlplusplus::tomlplusplus)
 
 # ────────
-add_library(ZithParse STATIC ${PARSER_CPP_SOURCES})
+add_library(ZithParse STATIC ${PARSER_CPP_SOURCES} ${IMPORT_SOURCES})
 target_include_directories(ZithParse
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
