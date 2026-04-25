@@ -122,6 +122,32 @@ if(DEFINED CLANG_PLUGIN_PATH AND EXISTS "${CLANG_PLUGIN_PATH}")
 endif()
 
 # =============================================================================
+# LLVM Configuration
+# =============================================================================
+set(LLVM_DIR "/usr/lib/llvm/21/lib/cmake/llvm")
+find_package(LLVM CONFIG PATHS "${LLVM_DIR}" NO_DEFAULT_PATH)
+message(STATUS "✓ Found LLVM ${LLVM_PACKAGE_VERSION} at ${LLVM_DIR}")
+
+add_definitions(-DLLVM_VERSION_MAJOR=${LLVM_VERSION_MAJOR})
+
+set(LLVM_LIBRARIES
+    LLVMAnalysis.a
+    LLVMCodeGen.a
+    LLVMCodeGenTypes.a
+    LLVMCore.a
+    LLVMInstCombine.a
+    LLVMScalarOpts.a
+    LLVMVectorize.a
+    LLVMipo.a
+    LLVMIRReader.a
+    LLVMIRPrinter.a
+    LLVMTarget.a
+)
+
+set(LLVM_INCLUDE_DIRS "/usr/lib/llvm/21/include")
+set(LLVM_LIB_DIR "/usr/lib/llvm/21/lib")
+
+# =============================================================================
 # Sources
 # =============================================================================
 file(GLOB_RECURSE CORE_C_SOURCES "impl/memory/*.c")
@@ -149,8 +175,22 @@ target_include_directories(ZithCore
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:include>
+        ${LLVM_INCLUDE_DIRS}
 )
-target_link_libraries(ZithCore PUBLIC tomlplusplus::tomlplusplus)
+target_link_libraries(ZithCore PUBLIC 
+    tomlplusplus::tomlplusplus
+    "${LLVM_LIB_DIR}/libLLVMAnalysis.a"
+    "${LLVM_LIB_DIR}/libLLVMCodeGen.a"
+    "${LLVM_LIB_DIR}/libLLVMCodeGenTypes.a"
+    "${LLVM_LIB_DIR}/libLLVMCore.a"
+    "${LLVM_LIB_DIR}/libLLVMInstCombine.a"
+    "${LLVM_LIB_DIR}/libLLVMScalarOpts.a"
+    "${LLVM_LIB_DIR}/libLLVMVectorize.a"
+    "${LLVM_LIB_DIR}/libLLVMipo.a"
+    "${LLVM_LIB_DIR}/libLLVMIRReader.a"
+    "${LLVM_LIB_DIR}/libLLVMIRPrinter.a"
+    "${LLVM_LIB_DIR}/libLLVMTarget.a"
+)
 
 # ────────
 add_library(ZithParse STATIC ${PARSER_CPP_SOURCES} ${IMPORT_SOURCES})

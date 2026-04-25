@@ -9,9 +9,13 @@ int main() {
     return 0;
 }
 #else
-#include <zith/zith.hpp>
+/*#include <zith/zith.hpp>
 
 int main(const int argc, const char* argv[]) {
     zith_run(argc, argv);
-}
+}*/
+
+
+
+
 #endif
