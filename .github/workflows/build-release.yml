@@ -54,7 +54,7 @@ jobs:
               sudo ln -sf /usr/bin/clang++-18 /usr/bin/clang++
               sudo ln -sf /usr/bin/ld.lld-18 /usr/bin/ld.lld-18
               sudo ln -sf /usr/bin/ld.lld-18 /usr/bin/ld.lld
-cmake_flags: >-
+            cmake_flags: >-
               -DCMAKE_C_COMPILER=clang
               -DCMAKE_CXX_COMPILER=clang++
               -DCMAKE_LINKER=ld.lld
