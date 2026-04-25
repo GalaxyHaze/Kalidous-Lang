@@ -1,6 +1,40 @@
 # Zith Language
 
-**Status:** Work in Progress. Zith is currently under active development. The project is not yet stable or ready for production use, but community feedback and contributions are welcome.
+**Status:** Active Development / Moving Target. Zith is under heavy development. APIs, syntax, and architecture may change at any time. Not ready for production use.
+
+## Current Implementation State
+
+> **Last Updated:** April 2025
+
+The parser and core tools are functional but incomplete. The spec (`Zith-spec.md`) defines the target design, while `impl/` contains what's currently implemented.
+
+### ✅ What's Working
+
+- Lexer & tokenizer
+- Basic parser (`fn`, `struct`, `let`/`var`/`const`, `if`/`for`/`return`)
+- Ownership keywords parsing (`unique`, `share`, `view`, `lend`)
+- Import/export system
+- AST generation (ArenaList-backed)
+- Diagnostics & error reporting
+- LLVM 21 integration ready
+
+### 🚧 In Progress
+
+- Enum/union/trait parsing
+- Optional (`?T`) and failable (`T!`) types
+- Contexts & DSL features
+- Marker/flow functions
+- ECS components/entities/scenes
+- Try/catch/do/error/drop
+
+### ❌ Not Yet
+
+- Semantic analysis (type checking)
+- Code generation (LLVM IR)
+- Bytecode emitter
+- Full standard library
+
+**See:** `impl/parser/parser.md` for parser architecture details
 
 ## Documentation
 
