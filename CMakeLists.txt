@@ -266,6 +266,11 @@ if(BUILD_TESTING)
 
         message(STATUS "💡 Tests target 'zith_tests' configured.")
     endif()
+
+    add_test(
+        NAME zith_cli_hello_interpreted
+        COMMAND $<TARGET_FILE:zith> run --interpreted ${CMAKE_SOURCE_DIR}/examples/start/hello-world.zith
+    )
 endif()
 
 # =============================================================================
