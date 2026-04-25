@@ -59,6 +59,11 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(tomlplusplus)
 
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(FFI REQUIRED libffi)
+
+set(LLVM_LIB_DIR "/usr/lib/llvm/21/lib")
+
 # =============================================================================
 # Compiler Flags
 # =============================================================================
@@ -176,20 +181,11 @@ target_include_directories(ZithCore
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:include>
         ${LLVM_INCLUDE_DIRS}
+        ${FFI_INCLUDE_DIRS}
 )
 target_link_libraries(ZithCore PUBLIC 
     tomlplusplus::tomlplusplus
-    "${LLVM_LIB_DIR}/libLLVMAnalysis.a"
-    "${LLVM_LIB_DIR}/libLLVMCodeGen.a"
-    "${LLVM_LIB_DIR}/libLLVMCodeGenTypes.a"
-    "${LLVM_LIB_DIR}/libLLVMCore.a"
-    "${LLVM_LIB_DIR}/libLLVMInstCombine.a"
-    "${LLVM_LIB_DIR}/libLLVMScalarOpts.a"
-    "${LLVM_LIB_DIR}/libLLVMVectorize.a"
-    "${LLVM_LIB_DIR}/libLLVMipo.a"
-    "${LLVM_LIB_DIR}/libLLVMIRReader.a"
-    "${LLVM_LIB_DIR}/libLLVMIRPrinter.a"
-    "${LLVM_LIB_DIR}/libLLVMTarget.a"
+    "${LLVM_LIB_DIR}/libLLVM-21.so"
 )
 
 # ────────
@@ -215,12 +211,13 @@ set_target_properties(ZithParse PROPERTIES
 # ────────
 add_executable(zith impl/main.cpp ${CLI_SOURCES})
 
-target_include_directories(zith PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_include_directories(zith PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include ${FFI_INCLUDE_DIRS})
 
 target_link_libraries(zith
     PRIVATE
         ZithParse
         CLI11::CLI11
+        ${FFI_LIBRARIES}
 )
 target_compile_definitions(zith PRIVATE ZITH_VERSION="${ZITH_VERSION}" ZITH_EXECUTABLE)
 

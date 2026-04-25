@@ -21,7 +21,7 @@ static ZithNode *alloc_node(ZithArena *a, ZithNodeId id,
                                 ZithSourceLoc loc) {
     auto *n = static_cast<ZithNode *>(zith_arena_alloc(a, sizeof(ZithNode)));
     if (!n) return nullptr;
-    std::memset(n, 0, sizeof(ZithNode));
+    memset(n, 0, sizeof(ZithNode));
     n->type = id;
     n->loc = loc;
     return n;
@@ -32,7 +32,7 @@ template<typename T>
 static T *alloc_payload(ZithArena *a, ZithNode *n) {
     auto *p = static_cast<T *>(zith_arena_alloc(a, sizeof(T)));
     if (!p) return nullptr;
-    std::memset(p, 0, sizeof(T));
+    memset(p, 0, sizeof(T));
     n->data.list.ptr = p;
     return p;
 }
