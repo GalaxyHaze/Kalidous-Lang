@@ -33,8 +33,8 @@ TEST_CASE("FULL: optional/failable assignment is consistent", "[full][sema][type
     auto ok = ParseResult(zith_parse_test_full(
         "fn main() {\n"
         "  let x: i32 = 7;\n"
-        "  let maybe: i32? = x;\n"
-        "  let risky: i32! = x;\n"
+        "  let maybe: ?i32 = x;\n"
+        "  let risky: !i32 = x;\n"
         "  return;\n"
         "}"
     ));

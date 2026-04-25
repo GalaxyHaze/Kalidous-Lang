@@ -34,76 +34,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  build-and-release:
+  build-linux:
     needs: create-release
-    name: Build on ${{ matrix.os }} (${{ matrix.target_name }})
-    runs-on: ${{ matrix.os }}
-    timeout-minutes: 30
-
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - os: ubuntu-latest
-            target_name: zith-linux-amd64
-            cache_id: linux-amd64
-            install_cmd: |
-              sudo apt-get update
-              sudo apt-get install -y ninja-build clang-18 lld-18
-              sudo ln -sf /usr/bin/clang-18 /usr/bin/clang
-              sudo ln -sf /usr/bin/clang++-18 /usr/bin/clang++
-              sudo ln -sf /usr/bin/ld.lld-18 /usr/bin/ld.lld-18
-              sudo ln -sf /usr/bin/ld.lld-18 /usr/bin/ld.lld
-            cmake_flags: >-
-              -DCMAKE_C_COMPILER=clang
-              -DCMAKE_CXX_COMPILER=clang++
-              -DCMAKE_LINKER=ld.lld
-          - os: ubuntu-latest
-            target_name: zith-linux-arm64
-            cache_id: linux-arm64
-            install_cmd: |
-              sudo apt-get update
-              sudo apt-get install -y ninja-build clang-18 lld-18 \
-                gcc-aarch64-linux-gnu g++-aarch64-linux-gnu \
-                libc6-dev-arm64-cross libc6-arm64-cross libstdc++-12-aarch64-cross \
-                binutils-aarch64-linux-gnu
-              sudo ln -sf /usr/bin/clang-18 /usr/bin/clang
-              sudo ln -sf /usr/bin/clang++-18 /usr/bin/clang++
-              sudo ln -sf /usr/bin/ld.lld-18 /usr/bin/ld.lld-18
-              sudo ln -sf /usr/bin/ld.lld-18 /usr/bin/ld.lld
-            cmake_flags: >-
-              -DCMAKE_C_COMPILER=/usr/bin/clang
-              -DCMAKE_CXX_COMPILER=/usr/bin/clang++
-              -DCMAKE_C_COMPILER_TARGET=aarch64-unknown-linux-gnu
-              -DCMAKE_CXX_COMPILER_TARGET=aarch64-unknown-linux-gnu
-              -DCMAKE_EXE_LINKER_FLAGS="-static -fuse-ld=lld"
-              -DCMAKE_SYSROOT=/usr/aarch64-linux-gnu
-              -DCMAKE_CROSSCOMPILING=ON
-          - os: macos-latest
-            target_name: zith-macos-amd64
-            cache_id: macos-amd64
-            install_cmd: brew install ninja llvm
-            cmake_flags: >-
-              -DCMAKE_C_COMPILER=$(brew --prefix llvm)/bin/clang
-              -DCMAKE_CXX_COMPILER=$(brew --prefix llvm)/bin/clang++
-              -DCMAKE_LINKER=$(brew --prefix llvm)/bin/ld64.lld
-              -DCMAKE_OSX_ARCHITECTURES=x86_64
-              -DCMAKE_CROSSCOMPILING=ON
-          - os: macos-latest
-            target_name: zith-macos-arm64
-            cache_id: macos-arm64
-            install_cmd: brew install ninja llvm
-            cmake_flags: >-
-              -DCMAKE_C_COMPILER=$(brew --prefix llvm)/bin/clang
-              -DCMAKE_CXX_COMPILER=$(brew --prefix llvm)/bin/clang++
-              -DCMAKE_LINKER=$(brew --prefix llvm)/bin/ld64.lld
-          - os: windows-latest
-            target_name: zith-windows-amd64.exe
-            cache_id: windows-amd64
-            install_cmd: choco install llvm ninja -y
-            cmake_flags: >-
-              -DCMAKE_C_COMPILER=clang-cl
-              -DCMAKE_CXX_COMPILER=clang-cl
+    name: Build Linux x64
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
@@ -114,49 +48,182 @@ jobs:
         with:
           cmake-version: '3.28.x'
 
-      - name: Cache APT Packages
-        if: runner.os == 'Linux'
-        uses: awalsh128/cache-apt-pkgs-action@v1
-        with:
-          packages: ninja-build clang-18 lld-18 gcc-aarch64-linux-gnu g++-aarch64-linux-gnu libc6-dev-arm64-cross libc6-arm64-cross
-          version: ${{ matrix.cache_id }}-v2
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ninja-build clang-18 lld-18
+          sudo ln -sf /usr/bin/clang-18 /usr/bin/clang
+          sudo ln -sf /usr/bin/clang++-18 /usr/bin/clang++
+          sudo ln -sf /usr/bin/ld.lld-18 /usr/bin/ld.lld-18
+          sudo ln -sf /usr/bin/ld.lld-18 /usr/bin/ld.lld
+        shell: bash
 
-      - name: Cache Homebrew
-        if: runner.os == 'macOS'
-        uses: actions/cache@v4
-        with:
-          path: ~/Library/Caches/Homebrew
-          key: ${{ runner.os }}-homebrew-${{ hashFiles('Brewfile.lock.json') }}
-          restore-keys: ${{ runner.os }}-homebrew-
+      - name: Verify Clang
+        run: clang --version && clang++ --version
+        shell: bash
 
-      - name: Cache Chocolatey
-        if: runner.os == 'Windows'
-        uses: actions/cache@v4
-        with:
-          path: C:\ProgramData\chocolatey\lib
-          key: ${{ runner.os }}-choco-${{ hashFiles('*.lock') }}
-          restore-keys: ${{ runner.os }}-choco-
+      - name: Configure CMake
+        run: |
+          cmake -B build -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DBUILD_TESTING=OFF \
+            -DENABLE_WERROR=OFF \
+            -DZITH_VERSION=${{ needs.create-release.outputs.tag }} \
+            -DCMAKE_C_COMPILER=clang \
+            -DCMAKE_CXX_COMPILER=clang++ \
+            -DCMAKE_LINKER=ld.lld
+        shell: bash
 
-      - name: Cache Build Artifacts
-        uses: actions/cache@v4
+      - name: Build
+        run: cmake --build build --config Release -j$(nproc)
+        shell: bash
+
+      - name: Prepare Artifact
+        run: |
+          mkdir -p artifacts
+          chmod +x build/bin/zith
+          cp build/bin/zith artifacts/zith-linux-amd64
+          file artifacts/zith-linux-amd64
+        shell: bash
+
+      - name: Upload Release Asset
+        uses: softprops/action-gh-release@v2
         with:
-          path: build
-          key: ${{ runner.os }}-build-${{ matrix.cache_id }}-${{ hashFiles('src/**', 'CMakeLists.txt', 'CMakePresets.json') }}-v2
-          restore-keys: ${{ runner.os }}-build-${{ matrix.cache_id }}-
+          tag_name: ${{ needs.create-release.outputs.tag }}
+          files: artifacts/zith-linux-amd64
+          draft: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  build-musl:
+    needs: create-release
+    name: Build Linux musl x64
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup CMake
+        uses: jwlawson/actions-setup-cmake@v2
+        with:
+          cmake-version: '3.28.x'
 
       - name: Install Dependencies
-        run: ${{ matrix.install_cmd }}
-        shell: bash
-
-      - name: Verify Clang Installation
         run: |
-          clang --version
-          clang++ --version
-          ld.lld --version 2>/dev/null || echo "ld.lld verification skipped"
+          sudo apt-get update
+          sudo apt-get install -y ninja-build clang-18 lld-18 musl-tools musl-dev
+          sudo ln -sf /usr/bin/clang-18 /usr/bin/clang
+          sudo ln -sf /usr/bin/clang++-18 /usr/bin/clang++
+          sudo ln -sf /usr/bin/ld.lld-18 /usr/bin/ld.lld
         shell: bash
 
-      - name: Setup MSVC Headers
-        if: runner.os == 'Windows'
+      - name: Configure CMake (musl)
+        run: |
+          cmake -B build -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DBUILD_TESTING=OFF \
+            -DENABLE_WERROR=OFF \
+            -DCMAKE_C_COMPILER=clang \
+            -DCMAKE_CXX_COMPILER=clang++ \
+            -DCMAKE_C_COMPILER_TARGET=x86_64-unknown-linux-musl \
+            -DCMAKE_CXX_COMPILER_TARGET=x86_64-unknown-linux-musl \
+            -DCMAKE_EXE_LINKER_FLAGS="-static -fuse-ld=lld" \
+            -DZITH_VERSION=${{ needs.create-release.outputs.tag }} \
+            -DCMAKE_CROSSCOMPILING=ON
+        shell: bash
+
+      - name: Build
+        run: cmake --build build --config Release -j$(nproc)
+        shell: bash
+
+      - name: Prepare Artifact
+        run: |
+          mkdir -p artifacts
+          chmod +x build/bin/zith
+          cp build/bin/zith artifacts/zith-linux-amd64-musl
+          file artifacts/zith-linux-amd64-musl
+          echo "=== Static binary check ==="
+          ldd artifacts/zith-linux-amd64-musl 2>&1 || echo "Binary is static"
+        shell: bash
+
+      - name: Upload Release Asset
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.create-release.outputs.tag }}
+          files: artifacts/zith-linux-amd64-musl
+          draft: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  build-macos:
+    needs: create-release
+    name: Build macOS
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup CMake
+        uses: jwlawson/actions-setup-cmake@v2
+        with:
+          cmake-version: '3.28.x'
+
+      - name: Install Dependencies
+        run: brew install ninja llvm
+        shell: bash
+
+      - name: Configure CMake
+        run: |
+          cmake -B build -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DBUILD_TESTING=OFF \
+            -DENABLE_WERROR=OFF \
+            -DZITH_VERSION=${{ needs.create-release.outputs.tag }} \
+            -DCMAKE_C_COMPILER=$(brew --prefix llvm)/bin/clang \
+            -DCMAKE_CXX_COMPILER=$(brew --path llvm)/bin/clang++ \
+            -DCMAKE_LINKER=$(brew --path llvm)/bin/ld64.lld
+        shell: bash
+
+      - name: Build
+        run: cmake --build build --config Release -j$(nproc)
+        shell: bash
+
+      - name: Prepare Artifact
+        run: |
+          mkdir -p artifacts
+          cp build/bin/zith artifacts/zith-macos-amd64
+        shell: bash
+
+      - name: Upload Release Asset
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.create-release.outputs.tag }}
+          files: artifacts/zith-macos-amd64
+          draft: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  build-windows:
+    needs: create-release
+    name: Build Windows
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup CMake
+        uses: jwlawson/actions-setup-cmake@v2
+        with:
+          cmake-version: '3.28.x'
+
+      - name: Install Dependencies
+        run: choco install llvm ninja -y
+        shell: bash
+
+      - name: Setup MSVC
         uses: ilammy/msvc-dev-cmd@v1
 
       - name: Configure CMake
@@ -166,127 +233,25 @@ jobs:
             -DBUILD_TESTING=OFF \
             -DENABLE_WERROR=OFF \
             -DZITH_VERSION=${{ needs.create-release.outputs.tag }} \
-            ${{ matrix.cmake_flags }}
+            -DCMAKE_C_COMPILER=clang-cl \
+            -DCMAKE_CXX_COMPILER=clang-cl
         shell: bash
 
       - name: Build
-        run: cmake --build build --config Release --verbose
+        run: cmake --build build --config Release -j$env:NUMBER_OF_PROCESSORS
         shell: bash
 
       - name: Prepare Artifact
         run: |
           mkdir -p artifacts
-          if [ "${{ runner.os }}" == "Windows" ]; then
-            cp build/bin/zith.exe "artifacts/${{ matrix.target_name }}"
-          else
-            chmod +x build/bin/zith
-            cp build/bin/zith "artifacts/${{ matrix.target_name }}"
-          fi
-        shell: bash
-
-      - name: Verify Binary
-        run: |
-          if [ "${{ runner.os }}" == "Windows" ]; then
-            file "artifacts/${{ matrix.target_name }}" || echo "File check skipped on Windows"
-          else
-            file "artifacts/${{ matrix.target_name }}"
-            ldd "artifacts/${{ matrix.target_name }}" 2>/dev/null || echo "Static binary (ldd check skipped)"
-          fi
+          cp build/bin/zith.exe artifacts/zith-windows-amd64.exe
         shell: bash
 
       - name: Upload Release Asset
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ needs.create-release.outputs.tag }}
-          files: artifacts/*
-          draft: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  build-musl:
-    needs: create-release
-    name: Build Linux musl static (Clang) (${{ matrix.target_name }})
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - target_name: zith-linux-amd64-musl
-            target_triple: x86_64-unknown-linux-musl
-          - target_name: zith-linux-arm64-musl
-            target_triple: aarch64-unknown-linux-musl
-
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Setup CMake
-        uses: jwlawson/actions-setup-cmake@v2
-        with:
-          cmake-version: '3.28.x'
-
-      - name: Cache APT Packages (Musl)
-        uses: awalsh128/cache-apt-pkgs-action@v1
-        with:
-          packages: clang-18 lld-18 cmake ninja-build musl-tools musl-dev musl libc6-dev-arm64-cross gcc-aarch64-linux-gnu libstdc++-12-aarch64-cross binutils-aarch64-linux-gnu
-          version: musl-v2
-
-      - name: Setup Clang Alternatives
-        run: |
-          sudo ln -sf /usr/bin/clang-18 /usr/bin/clang
-          sudo ln -sf /usr/bin/clang++-18 /usr/bin/clang++
-          sudo ln -sf /usr/bin/ld.lld-18 /usr/bin/ld.lld
-        shell: bash
-
-      - name: Verify Clang Installation
-        run: |
-          clang --version
-          clang++ --version
-          ld.lld --version
-        shell: bash
-
-      - name: Cache Build Artifacts (Musl)
-        uses: actions/cache@v4
-        with:
-          path: build
-          key: linux-musl-build-${{ matrix.target_name }}-${{ hashFiles('src/**', 'CMakeLists.txt') }}-v2
-          restore-keys: linux-musl-build-${{ matrix.target_name }}-
-
-      - name: Configure CMake (Musl)
-        run: |
-          cmake -B build -G Ninja \
-            -DCMAKE_BUILD_TYPE=Release \
-            -DBUILD_TESTING=OFF \
-            -DENABLE_WERROR=OFF \
-            -DCMAKE_C_COMPILER=/usr/bin/clang \
-            -DCMAKE_CXX_COMPILER=/usr/bin/clang++ \
-            -DCMAKE_C_COMPILER_TARGET=${{ matrix.target_triple }} \
-            -DCMAKE_CXX_COMPILER_TARGET=${{ matrix.target_triple }} \
-            -DCMAKE_EXE_LINKER_FLAGS="-static -fuse-ld=lld" \
-            -DZITH_VERSION=${{ needs.create-release.outputs.tag }} \
-            -DCMAKE_CROSSCOMPILING=ON
-        shell: bash
-
-      - name: Build
-        run: cmake --build build --config Release --verbose
-        shell: bash
-
-      - name: Prepare Artifact
-        run: |
-          mkdir -p artifacts
-          chmod +x build/bin/zith
-          cp build/bin/zith artifacts/${{ matrix.target_name }}
-          echo "=== Verifying static binary ==="
-          file artifacts/${{ matrix.target_name }}
-          ldd artifacts/${{ matrix.target_name }} 2>&1 || echo "✓ Binary is static (ldd failed as expected)"
-        shell: bash
-
-      - name: Upload MUSL Release Asset
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ needs.create-release.outputs.tag }}
-          files: artifacts/${{ matrix.target_name }}
+          files: artifacts/zith-windows-amd64.exe
           draft: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -311,20 +276,6 @@ jobs:
         with:
           cmake-version: '3.28.x'
 
-      - name: Cache Emscripten
-        uses: actions/cache@v4
-        with:
-          path: emsdk-cache
-          key: emsdk-3.1.65-v1
-          restore-keys: emsdk-
-
-      - name: Cache Build Artifacts (WASM)
-        uses: actions/cache@v4
-        with:
-          path: build-wasm
-          key: wasm-build-${{ hashFiles('src/**', 'CMakeLists.txt') }}-v2
-          restore-keys: wasm-build-
-
       - name: Configure CMake (WASM)
         run: |
           export EM_CONFIG="$EMSDK/.emscripten"
@@ -337,7 +288,7 @@ jobs:
         shell: bash
 
       - name: Build WASM
-        run: cmake --build build-wasm --config Release -j$(nproc) --verbose
+        run: cmake --build build-wasm --config Release -j$(nproc)
         shell: bash
 
       - name: Prepare Artifact
@@ -348,7 +299,7 @@ jobs:
           cd wasm-staging && zip -r ../artifacts/zith-wasm.zip . && cd ..
         shell: bash
 
-      - name: Upload WASM
+      - name: Upload Release Asset
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ needs.create-release.outputs.tag }}
