@@ -135,30 +135,33 @@ if(DEFINED CLANG_PLUGIN_PATH AND EXISTS "${CLANG_PLUGIN_PATH}")
 endif()
 
 # =============================================================================
-# LLVM Configuration
+# LLVM Configuration (Optional)
 # =============================================================================
 set(LLVM_DIR "" CACHE PATH "Path to LLVMConfig.cmake (optional)")
 if(LLVM_DIR)
     find_package(LLVM REQUIRED CONFIG PATHS "${LLVM_DIR}" NO_DEFAULT_PATH)
 else()
-    find_package(LLVM REQUIRED CONFIG)
+    find_package(LLVM)
 endif()
-message(STATUS "✓ Found LLVM ${LLVM_PACKAGE_VERSION} at ${LLVM_DIR}")
+if(LLVM_FOUND)
+    message(STATUS "✓ Found LLVM ${LLVM_PACKAGE_VERSION} at ${LLVM_DIR}")
 
-add_definitions(-DLLVM_VERSION_MAJOR=${LLVM_VERSION_MAJOR})
-include_directories(SYSTEM ${LLVM_INCLUDE_DIRS})
+    add_definitions(-DLLVM_VERSION_MAJOR=${LLVM_VERSION_MAJOR})
+    include_directories(SYSTEM ${LLVM_INCLUDE_DIRS})
 
-llvm_map_components_to_libnames(LLVM_LIBRARIES
-    analysis
-    core
-    instcombine
-    scalaropts
-    vectorize
-    ipo
-    irreader
-    support
-    target
-)
+    llvm_map_components_to_libnames(LLVM_LIBRARIES
+        analysis
+        core
+        instcombine
+        scalaropts
+        vectorize
+        ipo
+        irreader
+        support
+        target
+    )
+
+endif() # LLVM_FOUND
 
 # =============================================================================
 # Sources
