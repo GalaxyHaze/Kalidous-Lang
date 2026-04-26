@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.20)
 project(zith LANGUAGES C CXX)
 
+include(GNUInstallDirs)
+
 # =============================================================================
 # Standards & Policies
 # =============================================================================
@@ -59,10 +61,14 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(tomlplusplus)
 
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(FFI REQUIRED libffi)
-
-set(LLVM_LIB_DIR "/usr/lib/llvm/21/lib")
+set(ZITH_HAS_FFI ON)
+if(WIN32 OR EMSCRIPTEN)
+    set(ZITH_HAS_FFI OFF)
+    message(STATUS "ℹ Skipping libffi discovery on this platform.")
+else()
+    find_package(PkgConfig REQUIRED)
+    pkg_check_modules(FFI REQUIRED libffi)
+endif()
 
 # =============================================================================
 # Compiler Flags
@@ -105,9 +111,11 @@ else ()
                 set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -fuse-ld=${LLD_NAME}")
                 message(STATUS "✓ Using LLD linker: ${LLD_EXE} (flag: -fuse-ld=${LLD_NAME})")
             endif()
-        else()
+        elseif(UNIX AND NOT APPLE)
             # Se não encontrar, NÃO força a flag para evitar o erro "invalid linker name"
             message(WARNING "⚠ LLD linker not found in PATH. Build will proceed with default linker.")
+        else()
+            message(STATUS "ℹ LLD linker not found in PATH on this platform. Using default linker.")
         endif()
     endif ()
 endif ()
@@ -129,28 +137,28 @@ endif()
 # =============================================================================
 # LLVM Configuration
 # =============================================================================
-set(LLVM_DIR "/usr/lib/llvm/21/lib/cmake/llvm")
-find_package(LLVM CONFIG PATHS "${LLVM_DIR}" NO_DEFAULT_PATH)
+set(LLVM_DIR "" CACHE PATH "Path to LLVMConfig.cmake (optional)")
+if(LLVM_DIR)
+    find_package(LLVM REQUIRED CONFIG PATHS "${LLVM_DIR}" NO_DEFAULT_PATH)
+else()
+    find_package(LLVM REQUIRED CONFIG)
+endif()
 message(STATUS "✓ Found LLVM ${LLVM_PACKAGE_VERSION} at ${LLVM_DIR}")
 
 add_definitions(-DLLVM_VERSION_MAJOR=${LLVM_VERSION_MAJOR})
+include_directories(SYSTEM ${LLVM_INCLUDE_DIRS})
 
-set(LLVM_LIBRARIES
-    LLVMAnalysis.a
-    LLVMCodeGen.a
-    LLVMCodeGenTypes.a
-    LLVMCore.a
-    LLVMInstCombine.a
-    LLVMScalarOpts.a
-    LLVMVectorize.a
-    LLVMipo.a
-    LLVMIRReader.a
-    LLVMIRPrinter.a
-    LLVMTarget.a
+llvm_map_components_to_libnames(LLVM_LIBRARIES
+    analysis
+    core
+    instcombine
+    scalaropts
+    vectorize
+    ipo
+    irreader
+    support
+    target
 )
-
-set(LLVM_INCLUDE_DIRS "/usr/lib/llvm/21/include")
-set(LLVM_LIB_DIR "/usr/lib/llvm/21/lib")
 
 # =============================================================================
 # Sources
@@ -185,7 +193,7 @@ target_include_directories(ZithCore
 )
 target_link_libraries(ZithCore PUBLIC 
     tomlplusplus::tomlplusplus
-    "${LLVM_LIB_DIR}/libLLVM-21.so"
+    ${LLVM_LIBRARIES}
 )
 
 # ────────
@@ -211,14 +219,17 @@ set_target_properties(ZithParse PROPERTIES
 # ────────
 add_executable(zith impl/main.cpp ${CLI_SOURCES})
 
-target_include_directories(zith PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include ${FFI_INCLUDE_DIRS})
+target_include_directories(zith PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 target_link_libraries(zith
     PRIVATE
         ZithParse
         CLI11::CLI11
-        ${FFI_LIBRARIES}
 )
+if(ZITH_HAS_FFI)
+    target_include_directories(zith PRIVATE ${FFI_INCLUDE_DIRS})
+    target_link_libraries(zith PRIVATE ${FFI_LIBRARIES})
+endif()
 target_compile_definitions(zith PRIVATE ZITH_VERSION="${ZITH_VERSION}" ZITH_EXECUTABLE)
 
 # ───────────────────────────────────────────────
