@@ -511,14 +511,7 @@ static ZithNode *parse_import_decl(Parser *p) {
         }
         
         if (allowed && !rel_path.empty()) {
-            std::string base_dir;
-            if (p->filename) {
-                std::string fn(p->filename);
-                size_t ls = fn.rfind('/');
-                if (ls != std::string::npos) base_dir = fn.substr(0, ls + 1);
-            }
-            
-            std::string file_path = base_dir + root + "/" + rel_path + ".zith";
+            std::string file_path = root + "/" + rel_path + ".zith";
             size_t file_size = 0;
             char *source = zith_load_file_to_arena(p->arena, file_path.c_str(), &file_size);
             
@@ -661,15 +654,8 @@ parser_expect(p, ZITH_TOKEN_SEMICOLON, "expected ';'");
         }
         
         if (allowed && !rel_path.empty()) {
-            // Build file path and load
-            std::string base_dir;
-            if (p->filename) {
-                std::string fn(p->filename);
-                size_t ls = fn.rfind('/');
-                if (ls != std::string::npos) base_dir = fn.substr(0, ls + 1);
-            }
-            
-            std::string file_path = base_dir + root + "/" + rel_path + ".zith";
+            // Build file path - resolve relative to current working directory (project root)
+            std::string file_path = root + "/" + rel_path + ".zith";
             size_t file_size = 0;
             char *source = zith_load_file_to_arena(p->arena, file_path.c_str(), &file_size);
             

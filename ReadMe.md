@@ -13,7 +13,7 @@ The parser and core tools are functional but incomplete. The spec (`Zith-spec.md
 - Lexer & tokenizer
 - Basic parser (`fn`, `struct`, `let`/`var`/`const`, `if`/`for`/`return`)
 - Ownership keywords parsing (`unique`, `share`, `view`, `lend`)
-- Import/export system
+- Import/export system with file loading
 - AST generation (ArenaList-backed)
 - Diagnostics & error reporting
 - LLVM 21 integration ready
@@ -610,6 +610,54 @@ zith execute bin/app.zbc
 # Build and run in one command
 zith run
 ```
+
+---
+
+## Import System
+
+Zith supports importing modules from directories. The import path uses:
+- `/` to separate directories (e.g., `std/io/console`)
+- `.` to access items within a file (e.g., `std/io/console.log`)
+
+### Default Import Roots
+
+By default, imports can only come from three directories at the project root:
+- `std/` - standard library
+- `utils/` - utility modules
+- `c/` - C interop
+
+### Examples
+
+```zith
+// Import all from a module file
+import std/io/console;
+
+// Import specific function
+import std/io/console.log;
+
+// Import with alias
+import std/io/console as io;
+```
+
+### Custom Import Directories
+
+Use the `-I` flag to add additional import directories:
+
+```bash
+# Add a custom library directory
+zith -I mylibs check main.zith
+
+# Multiple directories
+zith -I mylibs -I external check main.zith
+```
+
+This allows imports like `import mylibs/io/utils` where `mylibs/io/utils.zith` exists.
+
+### File Resolution
+
+Import paths resolve from the project root (current working directory):
+- `import std/io/console` → looks for `std/io/console.zith`
+- The `-I` flag adds roots to the allowed list
 
 ---
 

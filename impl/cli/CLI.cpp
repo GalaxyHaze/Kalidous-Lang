@@ -66,6 +66,24 @@ struct ZithProject {
     std::string test_dir = "examples";
     std::string cache_dir = ".zith_cache";
 
+    // Helper to build import roots: default roots + user include dirs
+static void build_import_roots(const std::vector<std::string> &extra_dirs,
+                                std::vector<const char *> &roots_out, size_t &count_out) {
+    static const char *default_roots[] = {"std", "utils", "c"};
+    constexpr size_t default_count = 3;
+    
+    size_t total = default_count + extra_dirs.size();
+    roots_out.resize(total);
+    
+    for (size_t i = 0; i < default_count; ++i) {
+        roots_out[i] = default_roots[i];
+    }
+    for (size_t i = 0; i < extra_dirs.size(); ++i) {
+        roots_out[default_count + i] = extra_dirs[i].c_str();
+    }
+    count_out = total;
+}
+
     // -- Includes & Links --
     std::vector<std::string> include_dirs;
     std::vector<std::string> lib_paths;
@@ -349,7 +367,8 @@ static int run_interpreted_ast(ZithNode *ast) {
 
 // check — parse + semântica, só reporta erros, não produz artefacto
 static int cmd_check(const std::string &input_file,
-                     const std::string &mode_str, bool verbose) {
+                     const std::string &mode_str, bool verbose,
+                     const std::vector<std::string> &include_dirs) {
     std::string src = input_file;
 
     if (src.empty()) {
@@ -371,13 +390,14 @@ static int cmd_check(const std::string &input_file,
 
     zith_debug_tokens(stream.data, stream.len);
 
-    static const char *default_import_roots[] = {"std", "utils", "c"};
-    constexpr size_t default_root_count = 3;
+    std::vector<const char *> import_roots;
+    size_t import_root_count;
+    ZithProject::build_import_roots(include_dirs, import_roots, import_root_count);
 
     ZithNode *ast = zith_parse_with_source(arena,
                                                    source, src_size,
                                                    src.c_str(), stream,
-                                                   default_import_roots, default_root_count);
+                                                   import_roots.data(), import_root_count);
 
     // Debug: AST dump
     if (verbose){
@@ -422,11 +442,12 @@ static int cmd_compile(const std::string &input_file,
     ZithArena *arena = tokenize_file(input_file, stream, &source, &src_size, verbose);
     if (!arena) return 1;
 
-    static const char *default_import_roots[] = {"std", "utils", "c"};
-    constexpr size_t default_root_count = 3;
+    std::vector<const char *> import_roots;
+    size_t import_root_count;
+    ZithProject::build_import_roots(include_dirs, import_roots, import_root_count);
 
     ZithNode *ast = zith_parse_with_source(arena, source, src_size, input_file.c_str(), stream,
-                                           default_import_roots, default_root_count);
+                                           import_roots.data(), import_root_count);
     if (!ast) {
         zith_arena_destroy(arena);
         return 1;
@@ -517,7 +538,8 @@ static int cmd_build(const std::string &input_file,
 }
 
 // execute — executa um binário ou bytecode já existente
-static int cmd_execute(const std::string &target, bool interpreted, bool verbose) {
+static int cmd_execute(const std::string &target, bool interpreted, bool verbose,
+                       const std::vector<std::string> &include_dirs) {
     std::string bin = target;
 
     if (bin.empty()) {
@@ -557,11 +579,12 @@ static int cmd_execute(const std::string &target, bool interpreted, bool verbose
             zith_arena_destroy(arena);
             return 1;
         }
-        static const char *default_import_roots[] = {"std", "utils", "c"};
-        constexpr size_t default_root_count = 3;
+        std::vector<const char *> import_roots;
+        size_t import_root_count;
+        ZithProject::build_import_roots(include_dirs, import_roots, import_root_count);
 
         ZithNode *ast = zith_parse_with_source(arena, source.c_str(), source.size(), bin.c_str(), stream,
-                                               default_import_roots, default_root_count);
+                                               import_roots.data(), import_root_count);
         if (!ast) {
             zith_arena_destroy(arena);
             return 1;
@@ -586,7 +609,7 @@ static int cmd_run(const std::string &input_file,
         if (const int rc = cmd_compile(input_file, bc, mode_str,
                                        /*interpreted=*/true, verbose, include_dirs); rc != 0)
             return rc;
-        return cmd_execute(bc, /*interpreted=*/true, verbose);
+        return cmd_execute(bc, /*interpreted=*/true, verbose, include_dirs);
     }
 
     if (const int rc = cmd_build(input_file, output_file, mode_str,
@@ -594,7 +617,7 @@ static int cmd_run(const std::string &input_file,
         return rc;
 
     const std::string binary = output_file.empty() ? "a.out" : output_file;
-    return cmd_execute(binary, /*interpreted=*/false, verbose);
+    return cmd_execute(binary, /*interpreted=*/false, verbose, include_dirs);
 }
 
 static int cmd_test(const std::string & /*input_file*/, bool /*verbose*/) {
@@ -817,14 +840,14 @@ extern "C" int zith_run(int argc, const char *const argv[]) {
     if (*docs_cmd) return cmd_docs(input_file, docs_output, verbose);
     if (*fmt_cmd) return cmd_fmt(input_file, fmt_check, verbose);
     if (*test_cmd) return cmd_test(input_file, verbose);
-    if (*check_cmd) return cmd_check(input_file, mode_str, verbose);
+    if (*check_cmd) return cmd_check(input_file, mode_str, verbose, include_dirs);
     if (*compile_cmd)
         return cmd_compile(input_file, output_file, mode_str,
                            interpreted, verbose, include_dirs);
     if (*build_cmd)
         return cmd_build(input_file, output_file, mode_str,
                          verbose, include_dirs);
-    if (*execute_cmd) return cmd_execute(input_file, interpreted, verbose);
+    if (*execute_cmd) return cmd_execute(input_file, interpreted, verbose, include_dirs);
     if (*run_cmd)
         return cmd_run(input_file, output_file, mode_str,
                        interpreted, verbose, include_dirs);

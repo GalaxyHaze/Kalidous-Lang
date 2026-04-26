@@ -1,3 +1,5 @@
+import std/io/console;
+import examples/dev/prototype;
 
 struct Point{
     var x,
@@ -7,4 +9,6 @@ struct Point{
 
 fn main(){
     let x;
+    log("Hallo");
+    add();
 }
