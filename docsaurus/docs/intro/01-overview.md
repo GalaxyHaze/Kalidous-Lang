@@ -1,6 +1,6 @@
 ---
 title: What is Zith?
-sidebar_label: Overview
+sidebar_label: Getting Started
 description: Introduction to the Zith programming language - a modern systems language with clarity and safety.
 ---
 
@@ -12,7 +12,7 @@ New to Zith? Start here:
 
 1. **[Why Zith?](./why-zith.md)** - Learn why Zith is great for systems programming
 2. **[Installation](./installation.md)** - Set up Zith on your machine
-3. **[Quick Start](./quickstart.md)** - Write your first program
+3. **[Quick Start](../quickstart/01-hello-world.md)** - Write your first program
 
 :::
 
@@ -108,9 +108,9 @@ scene PauseMenu { /* isolated resources */ }
 | Understand why Zith matters | [Why Zith?](./why-zith.md) |
 | Install Zith | [Installation](./installation.md) |
 | Write my first program | [Quick Start](./quickstart.md) |
-| See CLI commands | [CLI Reference](../technical/cli/01-overview.md) |
+| See CLI commands | [CLI Reference](../cli/01-overview.md) |
 
-| Learn the language | [Language Guide](../technical/language/01-overview.md) |
+| Learn the language | [Language Guide](../language/01-overview.md) |
 ---
 
 Ready to dive in? Let's explore **[Why Zith?](./why-zith.md)** →

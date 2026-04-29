@@ -2,9 +2,11 @@ import std/io/console;
 import examples/dev/prototype;
 
 struct Point{
-    var x,
-    y,
-    z
+    var (x, y, z): unique i32; 
+}
+
+fn prot(){
+
 }
 
 fn main(){

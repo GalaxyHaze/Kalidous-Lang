@@ -202,11 +202,11 @@ system movement_system(entities: [Entity with Position, Velocity]) {
 Ready to try Zith? Here's your path:
 
 1. **[Installation](./installation.md)** - Set up Zith in minutes
-2. **[Quick Start](./quickstart.md)** - Write your first program
-3. **[CLI Reference](../technical/cli/01-overview.md)** - Learn the tools
+2. **[Quick Start](../quickstart/01-hello-world.md)** - Write your first program
+3. **[CLI Reference](../cli/01-overview.md)** - Learn the tools
 
-4. **[Language Guide](../technical/language/01-overview.md)** - Deep dive
-5. **[Spec Core Topics](../technical/language/spec-core-topics.md)** - Spec topic map
+4. **[Language Guide](../language/01-overview.md)** - Deep dive
+5. **[Spec Core Topics](../language/spec-core-topics.md)** - Spec topic map
 ---
 
 **Zith proves you don't have to choose between safety and simplicity.** 

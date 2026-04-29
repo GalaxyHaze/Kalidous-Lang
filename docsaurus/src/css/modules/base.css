@@ -49,13 +49,14 @@ html {
   scroll-behavior: smooth;
 }
 
-/* Body */
+/* Body - Gradient from black to dark blue */
 body {
   font-family: var(--font-sans);
-  background: radial-gradient(circle at 20% 0%, #111c32 0%, var(--bg) 35%, #05060b 100%);
+  background: linear-gradient(165deg, #05060b 0%, #0a0f1a 25%, #0d1525 50%, #0f1a30 75%, #07090f 100%);
+  background-attachment: fixed;
   color: var(--text);
   line-height: 1.8;
-  font-size: 17px; /* Larger font for comfortable reading */
+  font-size: 17px;
   min-height: 100vh;
 }
 

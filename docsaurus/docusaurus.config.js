@@ -63,6 +63,26 @@ const config = {
             label: 'Documentation',
           },
           {
+            type: 'dropdown',
+            position: 'left',
+            label: 'Ecosystem',
+            items: [
+              {
+                label: 'Zith Core',
+                to: '/docs/intro/overview',
+              },
+              {
+                label: 'Zith LSP',
+                to: '#',
+                disabled: true,
+              },
+              {
+                label: 'Add Your Project',
+                href: 'https://github.com/galaxyhaze/Zith/discussions',
+              },
+            ],
+          },
+          {
             href: 'https://github.com/galaxyhaze/Zith',
             label: 'GitHub',
             position: 'right',
@@ -81,11 +101,33 @@ const config = {
               },
               {
                 label: 'Language Guide',
-                to: '/docs/technical/language/overview',
+                to: '/docs/language/overview',
               },
               {
                 label: 'CLI Reference',
-                to: '/docs/technical/cli/overview',
+                to: '/docs/cli/overview',
+              },
+              {
+                label: 'Advanced Topics',
+                to: '/docs/advanced/overview',
+              },
+            ],
+          },
+          {
+            title: 'Ecosystem',
+            items: [
+              {
+                label: 'Zith Core',
+                href: 'https://github.com/galaxyhaze/Zith',
+              },
+              {
+                label: 'Zith LSP',
+                to: '#',
+                disabled: true,
+              },
+              {
+                label: 'Add Your Project',
+                href: 'https://github.com/galaxyhaze/Zith/discussions',
               },
             ],
           },
@@ -95,6 +137,10 @@ const config = {
               {
                 label: 'GitHub Discussions',
                 href: 'https://github.com/galaxyhaze/Zith/discussions',
+              },
+              {
+                label: 'Report a Bug',
+                href: 'https://github.com/galaxyhaze/Zith/issues',
               },
             ],
           },

@@ -103,11 +103,11 @@ zith completion fish > ~/.config/fish/completions/zith.fish
 
 Now that Zith is installed:
 
-1. **[Quick Start](./quickstart.md)** - Write your first Zith program
-2. **[CLI Reference](../technical/cli/01-overview.md)** - Learn available commands
+1. **[Quick Start](../quickstart/01-hello-world.md)** - Write your first Zith program
+2. **[CLI Reference](../cli/01-overview.md)** - Learn available commands
 
-3. **[Language Guide](../technical/language/01-overview.md)** - Dive into syntax
+3. **[Language Guide](../language/01-overview.md)** - Dive into syntax
 
 ---
 
-**Having trouble?** Check our [FAQ](../technical/faq/01-overview.md) or open an issue on [GitHub](https://github.com/galaxyhaze/Zith/issues).
+**Having trouble?** Check our [FAQ](../faq/01-overview.md) or open an issue on [GitHub](https://github.com/galaxyhaze/Zith/issues).
