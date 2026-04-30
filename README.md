@@ -4,7 +4,7 @@
 
 ## Current Implementation State
 
-> **Last Updated:** April 2025
+> **Last Updated:** April 30, 2026
 
 The parser and core tools are functional but incomplete. The spec (`Zith-spec.md`) defines the target design, while `impl/` contains what's currently implemented.
 
@@ -126,6 +126,43 @@ Zith Source Code (.zith)
 *   Package Manager.
 
 ---
+
+
+
+## Formatação de Código
+
+O repositório inclui configuração de **clang-format** (`.clang-format`) e alvo de formatação no CMake.
+
+```bash
+# Formatar automaticamente
+cmake --build build --target fmt
+
+# Validar sem modificar arquivos
+cmake --build build --target fmt-check
+```
+
+## Dependências para Compilação
+
+Para compilar o projeto localmente, instale:
+
+- **CMake 3.20+**
+- **Compilador C/C++ com suporte a C11/C++23** (GCC, Clang ou MSVC)
+- **Git** (usado pelo `FetchContent` do CMake)
+- **pkg-config** e **libffi-dev** (Linux/macOS, para FFI)
+- **LLVM (opcional, recomendado)** para funcionalidades de backend
+
+Dependências de código buscadas automaticamente pelo CMake:
+
+- `CLI11` (v2.4.1)
+- `unordered_dense` (v4.0.0)
+- `tomlplusplus` (v3.4.0)
+
+### Build rápido
+
+```bash
+cmake -S . -B build
+cmake --build build -j
+```
 
 ## Quick Start
 
