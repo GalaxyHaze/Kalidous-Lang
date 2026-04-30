@@ -244,6 +244,33 @@ install(TARGETS zith ZithParse ZithCore
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
 
+
+# =============================================================================
+# Code Formatting
+# =============================================================================
+find_program(CLANG_FORMAT_EXE NAMES clang-format clang-format-18 clang-format-17 clang-format-16)
+file(GLOB_RECURSE ZITH_FORMAT_SOURCES
+    "impl/*.cpp" "impl/*.hpp" "impl/*.h" "impl/*.c"
+    "include/*.hpp" "include/*.h"
+    "tests/*.cpp"
+)
+
+if(CLANG_FORMAT_EXE)
+    add_custom_target(fmt
+        COMMAND ${CLANG_FORMAT_EXE} -i ${ZITH_FORMAT_SOURCES}
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+        COMMENT "Formatting source files with clang-format"
+    )
+
+    add_custom_target(fmt-check
+        COMMAND ${CLANG_FORMAT_EXE} --dry-run --Werror ${ZITH_FORMAT_SOURCES}
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+        COMMENT "Checking formatting with clang-format"
+    )
+else()
+    message(STATUS "ℹ clang-format not found; 'fmt' and 'fmt-check' targets are unavailable.")
+endif()
+
 # =============================================================================
 # Tests
 # =============================================================================
