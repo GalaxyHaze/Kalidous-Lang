@@ -41,9 +41,9 @@ export default function Home() {
               <span className={styles.codeFileName}>hello.zith</span>
             </div>
             <pre className={styles.codeContent}>
-              <code>{`fn main() {
-    let message = "Hello, Zith!";
-    println(message);
+              <code>{`from std/io/console;
+    fn main() {
+    println("Hello, Zith");
 }`}</code>
             </pre>
           </div>

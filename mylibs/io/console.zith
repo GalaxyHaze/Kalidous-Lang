@@ -1,1 +1,0 @@
-fn hi() { println("hi from mylibs"); }
